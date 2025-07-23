@@ -1,0 +1,42 @@
+# Ignore build output
+bin/
+obj/
+
+# Ignore Rider/JetBrains project files
+.idea/
+
+# Ignore Visual Studio project files
+.vs/
+*.user
+*.suo
+
+# Ignore build artifacts
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+
+# Ignore NuGet packages
+*.nupkg
+packages/
+*.snupkg
+
+# Ignore user-specific files
+*.userosscache
+*.userprefs
+
+# Ignore dotnet publish and temp folders
+publish/
+out/
+
+# Ignore coverage and test results
+TestResults/
+coverage/
+
+# Ignore secrets
+secrets.json
+
+# Ignore Rider generated folders
+.idea/
+*.iml
