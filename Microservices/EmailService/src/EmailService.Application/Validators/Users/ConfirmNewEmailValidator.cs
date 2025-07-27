@@ -1,6 +1,7 @@
+using EmailService.Application.DTOs.Users;
 using FluentValidation;
 
-namespace EmailService.Application.DTOs.Users;
+namespace EmailService.Application.Validators.Users;
 
 public class ConfirmNewEmailValidator : AbstractValidator<ConfirmNewEmail>
 {
@@ -16,7 +17,8 @@ public class ConfirmNewEmailValidator : AbstractValidator<ConfirmNewEmail>
             .MaximumLength(255).WithMessage("Username must not exceed 255 characters.");
 ;
 
-        RuleFor(x => x.ConfirmationLink)
-            .NotEmpty().WithMessage("Confirm token is required.");
+        RuleFor(x => x.ConfirmationCode)
+            .NotEmpty().WithMessage("Verification Code is required.")
+            .MaximumLength(6).WithMessage("Confirm token is required.");
     }
 } 

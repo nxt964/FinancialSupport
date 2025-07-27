@@ -2,18 +2,21 @@
 using EmailService.Application.Common.Email;
 using EmailService.Application.Interfaces;
 using EmailService.Application.Services;
+using EmailService.Application.Validators.Users;
 using Microsoft.Extensions.Configuration;
 using FluentValidation;
+using FluentValidation.AspNetCore;
+
 namespace EmailService.Application;
 
 public static class ApplicationModule
 {
 
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddServices();
-
-        // services.RegisterAutoMapper();
+        services.AddEmailConfiguration(configuration);
+        services.AddFluentValidation();
 
         return services;
     }
@@ -22,17 +25,16 @@ public static class ApplicationModule
     {
         services.AddScoped<IEmailSenderService, EmailSenderService>();
         services.AddScoped<ITemplateService, TemplateService>();
-        services.AddScoped<FluentValidation.IValidator<DTOs.Users.ConfirmNewEmail>, DTOs.Users.ConfirmNewEmailValidator>();
     }
-    
-    // private static void RegisterAutoMapper(this IServiceCollection services)
-    // {
-    //     services.AddAutoMapper(typeof(IMappingProfilesMarker));
-    // }
 
-    public static void AddEmailConfiguration(this IServiceCollection services, IConfiguration configuration)
+    private static void AddEmailConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton(configuration.GetSection("EmailSettings").Get<SmtpSettings>());
     }
 
+    private static void AddFluentValidation(this IServiceCollection services)
+    {
+        services.AddFluentValidationAutoValidation();
+        services.AddValidatorsFromAssemblyContaining<ConfirmNewEmailValidator>(); 
+    }
 }

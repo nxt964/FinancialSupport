@@ -1,3 +1,4 @@
+using EmailService.Api.Middlewares;
 using EmailService.Application;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,16 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 
-// builder.Services.AddInfrastructure(builder.Configuration,  builder.Environment);
-builder.Services.AddApplication();
-builder.Services.AddEmailConfiguration(builder.Configuration);
+builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -26,8 +25,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-// app.UseAuthentication();
-// app.UseAuthorization();
+app.UseMiddleware<ApiKeyMiddleware>();
 app.MapControllers();
 
 app.UseHttpsRedirection();

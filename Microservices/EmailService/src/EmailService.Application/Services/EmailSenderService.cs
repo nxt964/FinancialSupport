@@ -6,12 +6,14 @@ using EmailService.Application.Exceptions;
 using EmailService.Application.Templates;
 using MimeKit;
 using MailKit.Security;
+using Microsoft.Extensions.Logging;
 
 namespace EmailService.Application.Services;
 
 public class EmailSenderService (
     SmtpSettings smtpSettings,
-    ITemplateService templateService
+    ITemplateService templateService,
+    ILogger<EmailSenderService> logger
 ) : IEmailSenderService
 {
     private readonly SmtpSettings _smtpSettings = smtpSettings;
@@ -19,15 +21,31 @@ public class EmailSenderService (
     
     public async Task ConfirmNewEmailAsync(ConfirmNewEmail request)
     {
+        logger.LogInformation($"Confirming new email {request.Email}");
         var emailTemplate = await _templateService.GetTemplateAsync(TemplateConstants.ConfirmationEmail);
         var emailBody = _templateService.ReplaceInTemplate(emailTemplate,
             new Dictionary<string, string>
             {
                 { "{username}", request.Username },
-                { "{verificationLink}", request.ConfirmationLink },
+                { "{verificationCode}", request.ConfirmationCode },
             });
         await SendEmailAsync(request.Email, "Confirm your new email", emailBody);
     }
+
+    public async Task ResetPasswordAsync(ResetPassword request)
+    {
+        logger.LogInformation($"Reset your account password{request.Email}");
+        var emailTemplate = await _templateService.GetTemplateAsync(TemplateConstants.ResetPassword);
+        var emailBody = _templateService.ReplaceInTemplate(emailTemplate,
+            new Dictionary<string, string>
+            {
+                {"{email}", request.Email },
+                { "{resetCode}", request.Code },
+            });
+        await SendEmailAsync(request.Email, "Reset your account password", emailBody);
+    }
+    
+    
     
     
     //______________________________________IMPLEMENT SEND EMAIL___________________________________________________________________
