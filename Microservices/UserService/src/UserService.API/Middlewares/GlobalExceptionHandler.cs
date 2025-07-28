@@ -37,12 +37,12 @@ public class GlobalExceptionHandler(
                 break;
 
             case UnauthorizedException:
+            
+            case UnauthorizedAccessException:
                 statusCode = HttpStatusCode.Unauthorized;
                 break;
 
             case ValidationException:
-                statusCode = HttpStatusCode.BadRequest;
-                break;
 
             case BadRequestException:
                 statusCode = HttpStatusCode.BadRequest;

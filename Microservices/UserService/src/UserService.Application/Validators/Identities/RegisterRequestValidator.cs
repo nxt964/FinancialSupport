@@ -11,7 +11,8 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
         RuleFor(x => x.Username)
             .NotEmpty().WithMessage("Username is required.")
             .MaximumLength(UserConst.UsernameMaxLength).WithMessage("Username must not exceed 50 characters.")
-            .MinimumLength(3).WithMessage("Username must be at least 3 characters.");
+            .MinimumLength(3).WithMessage("Username must be at least 3 characters.")
+            .Matches(@"^[a-zA-Z0-9._]+$").WithMessage("Username can only contain letters, numbers, dots, and underscores.");
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email is required.")
             .MaximumLength(UserConst.EmailMaxLength).WithMessage("Email must not exceed 128 characters.")

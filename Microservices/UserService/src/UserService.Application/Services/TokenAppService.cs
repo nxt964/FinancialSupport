@@ -20,8 +20,6 @@ public class TokenAppService(
 
     public async Task<(string AccessToken, string RefreshToken)> GenerateTokenAsync(Guid userId, string email)
     {
-        
-
         var accessToken = CreateJwtToken(userId, email, _jwtSettings.AccessTokenLifespanMinutes);
 
         var refreshToken = CreateJwtToken(userId, email, _jwtSettings.RefreshTokenLifespanMinutes);
@@ -51,9 +49,11 @@ public class TokenAppService(
         return tokenHandler.WriteToken(token);
     }
 
-    public Task<bool> ValidateTokenAsync(string token)
+    public async Task<bool> IsTokenInBlackListAsync(string token)
     {
-        return Task.FromResult(ValidateJwt(token));
+        var key = $"black_list:{token}";
+        var value = await redisService.GetAsync<string>(key);
+        return !string.IsNullOrEmpty(value);
     }
 
     private bool ValidateJwt(string token)
@@ -116,8 +116,11 @@ public class TokenAppService(
         };
     }
 
-    public Task<bool> RevokeRefreshTokenAsync(Guid userId)
+    public Task<bool> RevokeTokenAsync(Guid userId, string accessToken)
     {
+        var redisKey = $"black_list:{accessToken}";
+        redisService.SetAsync(redisKey, accessToken, TimeSpan.FromMinutes(_jwtSettings.AccessTokenLifespanMinutes));
+        
         var refreshTokenKey = $"refresh_token:{userId}";
         return redisService.DeleteAsync(refreshTokenKey);
     }

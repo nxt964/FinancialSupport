@@ -24,9 +24,9 @@ public class UserAppService(
     {
         var user = await userDomainService.GetByIdAsync(request.Id);
         
-        if (request.NewUsername != null) user.Username = request.NewUsername;
-        if (request.NewEmail != null) user.Email = request.NewEmail;
-        if (request.NewProfileImage != null) user.ProfileImage = request.NewProfileImage;
+        if (!string.IsNullOrEmpty(request.NewUsername)) user.Username = request.NewUsername;
+        if (!string.IsNullOrEmpty(request.NewEmail)) user.Email = request.NewEmail;
+        if (!string.IsNullOrEmpty(request.NewProfileImage)) user.ProfileImage = request.NewProfileImage;
         
         await userDomainService.UpdateAsync(user);
         return new ChangeInformationReponse()

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.DTOs.Identities;
-using UserService.Application.DTOs.Users;
 using UserService.Application.Interfaces;
 
 namespace UserService.API.Controllers;
@@ -60,7 +59,7 @@ public class AuthController(IAuthAppService authAppService) : ControllerBase
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdFromToken == null)
         {
-            return Forbid();
+            throw new UnauthorizedAccessException();
         }
         request.Id = Guid.Parse(userIdFromToken);
         await authAppService.UpdatePasswordAsync(request);
@@ -81,8 +80,14 @@ public class AuthController(IAuthAppService authAppService) : ControllerBase
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdFromToken == null)
         {
-            return Forbid();
+            throw new UnauthorizedAccessException();
         }
+        var token = HttpContext.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last();
+        if (string.IsNullOrEmpty(token))
+        {
+            return BadRequest("Access token is missing.");
+        }
+        request.AccessToken = token;
         request.Id = Guid.Parse(userIdFromToken);
         var result = await authAppService.LogoutAsync(request);
         return Ok(result);

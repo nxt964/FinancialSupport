@@ -3,19 +3,22 @@
 namespace UserService.API.Middlewares;
 
 public class JwtMiddleware(
-    RequestDelegate next,
-    IConfiguration configuration,
-    ILogger<JwtMiddleware> logger)
+    RequestDelegate next
+    )
 {
     public async Task InvokeAsync(HttpContext context)
     {
-        string? token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
-        if (!string.IsNullOrEmpty(token))
+        var token = context.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last();
+        var tokenService = context.RequestServices.GetService<ITokenAppService>();
+        
+        if (!string.IsNullOrEmpty(token) && tokenService != null)
         {
-            var tokenService = context.RequestServices.GetService<ITokenAppService>();
-            var principle = tokenService?.GetPrincipalFromToken(token);
-            if (principle != null) context.User = principle;
+            var isBanned = await tokenService.IsTokenInBlackListAsync(token);
+            if (!isBanned)
+            {
+                var principle = tokenService.GetPrincipalFromToken(token);
+                if (principle != null) context.User = principle;
+            }
         }
 
         await next(context);

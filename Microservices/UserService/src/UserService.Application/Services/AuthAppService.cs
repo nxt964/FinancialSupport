@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using UserService.Application.DTOs.Identities;
 using UserService.Application.Exceptions;
 using UserService.Application.Interfaces;
@@ -42,12 +43,12 @@ public class AuthAppService(
         
         var confirmationCode = GenerateConfirmationCode();
 
-        var redisKey = $"register:{confirmationCode}";
+        var redisKey = $"register:{confirmationCode}_{request.Email}";
         await redisService.SetAsync(redisKey, request, TimeSpan.FromMinutes(10));
         
         emailServiceClient.SendConfirmEmailAsync(request.Email, request.Username, confirmationCode);
 
-        return new RegisterResponse()
+        return new RegisterResponse
         {
             Message = "Code send to your Email"
         };
@@ -76,7 +77,7 @@ public class AuthAppService(
     
     public async Task<ConfirmRegisterResponse> ConfirmRegisterAsync(ConfirmRegisterRequest request)
     {
-        var redisKey = $"register:{request.Code}";
+        var redisKey = $"register:{request.Code}_{request.Email}";
         var regInfo = await redisService.GetAsync<RegisterRequest>(redisKey);
         if (regInfo == null)
             throw new ValidationException("Registration info expired or not found");
@@ -104,7 +105,7 @@ public class AuthAppService(
     {
         var resetToken = await authDomainService.GenerateResetPasswordTokenAsync(request.Email);
         var resetCode = GenerateConfirmationCode();
-        var resetKey = $"reset_code:{resetCode}";
+        var resetKey = $"reset_code:{resetCode}_{request.Email}";
         await redisService.SetAsync(resetKey, resetToken, TimeSpan.FromMinutes(10));
         
         emailServiceClient.SendResetPasswordCodeAsync(request.Email, resetCode);
@@ -113,7 +114,7 @@ public class AuthAppService(
 
     public async Task<ConfirmResetPasswordTokenResponse> ValidateResetPasswordTokenAsync(ConfirmResetPasswordTokenRequest request)
     {
-        var redisKey = $"reset_code:{request.Code}";
+        var redisKey = $"reset_code:{request.Code}_{request.Email}";
         var resetToken = await redisService.GetAsync<string>(redisKey);
         if (string.IsNullOrEmpty(resetToken)) throw new ValidationException("Invalid or expired reset code.");
         await redisService.DeleteAsync(redisKey);
@@ -133,7 +134,8 @@ public class AuthAppService(
     public async Task<LogoutResponse> LogoutAsync(LogoutRequest request)
     {
         await authDomainService.LogoutAsync(request.Id);
-        await tokenAppService.RevokeRefreshTokenAsync(request.Id);
+        Debug.Assert(request.AccessToken != null);
+        await tokenAppService.RevokeTokenAsync(request.Id, request.AccessToken);
         return new LogoutResponse { Message = "Logout successful" };
     }
 }

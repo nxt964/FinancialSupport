@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.DTOs.Users;
 using UserService.Application.Interfaces;
-using UserService.Domain.Entities;
 
 namespace UserService.API.Controllers;
 
@@ -12,7 +11,7 @@ namespace UserService.API.Controllers;
 public class UserController(IUserAppService userAppService) : ApiController
 {
     [Authorize]
-    [HttpGet]
+    [HttpGet("all")]
     public async Task<IActionResult> GetAll()
     {
         var users = await userAppService.GetAllAsync();
@@ -26,7 +25,7 @@ public class UserController(IUserAppService userAppService) : ApiController
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdFromToken == null || userIdFromToken != id.ToString())
         {
-            return Forbid();
+            throw new UnauthorizedAccessException();
         }
         var user = await userAppService.GetByIdAsync(id);
         return Ok(user);
@@ -39,7 +38,7 @@ public class UserController(IUserAppService userAppService) : ApiController
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdFromToken == null || userIdFromToken != request.Id.ToString())
         {
-            return Forbid();
+            throw new UnauthorizedAccessException();
         }
         request.Id = Guid.Parse(userIdFromToken);
         var response = await userAppService.UpdateAsync(request);
@@ -53,7 +52,7 @@ public class UserController(IUserAppService userAppService) : ApiController
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdFromToken == null || userIdFromToken != id.ToString())
         {
-            return Forbid();
+            throw new UnauthorizedAccessException();
         }
         await userAppService.DeleteAsync(id);
         return Ok(new { Message = "User deleted successfully." });

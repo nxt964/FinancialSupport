@@ -41,9 +41,9 @@ public static class ApiModule
          {
              c.SwaggerDoc("v1", new OpenApiInfo
              {
-                 Title = "DevTools API",
+                 Title = "FinancialSupport API",
                  Version = "v1",
-                 Description = "API for DevTools platform"
+                 Description = "API for FinancialSupport platform"
              });
 
 
@@ -75,11 +75,4 @@ public static class ApiModule
              });
          });
      }
-
-     // public static IServiceCollection AddRedisConfiguration(this IServiceCollection services, IConfiguration configuration)
-     // {
-     //     services.AddSingleton<IConnectionMultiplexer>(sp =>
-     //         ConnectionMultiplexer.Connect(configuration["Redis:ConnectionString"] ?? "devtools-redis-1:6379"));
-     //     return services;
-     // }
 }
