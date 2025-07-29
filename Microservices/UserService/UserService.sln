@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A6AC7F86-ADF5-4CED-BA3B-ABAFFF9B68F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.API", "src\UserService.API\UserService.API.csproj", "{1EDBEDAF-2189-424C-ADE0-945F0C275D94}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Application", "src\UserService.Application\UserService.Application.csproj", "{EE8F712E-7E60-41CA-AC2B-6761F9ACC776}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Infrastructure", "src\UserService.Infrastructure\UserService.Infrastructure.csproj", "{E1221643-4D2D-4880-B456-FB797705658F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Domain", "src\UserService.Domain\UserService.Domain.csproj", "{8839544D-5714-42DA-B350-9D04AAED446C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisService", "..\Shared\RedisService\RedisService.csproj", "{B8C7F86A-ADF5-4CED-BA3B-ABAFFF9B68F7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1EDBEDAF-2189-424C-ADE0-945F0C275D94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EDBEDAF-2189-424C-ADE0-945F0C275D94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EDBEDAF-2189-424C-ADE0-945F0C275D94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EDBEDAF-2189-424C-ADE0-945F0C275D94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE8F712E-7E60-41CA-AC2B-6761F9ACC776}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE8F712E-7E60-41CA-AC2B-6761F9ACC776}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE8F712E-7E60-41CA-AC2B-6761F9ACC776}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE8F712E-7E60-41CA-AC2B-6761F9ACC776}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1221643-4D2D-4880-B456-FB797705658F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1221643-4D2D-4880-B456-FB797705658F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1221643-4D2D-4880-B456-FB797705658F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1221643-4D2D-4880-B456-FB797705658F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8839544D-5714-42DA-B350-9D04AAED446C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8839544D-5714-42DA-B350-9D04AAED446C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8839544D-5714-42DA-B350-9D04AAED446C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8839544D-5714-42DA-B350-9D04AAED446C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8C7F86A-ADF5-4CED-BA3B-ABAFFF9B68F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8C7F86A-ADF5-4CED-BA3B-ABAFFF9B68F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8C7F86A-ADF5-4CED-BA3B-ABAFFF9B68F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8C7F86A-ADF5-4CED-BA3B-ABAFFF9B68F7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1EDBEDAF-2189-424C-ADE0-945F0C275D94} = {A6AC7F86-ADF5-4CED-BA3B-ABAFFF9B68F6}
+		{EE8F712E-7E60-41CA-AC2B-6761F9ACC776} = {A6AC7F86-ADF5-4CED-BA3B-ABAFFF9B68F6}
+		{E1221643-4D2D-4880-B456-FB797705658F} = {A6AC7F86-ADF5-4CED-BA3B-ABAFFF9B68F6}
+		{8839544D-5714-42DA-B350-9D04AAED446C} = {A6AC7F86-ADF5-4CED-BA3B-ABAFFF9B68F6}
+	EndGlobalSection
+EndGlobal

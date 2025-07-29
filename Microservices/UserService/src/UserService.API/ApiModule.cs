@@ -1,0 +1,78 @@
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using UserService.Application.Exceptions;
+
+namespace UserService.API;
+
+public static class ApiModule
+{
+     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+     {
+         var jwtKey = configuration["Jwt:Key"];
+         if (string.IsNullOrEmpty(jwtKey))
+         {
+             throw new BadRequestException("JWT Key is not configured.");
+         }
+
+         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+             .AddJwtBearer(options =>
+             {
+                 options.TokenValidationParameters = new TokenValidationParameters
+                 {
+                     ValidateIssuer = true,
+                     ValidateAudience = true,
+                     ValidateLifetime = true,
+                     ValidateIssuerSigningKey = true,
+                     ValidIssuer = configuration["Jwt:Issuer"],
+                     ValidAudience = configuration["Jwt:Audience"],
+                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                 };
+             });
+
+         services.AddAuthorization();
+         return services;
+     }
+
+     public static void AddSwaggerServices(this IServiceCollection services)
+     {
+         services.AddSwaggerGen(c =>
+         {
+             c.SwaggerDoc("v1", new OpenApiInfo
+             {
+                 Title = "FinancialSupport API",
+                 Version = "v1",
+                 Description = "API for FinancialSupport platform"
+             });
+
+
+             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+             {
+                 Name = "Authorization",
+                 In = ParameterLocation.Header,
+                 Description = "Please enter your token with this format: ''Bearer YOUR_TOKEN''",
+                 Type = SecuritySchemeType.ApiKey,
+                 BearerFormat = "JWT",
+                 Scheme = "bearer"
+             });
+
+             c.AddSecurityRequirement(new OpenApiSecurityRequirement
+             {
+                 {
+                     new OpenApiSecurityScheme
+                     {
+                         Name = "Bearer",
+                         In = ParameterLocation.Header,
+                         Reference = new OpenApiReference
+                         {
+                             Id = "Bearer",
+                             Type = ReferenceType.SecurityScheme
+                         }
+                     },
+                     new List<string>()
+                 }
+             });
+         });
+     }
+}
