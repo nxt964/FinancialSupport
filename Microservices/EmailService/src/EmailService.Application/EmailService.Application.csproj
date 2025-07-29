@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="14.0.0" />
+        <PackageReference Include="FluentValidation" Version="12.0.0" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+        <PackageReference Include="MailKit" Version="4.11.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.7" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
+        <PackageReference Include="MimeKit" Version="4.11.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EmailService.Domain\EmailService.Domain.csproj" />
+    </ItemGroup>
+
+</Project>
