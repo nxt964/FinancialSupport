@@ -104,7 +104,7 @@ public class UserAppService(
                 UserId = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                Roles = new List<string> { userRole },
+                Role = userRole,
                 Message = "Token is valid"
             };
         }

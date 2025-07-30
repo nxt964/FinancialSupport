@@ -11,7 +11,7 @@ namespace UserService.Infrastructure.Data;
 
 public static class ApplicationModule
 {
-    public static IServiceCollection AddAppService(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IUserAppService, UserAppService>();
         services.AddScoped<IAuthAppService, AuthAppService>();

@@ -1,40 +1,10 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 using UserService.Application.Exceptions;
 
 namespace UserService.API;
 
 public static class ApiModule
 {
-     public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
-     {
-         var jwtKey = configuration["Jwt:Key"];
-         if (string.IsNullOrEmpty(jwtKey))
-         {
-             throw new BadRequestException("JWT Key is not configured.");
-         }
-
-         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-             .AddJwtBearer(options =>
-             {
-                 options.TokenValidationParameters = new TokenValidationParameters
-                 {
-                     ValidateIssuer = true,
-                     ValidateAudience = true,
-                     ValidateLifetime = true,
-                     ValidateIssuerSigningKey = true,
-                     ValidIssuer = configuration["Jwt:Issuer"],
-                     ValidAudience = configuration["Jwt:Audience"],
-                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-                 };
-             });
-
-         services.AddAuthorization();
-         return services;
-     }
-
      public static void AddSwaggerServices(this IServiceCollection services)
      {
          services.AddSwaggerGen(c =>

@@ -1,0 +1,57 @@
+@ApiGateway_HostAddress = https://localhost:5001
+
+### Register a new user (via API Gateway)
+POST {{ApiGateway_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test123!",
+  "confirmPassword": "Test123!",
+  "firstName": "Test",
+  "lastName": "User"
+}
+
+###
+
+### Login (via API Gateway)
+POST {{ApiGateway_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test123!"
+}
+
+###
+
+### Get user profile (via API Gateway) - Requires JWT token
+GET {{ApiGateway_HostAddress}}/api/users/profile
+Authorization: Bearer {{jwt_token}}
+
+###
+
+### Refresh token (via API Gateway)
+POST {{ApiGateway_HostAddress}}/api/token/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh_token}}"
+}
+
+###
+
+### Health check - API Gateway Health
+GET {{ApiGateway_HostAddress}}/health
+
+###
+
+### API Gateway Info
+GET {{ApiGateway_HostAddress}}/info
+
+###
+
+### API Gateway Swagger
+GET {{ApiGateway_HostAddress}}/swagger
+
+###

@@ -11,9 +11,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddAppService(builder.Configuration);
+builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddRedisService(builder.Configuration);
-builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
 builder.Services.AddSwaggerServices();
 
 var app = builder.Build();
@@ -24,13 +24,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "FinancialSupport API v1");
-        c.RoutePrefix = "swagger";
     });
 }
 
 app.UseHttpsRedirection();
-app.UseMiddleware<JwtMiddleware>();
-app.UseAuthentication();
+app.UseMiddleware<UserApiMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.UseMiddleware<GlobalExceptionHandler>();

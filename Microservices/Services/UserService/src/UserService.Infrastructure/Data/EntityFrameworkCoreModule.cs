@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,25 +12,22 @@ namespace UserService.Infrastructure.Data;
 
 public static class EntityFrameworkCoreModule
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDatabase(configuration);
         services.AddIdentityServices();
         services.AddService();
         // services.AddScoped<DatabaseInitializer>();
         // services.AddScoped<DatabaseContextSeed>();
-
-        return services;
     }
-    
-    public static IServiceCollection AddService(this IServiceCollection services)
+
+    private static void AddService(this IServiceCollection services)
     {
         services.AddScoped<IUserDomainService, UserDomainService>();
         services.AddScoped<IAuthDomainService, AuthDomainService>();
-        return services;
     }
     
-    private static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+    private static void AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ApplicationDbContext>(options =>
         {
@@ -40,11 +38,9 @@ public static class EntityFrameworkCoreModule
                 .EnableSensitiveDataLogging()
                 .EnableDetailedErrors();
         });
-
-        return services;
     }
     
-    private static IServiceCollection AddIdentityServices(this IServiceCollection services)
+    private static void AddIdentityServices(this IServiceCollection services)
     {
         services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
         {
@@ -67,7 +63,5 @@ public static class EntityFrameworkCoreModule
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
-
-        return services;
     }
 }
