@@ -6,25 +6,26 @@ using EmailService.Application.Validators.Users;
 using Microsoft.Extensions.Configuration;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using KafkaService;
 
 namespace EmailService.Application;
 
 public static class ApplicationModule
 {
 
-    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
+    public static void AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddKafkaService();
         services.AddServices();
         services.AddEmailConfiguration(configuration);
         services.AddFluentValidation();
-
-        return services;
     }
 
     private static void AddServices(this IServiceCollection services)
     {
         services.AddScoped<IEmailSenderService, EmailSenderService>();
         services.AddScoped<ITemplateService, TemplateService>();
+        services.AddHostedService<EmailEventConsumer>();
     }
 
     private static void AddEmailConfiguration(this IServiceCollection services, IConfiguration configuration)

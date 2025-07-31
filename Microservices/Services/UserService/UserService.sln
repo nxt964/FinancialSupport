@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService.Domain", "src\U
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisService", "..\..\Shared\RedisService\RedisService.csproj", "{B8C7F86A-ADF5-4CED-BA3B-ABAFFF9B68F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaService", "..\..\Shared\KafkaService\KafkaService.csproj", "{73CE0ECD-BE9D-4AF5-9E6A-F72DCFB7E04D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Events", "..\..\Shared\Events\Events.csproj", "{4954B2E4-2001-4F1D-89B4-32AC3CF99454}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +42,14 @@ Global
 		{B8C7F86A-ADF5-4CED-BA3B-ABAFFF9B68F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8C7F86A-ADF5-4CED-BA3B-ABAFFF9B68F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8C7F86A-ADF5-4CED-BA3B-ABAFFF9B68F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73CE0ECD-BE9D-4AF5-9E6A-F72DCFB7E04D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73CE0ECD-BE9D-4AF5-9E6A-F72DCFB7E04D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73CE0ECD-BE9D-4AF5-9E6A-F72DCFB7E04D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73CE0ECD-BE9D-4AF5-9E6A-F72DCFB7E04D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4954B2E4-2001-4F1D-89B4-32AC3CF99454}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4954B2E4-2001-4F1D-89B4-32AC3CF99454}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4954B2E4-2001-4F1D-89B4-32AC3CF99454}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4954B2E4-2001-4F1D-89B4-32AC3CF99454}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1EDBEDAF-2189-424C-ADE0-945F0C275D94} = {A6AC7F86-ADF5-4CED-BA3B-ABAFFF9B68F6}

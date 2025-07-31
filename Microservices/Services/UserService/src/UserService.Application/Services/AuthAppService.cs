@@ -6,6 +6,7 @@ using UserService.Domain.Interfaces;
 using UserService.Domain.Services;
 using Shared.RedisService;
 using UserService.Domain.Entities;
+using Shared.Events;
 
 namespace UserService.Application.Services;
 
@@ -13,7 +14,7 @@ public class AuthAppService(
     IAuthDomainService authDomainService,
     ITokenAppService tokenAppService,
     IUserDomainService userDomainService,
-    IEmailServiceClient emailServiceClient,
+    IEventPublisher eventPublisher,
     IRedisService redisService
     ) : IAuthAppService
 {
@@ -48,7 +49,12 @@ public class AuthAppService(
         var redisKey = $"register:{confirmationCode}_{request.Email}";
         await redisService.SetAsync(redisKey, request, TimeSpan.FromMinutes(10));
         
-        emailServiceClient.SendConfirmEmailAsync(request.Email, request.Username, confirmationCode);
+        await eventPublisher.PublishUserRegisteredAsync(new UserRegisteredEvent
+        {
+            Email = request.Email,
+            Username = request.Username,
+            ConfirmationCode = confirmationCode
+        });
 
         return new RegisterResponse
         {
@@ -110,7 +116,11 @@ public class AuthAppService(
         var resetKey = $"reset_code:{resetCode}_{request.Email}";
         await redisService.SetAsync(resetKey, resetToken, TimeSpan.FromMinutes(10));
         
-        emailServiceClient.SendResetPasswordCodeAsync(request.Email, resetCode);
+        await eventPublisher.PublishPasswordResetAsync(new PasswordResetEvent
+        {
+            Email = request.Email,
+            ResetCode = resetCode
+        });
         return new ResetPasswordTokenResponse { Message = "Reset password code sent to your email." };
     }
 

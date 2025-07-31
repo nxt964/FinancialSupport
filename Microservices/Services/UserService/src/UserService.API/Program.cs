@@ -2,6 +2,8 @@ using UserService.API;
 using UserService.API.Middlewares;
 using UserService.Infrastructure.Data;
 using Shared.RedisService;
+using UserService.Application;
+using UserService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 

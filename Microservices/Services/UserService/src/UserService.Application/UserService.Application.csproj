@@ -9,6 +9,8 @@
     <ItemGroup>
       <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj" />
       <ProjectReference Include="..\..\..\..\Shared\RedisService\RedisService.csproj" />
+      <ProjectReference Include="..\..\..\..\Shared\KafkaService\KafkaService.csproj" />
+      <ProjectReference Include="..\..\..\..\Shared\Events\Events.csproj" />
     </ItemGroup>
 
     <ItemGroup>

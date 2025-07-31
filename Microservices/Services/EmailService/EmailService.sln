@@ -10,6 +10,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailService.Application", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailService.Domain", "src\EmailService.Domain\EmailService.Domain.csproj", "{6DF21914-3B1F-4287-A518-07FF2192CDC9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Events", "..\..\Shared\Events\Events.csproj", "{40948FE0-E345-4AFB-BB12-85F0E0561AC4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaService", "..\..\Shared\KafkaService\KafkaService.csproj", "{ED43C11A-E723-41EF-9F27-B58B21DFAB9C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +36,14 @@ Global
 		{6DF21914-3B1F-4287-A518-07FF2192CDC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DF21914-3B1F-4287-A518-07FF2192CDC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DF21914-3B1F-4287-A518-07FF2192CDC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40948FE0-E345-4AFB-BB12-85F0E0561AC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40948FE0-E345-4AFB-BB12-85F0E0561AC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40948FE0-E345-4AFB-BB12-85F0E0561AC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40948FE0-E345-4AFB-BB12-85F0E0561AC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED43C11A-E723-41EF-9F27-B58B21DFAB9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED43C11A-E723-41EF-9F27-B58B21DFAB9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED43C11A-E723-41EF-9F27-B58B21DFAB9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED43C11A-E723-41EF-9F27-B58B21DFAB9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6EFC3059-A3A1-41F2-9810-D209406C2B49} = {23D3C45C-3319-4A01-971A-6AFE00044323}

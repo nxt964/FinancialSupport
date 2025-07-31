@@ -1,16 +1,16 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UserService.Domain.Interfaces;
 using UserService.Domain.Services;
+using UserService.Infrastructure.Data;
 using UserService.Infrastructure.Identity;
 using UserService.Infrastructure.Services;
 
-namespace UserService.Infrastructure.Data;
+namespace UserService.Infrastructure;
 
-public static class EntityFrameworkCoreModule
+public static class InfrastructureModule
 {
     public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {

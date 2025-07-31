@@ -6,48 +6,29 @@ using UserService.Application.Interfaces;
 using UserService.Application.Options;
 using UserService.Application.Services;
 using UserService.Application.Validators.Identities;
+using KafkaService;
 
-namespace UserService.Infrastructure.Data;
+namespace UserService.Application;
 
 public static class ApplicationModule
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
+    public static void AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddKafkaService();
+        
         services.AddScoped<IUserAppService, UserAppService>();
         services.AddScoped<IAuthAppService, AuthAppService>();
-        
+        services.AddScoped<IEventPublisher, EventPublisher>();
+
         AddJwtSettings(services, configuration);
-        AddEmailClient(services, configuration);
 
         services.AddFluentValidation();
-        
-        return services;
     }
 
-    private static IServiceCollection AddJwtSettings(this IServiceCollection services, IConfiguration configuration)
+    private static void AddJwtSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
         services.AddScoped<ITokenAppService, TokenAppService>();
-
-        return services;
-    }
-
-    private static IServiceCollection AddEmailClient(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddHttpClient<IEmailServiceClient, EmailServiceClient>(client =>
-        {
-            var emailServiceUrl = configuration["EmailService:BaseUrl"] ?? "https://localhost:44567";
-            client.BaseAddress = new Uri(emailServiceUrl);
-            client.Timeout = TimeSpan.FromSeconds(30);
-    
-            // var apiKey = configuration["EmailService:ApiKey"];
-            // if (!string.IsNullOrEmpty(apiKey))
-            // {
-            //     client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
-            // }
-        });
-        
-        return services;
     }
     
     private static void AddFluentValidation(this IServiceCollection services)
