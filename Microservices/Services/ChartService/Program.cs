@@ -1,3 +1,8 @@
+﻿using Binance.Net.Clients;
+using Binance.Net.Enums;
+using ChartsService.Services;
+using Microsoft.AspNetCore.SignalR;
+
 public class Program
 {
     public static void Main(string[] args)
@@ -7,11 +12,13 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        // Đăng ký IHubContext cho SignalR
         builder.Services.AddSignalR();
 
-        builder.Services.AddSingleton<CandleSubscriptionManager>();
-        builder.Services.AddSingleton<RedisService>();
-        builder.Services.AddSingleton<BinanceService>();
+        builder.Services.AddSingleton<BinanceCollectorManager>();
+
+        builder.Services.AddSingleton<ChartBroadcastService>();
 
         builder.Services.AddCors(options =>
         {

@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import { CandlestickSeries, createChart } from 'lightweight-charts';
 import * as signalR from '@microsoft/signalr';
 
-const Chart = ({ symbol = 'BTCUSDT', interval = '1m' }) => {
+const Chart = ({ symbol, interval }) => {
   const chartContainerRef = useRef(null);
   const chartInstanceRef = useRef(null);
   const seriesRef = useRef(null);
@@ -78,18 +78,19 @@ const Chart = ({ symbol = 'BTCUSDT', interval = '1m' }) => {
         console.log('✅ SignalR connected');
         if (isSubscribed) {
           connection
-            .invoke('SubscribeCandle', symbol, interval)
+            .invoke('SubscribeSymbol', symbol, interval)
             .catch((err) => console.error('[Chart] Error subscribing:', err));
         }
       })
-      .catch((err) => console.error('[Chart] SignalR connection error:', err));
+      .catch((err) => console.error('[Chart] SignalR connection error:', err)); 
 
-    connection.on('HistoryCandles', (candles) => {
-      if (!candles || !Array.isArray(candles) || !seriesRef.current) {
-        console.error('[Chart] Invalid data or series disposed:', candles);
+    connection.on('ReceiveHistory', ({ symbolCheck, intervalCheck, historyCandles }) => {
+      if (symbolCheck !== symbol || intervalCheck !== interval) return;
+      if (!historyCandles || !Array.isArray(historyCandles) || !seriesRef.current) {
+        console.error('[Chart] Invalid data or series disposed:', historyCandles);
         return;
       }
-      const formatted = candles.map((c) => ({
+      const formatted = historyCandles.map((c) => ({
         time: Math.floor(new Date(c.openTime).getTime() / 1000) + 7 * 3600,
         open: parseFloat(c.open) || 0,
         high: parseFloat(c.high) || 0,
@@ -99,17 +100,19 @@ const Chart = ({ symbol = 'BTCUSDT', interval = '1m' }) => {
       seriesRef.current.setData(formatted);
     });
 
-    connection.on('NewCandle', (candle) => {
+    connection.on('ReceiveRealtime', ({ symbolCheck, intervalCheck, newCandle }) => {
+      console.log(symbolCheck, intervalCheck, newCandle);
+      if (symbolCheck !== symbol || intervalCheck !== interval) return;
       if (!seriesRef.current) {
         console.error('[Chart] Series disposed, skipping update');
         return;
       }
       const formatted = {
-        time: Math.floor(new Date(candle.openTime).getTime() / 1000) + 7*3600,
-        open: parseFloat(candle.open) || 0,
-        high: parseFloat(candle.high) || 0,
-        low: parseFloat(candle.low) || 0,
-        close: parseFloat(candle.close) || 0,
+        time: Math.floor(new Date(newCandle.openTime).getTime() / 1000) + 7*3600,
+        open: parseFloat(newCandle.open) || 0,
+        high: parseFloat(newCandle.high) || 0,
+        low: parseFloat(newCandle.low) || 0,
+        close: parseFloat(newCandle.close) || 0,
       };
       seriesRef.current.update(formatted);
     });
@@ -120,13 +123,22 @@ const Chart = ({ symbol = 'BTCUSDT', interval = '1m' }) => {
 
     return () => {
       isSubscribed = false;
-      if (hubConnectionRef.current) {
-        hubConnectionRef.current
-          .invoke('UnsubscribeCandle', symbol, interval)
-          .catch((err) => console.warn('[Chart] Error unsubscribing:', err));
-        hubConnectionRef.current.stop().catch((err) => console.warn('[Chart] Error stopping:', err));
-        hubConnectionRef.current = null;
-      }
+
+      const cleanup = async () => {
+        try {
+          if (hubConnectionRef.current) {
+            console.log(`[Chart] Unsubscribing from ${symbol} - ${interval}`);
+            await hubConnectionRef.current.invoke('UnsubscribeSymbol', symbol, interval);
+            await hubConnectionRef.current.stop();
+          }
+        } catch (err) {
+          console.warn('[Chart] Error during cleanup:', err);
+        } finally {
+          hubConnectionRef.current = null;
+        }
+      };
+
+      cleanup();
     };
   }, [symbol, interval]);
 
@@ -138,4 +150,4 @@ const Chart = ({ symbol = 'BTCUSDT', interval = '1m' }) => {
   );
 };
 
-export default Chart;
+export default memo(Chart);

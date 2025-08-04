@@ -1,47 +1,41 @@
-﻿using ChartService.Models;
+﻿using Binance.Net.Enums;
 using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 
 public class ChartHub : Hub
 {
-    private readonly CandleSubscriptionManager _subscriptionManager;
-    private readonly BinanceService _binanceService;
-    private readonly RedisService _redisService;
+    private readonly BinanceCollectorManager _collectorManager;
+    private static readonly ConcurrentDictionary<string, int> _groupClientCounts = new();
 
-    public ChartHub(CandleSubscriptionManager subscriptionManager, BinanceService binanceService, RedisService redisService)
+    public ChartHub(BinanceCollectorManager collectorManager)
     {
-        _subscriptionManager = subscriptionManager;
-        _binanceService = binanceService;
-        _redisService = redisService;
+        _collectorManager = collectorManager;
     }
 
-    public override Task OnDisconnectedAsync(Exception? exception)
+    public async Task SubscribeSymbol(string symbol, string interval)
     {
-        _subscriptionManager.Unsubscribe(Context.ConnectionId);
-        return base.OnDisconnectedAsync(exception);
+        string groupName = Utils.GetGroupName(symbol, interval);
+
+        Console.WriteLine($"[ChartHub] SubcribeSymbol {groupName} from {Context.ConnectionId}");
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+        _groupClientCounts.AddOrUpdate(groupName, 1, (_, count) => count + 1);
+
+        await _collectorManager.EnsureCollectorRunning(symbol, interval, Context.ConnectionId);
     }
 
-    public async Task SubscribeCandle(string symbol, string interval)
+    public async Task UnsubscribeSymbol(string symbol, string interval)
     {
-        var candles = await _binanceService.GetHistoricalCandlesAsync(symbol, interval);
+        string groupName = Utils.GetGroupName(symbol, interval);
 
-        // Check có realtime candle mới trong Redis không
-        var realtimeJson = await _redisService.GetAsync($"realtime:{symbol}:{interval}");
-        if (realtimeJson != null)
+        Console.WriteLine($"[ChartHub] UnsubcribeSymbol {groupName} from {Context.ConnectionId}");
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+        if (_groupClientCounts.AddOrUpdate(groupName, 0, (_, count) => count > 0 ? count - 1 : 0) == 0)
         {
-            var lastCandle = System.Text.Json.JsonSerializer.Deserialize<Candle>(realtimeJson);
-            if (lastCandle != null && lastCandle.OpenTime > candles.Last().OpenTime)
-            {
-                candles.Add(lastCandle);
-            }
+            // Nếu không còn ai trong group → dừng collector
+            await _collectorManager.StopCollector(symbol, interval);
+            _groupClientCounts.TryRemove(groupName, out _);
         }
-
-        await Clients.Caller.SendAsync("HistoryCandles", candles);
-        await _subscriptionManager.Subscribe(Context.ConnectionId, symbol, interval);
-    }
-
-    public Task UnsubscribeCandle(string symbol, string interval)
-    {
-        _subscriptionManager.Unsubscribe(Context.ConnectionId);
-        return Task.CompletedTask;
     }
 }
