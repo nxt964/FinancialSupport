@@ -40,3 +40,4 @@ secrets.json
 # Ignore Rider generated folders
 .idea/
 *.iml
+**/.env
