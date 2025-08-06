@@ -22,18 +22,20 @@ public class Program
 
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowFrontend", policy =>
+            options.AddPolicy("AllowCORS", policy =>
             {
-                policy.WithOrigins("http://localhost:5173")
+                policy.WithOrigins("https://localhost:5001")
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials();
+
             });
         });
 
+
         var app = builder.Build();
 
-        app.UseCors("AllowFrontend");
+        app.UseCors("AllowCORS");
         app.UseRouting();
 
         app.UseSwagger();

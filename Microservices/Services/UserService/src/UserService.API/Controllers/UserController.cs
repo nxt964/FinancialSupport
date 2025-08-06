@@ -15,7 +15,7 @@ public class UserController(IUserAppService userAppService) : ApiController
     public async Task<IActionResult> GetAll()
     {
         var users = await userAppService.GetAllAsync();
-        return Ok(users);
+        return Success(users);
     }
 
     [Authorize]
@@ -28,7 +28,7 @@ public class UserController(IUserAppService userAppService) : ApiController
             throw new UnauthorizedAccessException();
         }
         var user = await userAppService.GetByIdAsync(id);
-        return Ok(user);
+        return Success(user);
     }
     
     [Authorize]
@@ -42,7 +42,7 @@ public class UserController(IUserAppService userAppService) : ApiController
         }
         request.Id = Guid.Parse(userIdFromToken);
         var response = await userAppService.UpdateAsync(request);
-        return Ok(response);
+        return Success(response);
     }
 
     [Authorize]
@@ -50,7 +50,7 @@ public class UserController(IUserAppService userAppService) : ApiController
     public async Task<IActionResult> UpdateRole([FromBody] UpdateRoleRequest request)
     {
         var response = await userAppService.UpdateRoleAsync(request);
-        return Ok(response);
+        return Success(response);
     }
 
     [Authorize]
@@ -63,6 +63,6 @@ public class UserController(IUserAppService userAppService) : ApiController
             throw new UnauthorizedAccessException();
         }
         await userAppService.DeleteAsync(id);
-        return Ok(new { Message = "User deleted successfully." });
+        return Success("User deleted successfully.");
     }
 }

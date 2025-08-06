@@ -24,4 +24,27 @@ public class ApiResult<T>
     {
         return new ApiResult<T>(false, default!, errors);
     }
+
+    public static ApiResult<T> Failure(string error)
+    {
+        return new ApiResult<T>(false, default!, new[] { error });
+    }
+}
+
+public static class ApiResultExtensions
+{
+    public static ApiResult<T> ToApiResult<T>(this T result)
+    {
+        return ApiResult<T>.Success(result);
+    }
+
+    public static ApiResult<T> ToApiResultFailure<T>(this string error)
+    {
+        return ApiResult<T>.Failure(error);
+    }
+
+    public static ApiResult<T> ToApiResultFailure<T>(this IEnumerable<string> errors)
+    {
+        return ApiResult<T>.Failure(errors);
+    }
 }

@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Include Kafka infrastructure
+  # Infrastructure Services
   zookeeper:
     extends:
       file: ./Infras/kafka/docker-compose.yml
@@ -22,21 +22,32 @@ services:
       file: ./Infras/kafka/docker-compose.yml
       service: kafka-ui
 
-  # Include Redis
   redis:
     extends:
       file: ./Infras/redis/docker-compose.yml
       service: redis
 
-  # Include PostgreSQL
-  # postgres:
-  #   extends:
-  #     file: ./Infras/postgres/docker-compose.yml
-  #     service: postgres
+  postgres:
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=UserServiceDb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+    restart: unless-stopped
 
 volumes:
   zookeeper-data:
   zookeeper-logs:
   kafka-data:
   redis-data:
-  postgres-data: 
+  postgres-data:
+
+networks:
+  microservices-network:
+    driver: bridge 

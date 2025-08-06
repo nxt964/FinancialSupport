@@ -9,9 +9,10 @@ export const SignalRContextProvider = ({ children }) => {
 
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7114/chartHub')
+      .withUrl('https://localhost:5001/chartHub')
       .withAutomaticReconnect()
-      .build();
+.configureLogging(signalR.LogLevel.Debug)
+.build();
 
     hubConnectionRef.current = connection;
 
