@@ -1,47 +1,85 @@
-﻿using ChartService.Models;
+﻿using Binance.Net.Enums;
 using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 
 public class ChartHub : Hub
 {
-    private readonly CandleSubscriptionManager _subscriptionManager;
-    private readonly BinanceService _binanceService;
-    private readonly RedisService _redisService;
+    private readonly BinanceCollectorManager _collectorManager;
+    private static readonly ConcurrentDictionary<string, int> _groupClientCounts = new();
+    private static readonly ConcurrentDictionary<string, HashSet<string>> _connectionGroups = new();
 
-    public ChartHub(CandleSubscriptionManager subscriptionManager, BinanceService binanceService, RedisService redisService)
+    public ChartHub(BinanceCollectorManager collectorManager)
     {
-        _subscriptionManager = subscriptionManager;
-        _binanceService = binanceService;
-        _redisService = redisService;
+        _collectorManager = collectorManager;
     }
 
-    public override Task OnDisconnectedAsync(Exception? exception)
+    public async Task SubscribeSymbol(string symbol, string interval)
     {
-        _subscriptionManager.Unsubscribe(Context.ConnectionId);
-        return base.OnDisconnectedAsync(exception);
+        string groupName = Utils.GetGroupName(symbol, interval);
+        string connectionId = Context.ConnectionId;
+
+        Console.WriteLine($"[ChartHub] SubcribeSymbol {groupName} from {connectionId}");
+
+        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+
+        _groupClientCounts.AddOrUpdate(groupName, 1, (_, count) => count + 1);
+
+        _connectionGroups.AddOrUpdate(connectionId,
+            _ => new HashSet<string> { groupName },
+            (_, groups) => { groups.Add(groupName); return groups; });
+
+        await _collectorManager.EnsureCollectorRunning(symbol, interval, connectionId);
     }
 
-    public async Task SubscribeCandle(string symbol, string interval)
+    public async Task UnsubscribeSymbol(string symbol, string interval)
     {
-        var candles = await _binanceService.GetHistoricalCandlesAsync(symbol, interval);
+        string groupName = Utils.GetGroupName(symbol, interval);
+        string connectionId = Context.ConnectionId;
 
-        // Check có realtime candle mới trong Redis không
-        var realtimeJson = await _redisService.GetAsync($"realtime:{symbol}:{interval}");
-        if (realtimeJson != null)
+        Console.WriteLine($"[ChartHub] UnsubcribeSymbol {groupName} from {connectionId}");
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+
+        if (_groupClientCounts.AddOrUpdate(groupName, 0, (_, count) => count > 0 ? count - 1 : 0) == 0)
         {
-            var lastCandle = System.Text.Json.JsonSerializer.Deserialize<Candle>(realtimeJson);
-            if (lastCandle != null && lastCandle.OpenTime > candles.Last().OpenTime)
+            // Nếu không còn ai trong group → dừng collector
+            await _collectorManager.StopCollector(symbol, interval);
+            _groupClientCounts.TryRemove(groupName, out _);
+        }
+
+        if (_connectionGroups.TryGetValue(connectionId, out var groups))
+        {
+            groups.Remove(groupName);
+            if (groups.Count == 0)
+                _connectionGroups.TryRemove(connectionId, out _);
+        }
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        string connectionId = Context.ConnectionId;
+
+        if (_connectionGroups.TryRemove(connectionId, out var groups))
+        {
+            foreach (var groupName in groups)
             {
-                candles.Add(lastCandle);
+                await Groups.RemoveFromGroupAsync(connectionId, groupName);
+
+                var parts = groupName.Split('_');
+                if (parts.Length == 2)
+                {
+                    var symbol = parts[0];
+                    var interval = parts[1];
+
+                    if (_groupClientCounts.AddOrUpdate(groupName, 0, (_, count) => count > 0 ? count - 1 : 0) == 0)
+                    {
+                        await _collectorManager.StopCollector(symbol, interval);
+                        _groupClientCounts.TryRemove(groupName, out _);
+                    }
+                }
             }
         }
 
-        await Clients.Caller.SendAsync("HistoryCandles", candles);
-        await _subscriptionManager.Subscribe(Context.ConnectionId, symbol, interval);
-    }
-
-    public Task UnsubscribeCandle(string symbol, string interval)
-    {
-        _subscriptionManager.Unsubscribe(Context.ConnectionId);
-        return Task.CompletedTask;
+        await base.OnDisconnectedAsync(exception);
     }
 }

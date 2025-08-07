@@ -1,12 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import { CandlestickSeries, createChart } from 'lightweight-charts';
-import * as signalR from '@microsoft/signalr';
+import { useSignalR } from '../contexts/SignalRContext';
 
-const Chart = ({ symbol = 'BTCUSDT', interval = '1m' }) => {
+const Chart = ({ symbol, interval }) => {
+  // From SignalRContext: use 1 connection for the whole website
+  const { connection, isConnected } = useSignalR();
+
   const chartContainerRef = useRef(null);
   const chartInstanceRef = useRef(null);
   const seriesRef = useRef(null);
-  const hubConnectionRef = useRef(null);
 
   // Khởi tạo và quản lý biểu đồ
   useEffect(() => {
@@ -61,74 +63,72 @@ const Chart = ({ symbol = 'BTCUSDT', interval = '1m' }) => {
     };
   }, [interval]);
 
-  // Kết nối SignalR và xử lý dữ liệu
+  // SignalR subscribe và xử lý dữ liệu
   useEffect(() => {
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7114/chartHub')
-      .withAutomaticReconnect()
-      .build();
+    if (!connection || !isConnected) return;
 
-    hubConnectionRef.current = connection;
-
-    let isSubscribed = true;
-
-    connection
-      .start()
-      .then(() => {
-        console.log('✅ SignalR connected');
-        if (isSubscribed) {
-          connection
-            .invoke('SubscribeCandle', symbol, interval)
-            .catch((err) => console.error('[Chart] Error subscribing:', err));
-        }
-      })
-      .catch((err) => console.error('[Chart] SignalR connection error:', err));
-
-    connection.on('HistoryCandles', (candles) => {
-      if (!candles || !Array.isArray(candles) || !seriesRef.current) {
-        console.error('[Chart] Invalid data or series disposed:', candles);
+    const handleHistoryCandlesData = ({ symbolCheck, intervalCheck, historyCandles }) => {
+      if (symbolCheck !== symbol || intervalCheck !== interval) return;
+      if (!seriesRef.current) return;
+      if (!historyCandles || !Array.isArray(historyCandles)) {
+        console.error('[Chart] Invalid data or series disposed:', historyCandles);
         return;
       }
-      const formatted = candles.map((c) => ({
+
+      const formatted = historyCandles.map(c => ({
         time: Math.floor(new Date(c.openTime).getTime() / 1000) + 7 * 3600,
-        open: parseFloat(c.open) || 0,
-        high: parseFloat(c.high) || 0,
-        low: parseFloat(c.low) || 0,
-        close: parseFloat(c.close) || 0,
+        open: parseFloat(c.open),
+        high: parseFloat(c.high),
+        low: parseFloat(c.low),
+        close: parseFloat(c.close),
       }));
       seriesRef.current.setData(formatted);
-    });
+    }; 
 
-    connection.on('NewCandle', (candle) => {
+    const handleRealtimeCandleData = ({ symbolCheck, intervalCheck, newCandle }) => {
+      if (symbolCheck !== symbol || intervalCheck !== interval) return;
       if (!seriesRef.current) {
         console.error('[Chart] Series disposed, skipping update');
         return;
       }
       const formatted = {
-        time: Math.floor(new Date(candle.openTime).getTime() / 1000) + 7*3600,
-        open: parseFloat(candle.open) || 0,
-        high: parseFloat(candle.high) || 0,
-        low: parseFloat(candle.low) || 0,
-        close: parseFloat(candle.close) || 0,
+        time: Math.floor(new Date(newCandle.openTime).getTime() / 1000) + 7 * 3600,
+        open: parseFloat(newCandle.open),
+        high: parseFloat(newCandle.high),
+        low: parseFloat(newCandle.low),
+        close: parseFloat(newCandle.close),
       };
       seriesRef.current.update(formatted);
-    });
+    };
+
+    if (isConnected) {
+      connection.invoke('SubscribeSymbol', symbol, interval)
+                .catch((err) => console.error('[Chart] Subscribe error:', err));
+    }
+
+    connection.on('ReceiveHistory', handleHistoryCandlesData);
+
+    connection.on('ReceiveRealtime', handleRealtimeCandleData);
 
     connection.on('Error', (message) => {
       console.error('[Chart] Server error:', message);
     });
 
     return () => {
-      isSubscribed = false;
-      if (hubConnectionRef.current) {
-        hubConnectionRef.current
-          .invoke('UnsubscribeCandle', symbol, interval)
-          .catch((err) => console.warn('[Chart] Error unsubscribing:', err));
-        hubConnectionRef.current.stop().catch((err) => console.warn('[Chart] Error stopping:', err));
-        hubConnectionRef.current = null;
-      }
+      const cleanup = async () => {
+        try {
+          connection.off('ReceiveHistory', handleHistoryCandlesData);
+          connection.off('ReceiveRealtime', handleRealtimeCandleData);
+          connection.invoke('UnsubscribeSymbol', symbol, interval)
+                    .catch((err) => console.warn('[Chart] Unsubscribe error:', err));
+        } catch (err) {
+          console.warn('[Chart] Error during cleanup:', err);
+        }
+      };
+
+      cleanup();
     };
-  }, [symbol, interval]);
+  }, [symbol, interval, connection, isConnected]);
 
   return (
     <div
@@ -138,4 +138,4 @@ const Chart = ({ symbol = 'BTCUSDT', interval = '1m' }) => {
   );
 };
 
-export default Chart;
+export default memo(Chart);

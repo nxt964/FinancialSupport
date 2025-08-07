@@ -8,48 +8,48 @@ namespace UserService.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(IAuthAppService authAppService) : ControllerBase
+public class AuthController(IAuthAppService authAppService) : ApiController
 {
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var result = await authAppService.RegisterAsync(request);
-        return Ok(result);
+        return Success(result);
     }
 
     [HttpPost("confirm-register")]
     public async Task<IActionResult> ConfirmRegister([FromBody] ConfirmRegisterRequest request)
     {
         var result = await authAppService.ConfirmRegisterAsync(request);
-        return Ok(result);
+        return Success(result);
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await authAppService.AuthenticateAsync(request);
-        return Ok(result);
+        return Success(result);
     }
 
     [HttpPost("reset-password-request")]
     public async Task<IActionResult> ResetPasswordRequest([FromBody] ResetPasswordTokenRequest request)
     {
         var result = await authAppService.RequestResetPasswordTokenAsync(request);
-        return Ok(result);
+        return Success(result);
     }
 
     [HttpPost("confirm-reset-password-request")]
     public async Task<IActionResult> ConfirmResetPasswordRequest([FromBody] ConfirmResetPasswordTokenRequest request)
     {
         var result = await authAppService.ValidateResetPasswordTokenAsync(request);
-        return Ok(result);
+        return Success(result);
     }
     
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
     {
         var result = await authAppService.ResetPasswordAsync(request);
-        return Ok(result);
+        return Success(result);
     }
     
     [Authorize]
@@ -63,14 +63,14 @@ public class AuthController(IAuthAppService authAppService) : ControllerBase
         }
         request.Id = Guid.Parse(userIdFromToken);
         await authAppService.UpdatePasswordAsync(request);
-        return Ok(new { Message = "Password updated successfully" });
+        return Success("Password updated successfully");
     }
 
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
         var result = await authAppService.RefreshTokenAsync(request);
-        return Ok(result);
+        return Success(result);
     }
     
     [Authorize]
@@ -85,11 +85,11 @@ public class AuthController(IAuthAppService authAppService) : ControllerBase
         var token = HttpContext.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last();
         if (string.IsNullOrEmpty(token))
         {
-            return BadRequest("Access token is missing.");
+            return Failure<string>("Access token is missing.");
         }
         request.AccessToken = token;
         request.Id = Guid.Parse(userIdFromToken);
         var result = await authAppService.LogoutAsync(request);
-        return Ok(result);
+        return Success(result);
     }
 }
