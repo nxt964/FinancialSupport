@@ -10,8 +10,8 @@ using StackExchange.Redis;
 public class BinanceDataCollector
 {
     private readonly BinanceSocketClient _socketClient;
-    private readonly BinanceRestClient _restClient;
     private readonly ChartBroadcastService _chartBroadcastService;
+    private readonly BinanceService _binanceService;
     private readonly string _symbol;
     private readonly string _interval;
 
@@ -21,12 +21,13 @@ public class BinanceDataCollector
 
     public BinanceDataCollector(
         ChartBroadcastService chartBroadcastService,
+        BinanceService binanceService,
         string symbol,
         string interval)
     {
         _socketClient = new BinanceSocketClient();
-        _restClient = new BinanceRestClient();
         _chartBroadcastService = chartBroadcastService;
+        _binanceService = binanceService;
         _symbol = symbol;
         _interval = interval;
     }
@@ -58,42 +59,13 @@ public class BinanceDataCollector
             });
     }
 
-    private async Task<List<Candle>> GetHistoryCandles()
-    {
-        var historyCandles = await _restClient.SpotApi.ExchangeData.GetKlinesAsync(
-            _symbol,
-            Utils.MapInterval(_interval),
-        limit: 1000
-        );
-
-        if (!historyCandles.Success || historyCandles.Data == null)
-        {
-            throw new Exception($"Failed to get historical candles: {historyCandles.Error?.Message}");
-        }
-
-        //Console.WriteLine($"[DataCollector] Get history candles of {_symbol}_{_interval} successfully! Broasdcast is sending...");
-
-        var historyCandlesDto = historyCandles.Data.Select(kline => new Candle
-        {
-            OpenTime = kline.OpenTime,
-            Open = kline.OpenPrice,
-            High = kline.HighPrice,
-            Low = kline.LowPrice,
-            Close = kline.ClosePrice,
-            Volume = kline.Volume,
-            CloseTime = kline.CloseTime
-        }).ToList();
-
-        return historyCandlesDto;
-    }
-
     public async Task SendHistoryCandlesToClientAsync(string connectionId)
     {
         var now = DateTime.UtcNow;
 
         if (_cachedHistory == null || (now - _cachedAtUtc) > _cacheDuration)
         {
-            _cachedHistory = await GetHistoryCandles();
+            _cachedHistory = await _binanceService.GetHistoryCandles(_symbol, _interval);
             _cachedAtUtc = now;
         }
 

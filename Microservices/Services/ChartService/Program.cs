@@ -17,7 +17,7 @@ public class Program
         builder.Services.AddSignalR();
 
         builder.Services.AddSingleton<BinanceCollectorManager>();
-
+        builder.Services.AddSingleton<BinanceService>();
         builder.Services.AddSingleton<ChartBroadcastService>();
 
         builder.Services.AddCors(options =>

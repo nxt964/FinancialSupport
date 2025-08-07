@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Chart from './Chart';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import EmptyChart from './EmptyChart';
+import SymbolSearch from './SymbolSearch';
+import { httpClient } from '../utils/httpClient';
 
 function TradingView() {
+  const [hotSymbols, setHotSymbols] = useState([]);
+
+  useEffect(() => {
+    const fetchHotSymbols = async () => {
+      try {
+        const res = await httpClient.get(`${import.meta.env.VITE_API_BINANCE_TOPHOT}`);
+        const data = await res.json();
+        setHotSymbols(data);
+      } catch (err) {
+        console.error("Failed to load hot symbols", err);
+      }
+    };
+    fetchHotSymbols();
+  }, []);
+
   const [charts, setCharts] = useState([
     { id: 1, symbol: '', interval: '' },
   ]);
@@ -37,20 +54,11 @@ function TradingView() {
           <div key={id} className="bg-gray-800 p-4 rounded-lg shadow-lg">
             <div className="flex items-center justify-between mb-6">
               <div className="flex space-x-2">
-                <select
-                  value={symbol}
-                  onChange={(e) => updateChart(id, 'symbol', e.target.value)}
-                  className="p-1 bg-gray-700 rounded"
-                >
-                  <option value="BTCUSDT">BTCUSDT</option>
-                  <option value="ETHUSDT">ETHUSDT</option>
-                  <option value="BNBUSDT">BNBUSDT</option>
-                  <option value="" disabled>Symbol</option>
-                </select>
+                <SymbolSearch hotSymbols={hotSymbols} onSelectSymbol={(symbol) => {updateChart(id, 'symbol', symbol)}}/>
                 <select
                   value={interval}
                   onChange={(e) => updateChart(id, 'interval', e.target.value)}
-                  className="p-1 bg-gray-700 rounded"
+                  className="p-1 bg-gray-700 rounded cursor-pointer"
                 >
                   <option value="1m">1 Minute</option>
                   <option value="3m">3 Minutes</option>
@@ -60,7 +68,7 @@ function TradingView() {
                   <option value="1h">1 Hour</option>
                   <option value="4h">4 Hours</option>
                   <option value="1d">1 Day</option>
-                  <option value="">Interval</option>
+                  <option value="" disabled>Interval</option>
                 </select>
               </div>
               <button onClick={() => removeChart(id)} className="text-[#ef5350] bg-[#f9f9f9] p-1! hover:text-white hover:bg-[#ef5350]!">

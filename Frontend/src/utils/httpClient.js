@@ -1,7 +1,6 @@
-const API_BASE_URL = 'https://localhost:5001';
-
 class HttpClient {
   constructor() {
+    this.API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     this.accessToken = localStorage.getItem('accessToken');
     this.refreshToken = localStorage.getItem('refreshToken');
   }
@@ -26,7 +25,7 @@ class HttpClient {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+      const response = await fetch(`${this.API_BASE_URL}/auth/refresh-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +49,7 @@ class HttpClient {
   }
 
   async request(endpoint, options = {}) {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = `${this.API_BASE_URL}${endpoint}`;
     
     // Add authorization header if token exists
     if (this.accessToken) {
