@@ -1,6 +1,7 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import { CandlestickSeries, createChart } from 'lightweight-charts';
 import { useSignalR } from '../contexts/SignalRContext';
+import { httpClient } from '../utils/httpClient';
 
 const Chart = ({ symbol, interval }) => {
   // From SignalRContext: use 1 connection for the whole website
@@ -9,6 +10,24 @@ const Chart = ({ symbol, interval }) => {
   const chartContainerRef = useRef(null);
   const chartInstanceRef = useRef(null);
   const seriesRef = useRef(null);
+
+  const [priceFormat, setPriceFormat] = useState({ precision: 3, minMove: 0.001 });
+
+  // Gọi API lấy precision và tick size khi symbol thay đổi
+  useEffect(() => {
+    const fetchPriceFormat = async () => {
+      try {
+        const res = await httpClient.get(`${import.meta.env.VITE_API_BINANCE_TICKET_SIZE}?symbol=${symbol}`)
+        const { precision, ticketSize } = await res.json();
+        setPriceFormat({ precision, minMove: ticketSize });
+      } catch (err) {
+        console.error('[Chart] Failed to fetch tick size:', err);
+        setPriceFormat({ precision: 3, minMove: 0.001 }); // fallback
+      }
+    };
+
+    if (symbol) fetchPriceFormat();
+  }, [symbol]);
 
   // Khởi tạo và quản lý biểu đồ
   useEffect(() => {
@@ -40,6 +59,12 @@ const Chart = ({ symbol, interval }) => {
       borderDownColor: '#ef5350',
       wickUpColor: '#26a69a',
       wickDownColor: '#ef5350',
+
+      priceFormat: {
+        type: 'price',
+        precision: priceFormat.precision,
+        minMove: priceFormat.minMove,
+      },
     });
 
     chartInstanceRef.current = chart;
@@ -61,7 +86,7 @@ const Chart = ({ symbol, interval }) => {
       }
       window.removeEventListener('resize', handleResize);
     };
-  }, [interval]);
+  }, [interval, priceFormat]);
 
   // SignalR subscribe và xử lý dữ liệu
   useEffect(() => {
