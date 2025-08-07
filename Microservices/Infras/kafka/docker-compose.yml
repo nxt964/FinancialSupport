@@ -12,6 +12,8 @@ services:
     volumes:
       - zookeeper-data:/var/lib/zookeeper/data
       - zookeeper-logs:/var/lib/zookeeper/log
+    networks:
+      - microservices-network
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
@@ -37,6 +39,13 @@ services:
       KAFKA_DELETE_TOPIC_ENABLE: 'true'
     volumes:
       - kafka-data:/var/lib/kafka/data
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Kafka Topic Initializer
   kafka-init:
@@ -46,6 +55,8 @@ services:
       - kafka
     volumes:
       - ./kafka-init.sh:/kafka-init.sh
+    networks:
+      - microservices-network
     command: ["/bin/bash", "/kafka-init.sh"]
 
   # Kafka UI (Optional - for monitoring)
@@ -65,3 +76,7 @@ volumes:
   zookeeper-data:
   zookeeper-logs:
   kafka-data: 
+
+networks:
+  microservices-network:
+    driver: bridge 

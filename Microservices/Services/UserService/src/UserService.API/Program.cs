@@ -1,9 +1,9 @@
 using UserService.API;
 using UserService.API.Middlewares;
-using UserService.Infrastructure.Data;
 using Shared.RedisService;
 using UserService.Application;
 using UserService.Infrastructure;
+using UserService.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,13 +20,18 @@ builder.Services.AddSwaggerServices();
 
 var app = builder.Build();
 
+// Auto-migrate database\
+app.Logger.LogInformation("✅ Starting Program.cs");
+app.Logger.LogInformation("start to migrates");
+using (var scope = app.Services.CreateScope())
+{
+    await AutomatedMigration.MigrateAsync(scope.ServiceProvider);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "FinancialSupport API v1");
-    });
+    app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "FinancialSupport API v1"); });
 }
 
 app.UseHttpsRedirection();
@@ -36,4 +41,3 @@ app.MapControllers();
 app.UseMiddleware<GlobalExceptionHandler>();
 
 app.Run();
-
