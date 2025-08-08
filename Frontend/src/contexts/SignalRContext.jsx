@@ -9,10 +9,9 @@ export const SignalRContextProvider = ({ children }) => {
 
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:5001/chartHub')
+      .withUrl(`${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_API_CHART_HUB}`)
       .withAutomaticReconnect()
-.configureLogging(signalR.LogLevel.Debug)
-.build();
+      .build();
 
     hubConnectionRef.current = connection;
 

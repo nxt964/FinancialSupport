@@ -14,8 +14,9 @@ This project is fully dockerized with all microservices and infrastructure compo
 | Service | Port (HTTP) | Port (HTTPS) | Description |
 |---------|-------------|--------------|-------------|
 | API Gateway | 5000 | 5001 | Main entry point |
-| User Service | 44567 | 44568 | User management |
-| Email Service | 44570 | 44569 | Email functionality |
+| User Service | 5002 | 44568 | User management |
+| Email Service | 5003 | 44567 | Email functionality |
+| ChartService | 5004 | 7114| Chart Functionanlity |
 | PostgreSQL | 5432 | - | Database |
 | Redis | 6379 | - | Cache/Message broker |
 | Kafka UI | 8080 | - | Kafka management UI |

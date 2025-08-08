@@ -36,6 +36,7 @@ coverage/
 
 # Ignore secrets
 secrets.json
+**/docker.env
 
 # Ignore Rider generated folders
 .idea/

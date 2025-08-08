@@ -10,7 +10,7 @@ public static class RedisServiceExtensions
     {
         // Register Redis connection
         services.AddSingleton<IConnectionMultiplexer>(sp =>
-            ConnectionMultiplexer.Connect(configuration["Redis:ConnectionString"] ?? "localhost:6379"));
+            ConnectionMultiplexer.Connect(configuration["Redis:ConnectionString"] ?? "redis:6379"));
         
         // Register Redis service
         services.AddScoped<IRedisService, RedisService>();

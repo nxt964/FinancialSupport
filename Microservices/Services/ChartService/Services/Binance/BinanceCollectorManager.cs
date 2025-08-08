@@ -8,10 +8,12 @@ public class BinanceCollectorManager
 {
     private readonly ConcurrentDictionary<string, BinanceDataCollector> _collectors = new();
     private readonly ChartBroadcastService _chartBroadcastService;
+    private readonly BinanceService _binanceService;
 
-    public BinanceCollectorManager(ChartBroadcastService chartBroadcastService)
+    public BinanceCollectorManager(ChartBroadcastService chartBroadcastService, BinanceService binanceService)
     {
         _chartBroadcastService = chartBroadcastService;
+        _binanceService = binanceService;
     }
 
     public async Task EnsureCollectorRunning(string symbol, string interval, string connectionId)
@@ -20,7 +22,7 @@ public class BinanceCollectorManager
 
         if (!_collectors.ContainsKey(key))
         {
-            var collector = new BinanceDataCollector(_chartBroadcastService, symbol, interval);
+            var collector = new BinanceDataCollector(_chartBroadcastService, _binanceService, symbol, interval);
             Console.WriteLine($"[CollectionManager] Create new collector for group: {key}");
             _collectors[key] = collector;
             await collector.StartAsync(connectionId);

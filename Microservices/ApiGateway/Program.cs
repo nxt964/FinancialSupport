@@ -1,6 +1,6 @@
 using ApiGateway.Middlewares;
 using AspNetCoreRateLimit;
-using StackExchange.Redis;
+using Yarp.ReverseProxy.Transforms;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +46,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "https://localhost:5173", "http://localhost:3000", "https://localhost:3000")
+        policy.WithOrigins("http://localhost:5173", "https://localhost:5173")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials()
@@ -84,7 +84,7 @@ app.MapGet("/info", () => new
     Environment = app.Environment.EnvironmentName,
     Timestamp = DateTime.UtcNow
 });
-
+app.UseWebSockets();
 app.MapReverseProxy();
 
 app.Run();
