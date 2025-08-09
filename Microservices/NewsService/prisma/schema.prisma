@@ -14,14 +14,25 @@ datasource db {
 }
 
 model News {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   title          String
   url            String
+  categoryId     Int
+  category       Category  @relation(fields: [categoryId], references: [id])
   content        String?
   sentimentLabel String?
   sentimentScore Float?
   coverImageUrl  String?
   author         String?
   publishedDate  DateTime
-  crawledAt      DateTime @default(now())
+  crawledAt      DateTime  @default(now())
+
+  @@index([categoryId])
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  slug  String @unique
+  news  News[]
 }
