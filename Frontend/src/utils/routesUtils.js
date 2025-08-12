@@ -8,18 +8,22 @@ import ResetPasswordConfirm from "../pages/auth/ResetPasswordConfirm";
 import ResetPassword from "../pages/auth/ResetPassword";
 import Profile from "../pages/Profile";
 import EditProfile from "../pages/EditProfile";
+import NewsFeed from "../pages/news";
+import Details from "../pages/news/Details";
 
 const routes = [
-    { path: '/', element: Home },
-    { path: '/auth/login', element: Login },
-    { path: '/auth/signup', element: Signup },
-    { path: '/auth/confirm-email', element: ConfirmEmail },
-    { path: '/auth/thank-you', element: ThankYou },
-    { path: '/auth/forgot-password', element: ForgotPassword },
-    { path: '/auth/reset-password-confirm', element: ResetPasswordConfirm },
-    { path: '/auth/reset-password', element: ResetPassword },
-    { path: '/profile', element: Profile },
-    { path: '/edit-profile', element: EditProfile },
-]
+  { path: "/", element: Home },
+  { path: "/auth/login", element: Login },
+  { path: "/auth/signup", element: Signup },
+  { path: "/auth/confirm-email", element: ConfirmEmail },
+  { path: "/auth/thank-you", element: ThankYou },
+  { path: "/auth/forgot-password", element: ForgotPassword },
+  { path: "/auth/reset-password-confirm", element: ResetPasswordConfirm },
+  { path: "/auth/reset-password", element: ResetPassword },
+  { path: "/profile", element: Profile },
+  { path: "/edit-profile", element: EditProfile },
+  { path: "/news", element: NewsFeed },
+  { path: "/news/:id", element: Details },
+];
 
-export default routes
+export default routes;
