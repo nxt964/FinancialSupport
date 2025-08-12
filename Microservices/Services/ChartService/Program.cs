@@ -24,7 +24,7 @@ public class Program
         {
             options.AddPolicy("AllowCORS", policy =>
             {
-                policy.WithOrigins("https://localhost:5001")
+                policy.WithOrigins("https://localhost:5001", "http://localhost:5000")
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials();

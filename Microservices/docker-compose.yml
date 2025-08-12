@@ -121,30 +121,70 @@ services:
     networks:
       - microservices-network
     restart: unless-stopped
+
+  # NewsService
+  news-service:
+    build:
+      context: ./Services/NewsService/NewsService
+      dockerfile: Dockerfile
+    ports:
+      - "${NEWS_SERVICE_HTTP_PORT}:80"
+      - "${NEWS_SERVICE_HTTPS_PORT}:443"
+    environment:
+      NODE_ENV: production
+      PORT: 80
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      REDIS_URL: redis://redis:${REDIS_PORT}
+      KAFKA_BROKERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      SENTIMENT_API_URL: http://sentiment-api:5001/analyze
+      CRAWL_SITE_URL: https://www.financialexpress.com
+      HF_TOKEN: ${HF_TOKEN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      sentiment-api:
+        condition: service_started
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # SentimentAPI
+  sentiment-api:
+    build:
+      context: ./Services/NewsService/SentimentAPI
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      HF_TOKEN: ${HF_TOKEN}
+      FLASK_ENV: production
+      FLASK_APP: app.py
+      PORT: 5001
+    networks:
+      - microservices-network
+    restart: unless-stopped
     
   # API Gateway
-  # apigateway:
-  #   build:
-  #     context: ./ApiGateway
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "${API_GATEWAY_HTTP_PORT}:80"
-  #     - "${API_GATEWAY_HTTPS_PORT}:443"
-  #   environment:
-  #     ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-  #     ConnectionStrings__Redis: redis:${REDIS_PORT}
-  #     ASPNETCORE_URLS: https://+:443;http://+:80
-  #     ASPNETCORE_Kestrel__Certificates__Default__Path: /app/certs/server.pfx
-  #     ASPNETCORE_Kestrel__Certificates__Default__Password: password
-  #     ASPNETCORE_Kestrel__Certificates__Default__AllowInvalid: true
-  #   volumes:
-  #     - ./certs:/app/certs:ro
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   networks:
-  #     - microservices-network
-  #   restart: unless-stopped
+  apigateway:
+    build:
+      context: ./ApiGateway
+      dockerfile: Dockerfile
+    ports:
+      - "${API_GATEWAY_HTTP_PORT}:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__Redis: redis:${REDIS_PORT}
+      ASPNETCORE_URLS: http://+:80
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    restart: unless-stopped
 
 volumes:
   zookeeper-data:
