@@ -1,20 +1,40 @@
 services:
-  # PostgreSQL
-  postgres:
+  # UserService Database
+  user-service-db:
     image: postgres:latest
-    container_name: postgres
+    container_name: user-service-db
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_DB: UserServiceDb
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - user-service-db-data:/var/lib/postgresql/data
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U user_service_user -d UserServiceDb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NewsService Database
+  news-service-db:
+    image: postgres:latest
+    container_name: news-service-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: NewsServiceDb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - news-service-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U news_service_user -d NewsServiceDb"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,12 +50,14 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
     depends_on:
-      - postgres
+      - user-service-db
+      - news-service-db
     networks:
       - microservices-network
 
 volumes:
-  postgres-data: 
+  user-service-db-data:
+  news-service-db-data:
 
 networks:
   microservices-network:

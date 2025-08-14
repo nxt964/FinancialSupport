@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using UserService.Domain.Const;
 using UserService.Domain.Entities;
 using UserService.Domain.Interfaces;
 using UserService.Domain.Services;
+using UserService.Infrastructure.Identity;
 
 namespace UserService.Infrastructure.Data;
 

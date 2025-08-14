@@ -9,11 +9,15 @@ public interface IAuthAppService
 {
     Task<LoginResponse> AuthenticateAsync(LoginRequest request);
     
+    Task<ResendCodeResponse> ResendRegisterCodeAsync(ResendCodeRequest request);
+
     Task<RegisterResponse> RegisterAsync(RegisterRequest request);
     
     Task<ConfirmRegisterResponse> ConfirmRegisterAsync(ConfirmRegisterRequest request);
     
     Task<ResetPasswordTokenResponse> RequestResetPasswordTokenAsync(ResetPasswordTokenRequest request);
+    
+    Task<ResendCodeResponse> ResendResetPasswordCodeAsync(ResendCodeRequest request);
     
     Task<ConfirmResetPasswordTokenResponse> ValidateResetPasswordTokenAsync(ConfirmResetPasswordTokenRequest request);
     
@@ -24,8 +28,4 @@ public interface IAuthAppService
     Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenRequest request);
     
     Task<LogoutResponse> LogoutAsync(LogoutRequest request);
-    
-    Task<ResendCodeResponse> ResendRegisterCodeAsync(ResendCodeRequest request);
-    
-    Task<ResendCodeResponse> ResendResetPasswordCodeAsync(ResendCodeRequest request);
 }

@@ -165,7 +165,7 @@ export default function ResetPasswordConfirm() {
                                 <button
                                     type="button"
                                     className="font-medium text-blue-600 hover:text-blue-500"
-                                    onClick={() => navigate('/auth/forgot-password')}
+                                    onClick={() => navigate('/auth/reset-password-request-resend', { state: { email } })}
                                 >
                                     Resend
                                 </button>

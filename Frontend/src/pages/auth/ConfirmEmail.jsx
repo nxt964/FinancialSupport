@@ -157,10 +157,7 @@ export default function ConfirmEmail() {
                                 <button
                                     type="button"
                                     className="font-medium text-blue-600 hover:text-blue-500"
-                                    onClick={() => {
-                                        // TODO: Implement resend functionality
-                                        toast.info('Resend functionality coming soon');
-                                    }}
+                                    onClick={() => navigate('/auth/register-resend', { state: { email } })}
                                 >
                                     Resend
                                 </button>

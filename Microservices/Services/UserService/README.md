@@ -25,6 +25,17 @@ A microservice for user management and authentication in the FinancialSupport sy
 
 ## 🚀 Getting Started
 
+### Seed Data
+The service automatically creates an initial admin user on first startup:
+
+- **Username**: `admin`
+- **Email**: `admin@financesupport.com`
+- **Password**: `Admin@123`
+- **Role**: `ProUser`
+- **Profile Image**: Empty string
+
+This seed data is created by `DatabaseContextSeed` and executed through `DatabaseInitializer` during application startup via `AutomatedMigration.MigrateAsync()`.
+
 ### Prerequisites
 - .NET 9.0 SDK
 - PostgreSQL database
@@ -57,17 +68,6 @@ The service uses PostgreSQL with Entity Framework Core. Database migrations are 
 ### Key Entities
 - **User** - User account information
 - **ApplicationUser** - Identity user with custom properties
-
-### Seed Data
-The service automatically creates an initial admin user on first startup:
-
-- **Username**: `admin`
-- **Email**: `admin@financesupport.com`
-- **Password**: `Admin@123`
-- **Role**: `ProUser`
-- **Profile Image**: Empty string
-
-This seed data is created by `DatabaseContextSeed` and executed through `DatabaseInitializer` during application startup via `AutomatedMigration.MigrateAsync()`.
 
 ## 🔐 Security
 

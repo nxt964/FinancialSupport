@@ -24,7 +24,7 @@ public class AuthController(IAuthAppService authAppService) : ApiController
         return Success(result);
     }
 
-    [HttpPost("resend-register-code")]
+    [HttpPost("register-resend")]
     public async Task<IActionResult> ResendRegisterCode([FromBody] ResendCodeRequest request)
     {
         var result = await authAppService.ResendRegisterCodeAsync(request);
@@ -59,7 +59,7 @@ public class AuthController(IAuthAppService authAppService) : ApiController
         return Success(result);
     }
 
-    [HttpPost("resend-reset-password-code")]
+    [HttpPost("reset-password-request-resend")]
     public async Task<IActionResult> ResendResetPasswordCode([FromBody] ResendCodeRequest request)
     {
         var result = await authAppService.ResendResetPasswordCodeAsync(request);
