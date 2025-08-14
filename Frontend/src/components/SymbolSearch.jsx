@@ -46,7 +46,7 @@ const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
     <div className="relative">
       {/* Trigger button */}
       <button
-        className="flex items-center justify-between py-1! px-2! space-x-3 bg-gray-700 rounded! font-normal!"
+        className="flex items-center justify-between py-1! px-2! space-x-3 bg-gray-600! rounded! font-normal! text-white"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span>{symbol}</span>
@@ -55,26 +55,26 @@ const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
 
       {/* Modal / Search Box */}
       {isOpen && (
-        <div className="absolute z-50 mt-2 w-96 bg-[#202630] shadow-lg rounded p-4 border border-gray-700 animate-fade-in transition-opacity duration-300">
+        <div className="absolute z-50 mt-2 w-96 bg-[#202630] shadow-lg rounded p-4 border border-[var(--color-Line)] animate-fade-in transition-opacity duration-300">
           <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center border border-gray-700 rounded flex-1">
+            <div className="relative flex items-center rounded flex-1">
               <input
                 type="text"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                className="w-full px-3 py-2 focus:outline-none"
+                className="w-full p-2 pr-9 text-white focus:outline-none rounded-md border border-[var(--color-Line)] focus:border-[var(--color-PrimaryColor)] transition-all duration-300"
                 placeholder="Search symbol..."
               />
               {keyword && (
                 <button
                   onClick={() => setKeyword("")}
-                  className="p-2! text-gray-400 hover:text-white text-sm"
+                  className="absolute right-0 p-2! bg-transparent! text-gray-400 hover:text-white text-sm"
                 >
                   <FontAwesomeIcon icon={faCircleXmark}/>
                 </button>
               )}
             </div>
-            <button className="ml-2 p-2! text-gray-500 hover:text-white" onClick={() => setIsOpen(false)}>
+            <button className="ml-2 px-2 py-1.5 hover:scale-105 text-white" onClick={() => setIsOpen(false)}>
               Cancel
             </button>
           </div>
@@ -82,7 +82,7 @@ const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
           <div className="text-sm text-white mb-2">{!keyword ? "Hot Trading" : ""}</div>
 
           {loading ? (
-            <div className="text-center text-gray-400 py-4">Searching...</div>
+            <div className="text-center text-[var(--color-SecondaryText)] py-4">Searching...</div>
           ) : (
             <ul className="custom-scrollbar divide-y divide-gray-100 max-h-80 pe-2 overflow-y-auto">
               {results.map((item, index) => (
@@ -106,7 +106,7 @@ const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
                   </div>
                 </li>
               ))}
-              {results.length === 0 && <div className="text-center text-gray-500 py-4">No results found</div>}
+              {results.length === 0 && <div className="text-center text-[var(--color-SecondaryText)] py-4">No results found</div>}
             </ul>
           )}
         </div>

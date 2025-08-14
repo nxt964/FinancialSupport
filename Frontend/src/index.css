@@ -5,23 +5,17 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: var(--color-BasicBg);
+  color: var(--color-PrimaryText);
+
+  button {
+    background-color: var(--color-PrimaryColor);
+  }
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
 }
 
 body {
@@ -31,6 +25,119 @@ body {
   --scroll-bg: transparent;
 }
 
+.theme-light {
+  overflow: auto;
+  --color-BasicBg: #FFFFFF;
+  --color-SecondaryBg: #FAFAFA;
+  --color-Input: #F5F5F5;
+  --color-InputLine: #DDDDDD;
+  --color-CardBg: #FFFFFF;
+  --color-Vessel: #FAFAFA;
+  --color-Line: #EDEDED;
+  --color-DisableBtn: #EDEDED;
+  --color-DisableText: #BFBFBF;
+  --color-TertiaryText: #7D7D7D;
+  --color-SecondaryText: #4F4F4F;
+  --color-PrimaryText: #282828;
+  --color-RedGreenBgText: #FFFFFF;
+  --color-EmphasizeText: #FF693D;
+  --color-TextOnGray: #EDEDED;
+  --color-TextOnPrimaryColor: #282828;
+  --color-IconNormal: #9C9C9C;
+  --color-LiteBg1: #FFFFFF;
+  --color-LiteBg2: #FAFAFA;
+  --color-TwoColorIcon: #4F4F4F;
+  --color-TradeBg: #F5F5F5;
+  --color-BadgeBg: rgba(240,185,11,0.1);
+  --color-BtnBg: #74bbbc;
+  --color-PrimaryColor: #4a9fa0;
+  --color-TextLink: #de6a6a;
+  --color-TextToast: #8D5F02;
+  --color-DepthSellBg: #FEF1F2;
+  --color-SellHover: #FF707E;
+  --color-Sell: #F6465D;
+  --color-TextSell: #E33B54;
+  --color-DepthBuyBg: #E6FFF1;
+  --color-BuyHover: #32D993;
+  --color-Buy: #2EBD85;
+  --color-TextBuy: #2EBD85;
+  --color-ErrorBg: rgba(246, 70, 93, 0.1);
+  --color-Error: #E33B54;
+  --color-SuccessBg: #E6FFF1;
+  --color-Success: #2EBD85;
+  --color-TagBg: #EDEDED;
+  --color-Grid: #EDEDED;
+  --color-Placeholder: #BFBFBF;
+  --color-ToastBg: #7D7D7D;
+  --color-Popup: #FFFFFF;
+  --color-Mask: rgba(0, 0, 0, 0.6);
+  --color-WidgetSecondaryBg: rgba(0, 0, 0, 0.04);
+  --color-ContainerBg: #FAFAFA;
+  --color-YellowAlpha10: rgba(252, 213, 53, 0.1);
+  --color-YellowAlpha20: rgba(252, 213, 53, 0.2);
+  --color-RedAlpha10: rgba(246, 70, 93, 0.1);
+  --color-RedAlpha20: rgba(246, 70, 93, 0.2);
+  --color-GreenAlpha10: rgba(46, 189, 133, 0.1);
+  --color-GreenAlpha20: rgba(46, 189, 133, 0.2);
+}
+
+.theme-dark {
+  --color-BasicBg: #181A20;
+  --color-SecondaryBg: #0B0E11;
+  --color-Input: #2B3139;
+  --color-InputLine: #474D57;
+  --color-CardBg: #1E2329;
+  --color-Vessel: #1E2329;
+  --color-Line: #2B3139;
+  --color-DisableBtn: #2B3139;
+  --color-DisableText: #5E6673;
+  --color-TertiaryText: #848E9C;
+  --color-SecondaryText: #B7BDC6;
+  --color-PrimaryText: #EAECEF;
+  --color-RedGreenBgText: #FFFFFF;
+  --color-EmphasizeText: #FF693D;
+  --color-TextOnGray: #EAECEF;
+  --color-TextOnPrimaryColor: #202630;
+  --color-IconNormal: #848E9C;
+  --color-LiteBg1: #202630;
+  --color-LiteBg2: #191A1F;
+  --color-BtnBg: #74bbbc;
+  --color-PrimaryColor: #4a9fa0;
+  --color-TextLink: #de6a6a;
+  --color-TradeBg: #0B0E11;
+  --color-TextToast: #A37200;
+  --color-DepthSellBg: #35141D;
+  --color-SellHover: #FF707E;
+  --color-Sell: #F6465D;
+  --color-TextSell: #F6465D;
+  --color-DepthBuyBg: #102821;
+  --color-BuyHover: #32D993;
+  --color-Buy: #2EBD85;
+  --color-TextBuy: #2EBD85;
+  --color-Error: #F6465D;
+  --color-SuccessBg: #102821;
+  --color-Success: #2EBD85;
+  --color-TagBg: #474D57;
+  --color-Grid: #2B3139;
+  --color-Placeholder: #474D57;
+  --color-ToastBg: #707A8A;
+  --color-TwoColorIcon: #CACED3;
+  --color-ErrorBg: rgba(246, 70, 93, 0.1);
+  --color-BadgeBg: rgba(240,185,11,0.1);
+  --color-Popup: #2B3139;
+  --color-Mask: rgba(11, 14, 17, 0.6);
+  --color-WidgetSecondaryBg: rgba(193, 204, 219, 0.08);
+  --color-ContainerBg: #1E2329;
+  --color-YellowAlpha10: rgba(252, 213, 53, 0.1);
+  --color-YellowAlpha20: rgba(252, 213, 53, 0.2);
+  --color-RedAlpha10: rgba(246, 70, 93, 0.1);
+  --color-RedAlpha20: rgba(246, 70, 93, 0.2);
+  --color-GreenAlpha10: rgba(46, 189, 133, 0.1);
+  --color-GreenAlpha20: rgba(46, 189, 133, 0.2);
+}
+
+
+
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
@@ -39,19 +146,19 @@ h1 {
 button {
   border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
   transition: all 0.3s;
 }
-button:hover {
-  transform: scale(1.05);
-}
-button:focus,
-button:focus-visible {
-  /* outline: 4px auto -webkit-focus-ring-color; */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 30px transparent  inset !important; /* Giữ nguyên nền */
+  -webkit-text-fill-color: var(--color-PrimaryText) !important; /* Giữ nguyên màu chữ */
+  transition: background-color 5000s ease-in-out 0s !important;
 }
 
 /* Chrome, Edge, Safari */
@@ -80,17 +187,4 @@ button:focus-visible {
 
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  /* button {
-    background-color: #f9f9f9;
-  } */
 }

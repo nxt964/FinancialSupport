@@ -63,21 +63,14 @@ export default function ForgotPassword() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-600 to-blue-400 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full">
-                <div className="bg-white rounded-lg shadow-xl p-8">
-                    <div className="mb-6">
-                        <button
-                            onClick={() => navigate('/auth/login')}
-                            className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors mb-4"
-                        >
-                            <FontAwesomeIcon icon={faArrowLeft} />
-                            <span>Back to Login</span>
-                        </button>
-                        <h2 className="text-2xl font-bold text-gray-900 text-center">
-                            Forgot Password
+        <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full border border-[var(--color-Line)] rounded-2xl">
+                <div className="rounded-lg shadow-xl p-8">
+                    <div className="mb-4">
+                        <h2 className="text-4xl font-bold text-center mb-4 text-[var(--color-PrimaryColor)]">
+                            Reset Password
                         </h2>
-                        <p className="text-sm text-gray-600 text-center mt-2">
+                        <p className="text-sm text-[var(--color-SecondaryText)] text-center mt-2">
                             Enter your email address and we'll send you a code to reset your password.
                         </p>
                     </div>
@@ -85,7 +78,7 @@ export default function ForgotPassword() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Email Field */}
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="email" className="block text-sm font-medium text-[var(--color-SecondaryText)] mb-2">
                                 Email address
                             </label>
                             <div className="relative">
@@ -97,7 +90,7 @@ export default function ForgotPassword() {
                                     name="email"
                                     type="email"
                                     required
-                                    className={`appearance-none relative block w-full px-3 py-3 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 ${
+                                    className={`appearance-none bg-transparent relative block w-full px-3 py-3 pl-10 border rounded-md focus:outline-none focus:border-[var(--color-PrimaryColor)] sm:text-sm transition-all duration-300 placeholder:text-[var(--color-TertiaryText)] ${
                                         getFieldError('Email') || getFieldError('email') 
                                             ? 'border-red-500' 
                                             : 'border-gray-300'
@@ -119,7 +112,7 @@ export default function ForgotPassword() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? 'Sending...' : 'Send Reset Code'}
                             </button>
@@ -127,9 +120,9 @@ export default function ForgotPassword() {
 
                         {/* Back to Login Link */}
                         <div className="text-center">
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-[var(--color-SecondaryText)]">
                                 Remember your password?{' '}
-                                <Link to="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
+                                <Link to="/auth/login" className="font-medium text-[var(--color-PrimaryColor)] hover:underline">
                                     Back to login
                                 </Link>
                             </p>

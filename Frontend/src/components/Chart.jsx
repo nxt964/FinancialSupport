@@ -158,7 +158,7 @@ const Chart = ({ symbol, interval }) => {
   return (
     <div
       ref={chartContainerRef}
-      className="w-full h-[400px] bg-gray-800 rounded-lg"
+      className="w-full h-[400px] rounded-lg"
     />
   );
 };

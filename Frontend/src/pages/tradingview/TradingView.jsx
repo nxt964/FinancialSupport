@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Chart from './Chart';
+import Chart from '../../components/Chart';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
-import EmptyChart from './EmptyChart';
-import SymbolSearch from './SymbolSearch';
-import { httpClient } from '../utils/httpClient';
+import EmptyChart from '../../components/EmptyChart';
+import SymbolSearch from '../../components/SymbolSearch';
+import { httpClient } from '../../utils/httpClient';
 
 function TradingView() {
   const [hotSymbols, setHotSymbols] = useState([]);
@@ -40,10 +40,9 @@ function TradingView() {
   };
 
   return (
-    <div className="p-4 bg-gray-900 text-white min-h-screen">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Multi-Chart View</h1>
-        <button onClick={addChart} className="bg-[#26a69a] px-4 py-2 rounded font-bold!">
+    <div className="p-4 min-h-screen">
+      <div className="flex justify-end items-center mb-4">
+        <button onClick={addChart} className="p-2 rounded font-bold! text-white">
           <FontAwesomeIcon icon={faPlus} className='mr-1'/>
           Add Chart
         </button>
@@ -51,14 +50,14 @@ function TradingView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {charts.map(({ id, symbol, interval }) => (
-          <div key={id} className="bg-gray-800 p-4 rounded-lg shadow-lg">
-            <div className="flex items-center justify-between mb-6">
+          <div key={id} className="bg-gray-800 p-3 rounded-lg shadow-lg">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex space-x-2">
                 <SymbolSearch hotSymbols={hotSymbols} onSelectSymbol={(symbol) => {updateChart(id, 'symbol', symbol)}}/>
                 <select
                   value={interval}
                   onChange={(e) => updateChart(id, 'interval', e.target.value)}
-                  className="p-1 bg-gray-700 rounded cursor-pointer"
+                  className="p-1 bg-gray-600 rounded cursor-pointer text-white"
                 >
                   <option value="1m">1 Minute</option>
                   <option value="3m">3 Minutes</option>
@@ -71,7 +70,7 @@ function TradingView() {
                   <option value="" disabled>Interval</option>
                 </select>
               </div>
-              <button onClick={() => removeChart(id)} className="text-[#ef5350] bg-[#f9f9f9] p-1! hover:text-white hover:bg-[#ef5350]!">
+              <button onClick={() => removeChart(id)} className="bg-[var(--color-TextLink)]! p-1 text-white! hover:bg-[#ef5350]!">
                 <FontAwesomeIcon icon={faXmark}/>
               </button>
             </div>

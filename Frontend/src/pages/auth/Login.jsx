@@ -64,17 +64,17 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-600 to-blue-400 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full">
-                <div className="bg-white rounded-lg shadow-xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">
+        <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full border border-[var(--color-Line)] rounded-2xl">
+                <div className="rounded-lg shadow-xl p-8">
+                    <h2 className="text-4xl font-bold text-center mb-8 text-[var(--color-PrimaryColor)]">
                         Login
                     </h2>
                     
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Username/Email Field */}
                         <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="username" className="block text-sm font-medium text-[var(--color-SecondaryText)] mb-2">
                                 Username or email
                             </label>
                             <div className="relative">
@@ -86,7 +86,7 @@ export default function Login() {
                                     name="username"
                                     type="text"
                                     required
-                                    className={`appearance-none relative block w-full px-3 py-3 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 ${
+                                    className={`appearance-none relative block w-full px-3 py-3 pl-10 border rounded-md focus:outline-none focus:border-[var(--color-PrimaryColor)] sm:text-sm transition-all duration-300 placeholder:text-[var(--color-TertiaryText)] ${
                                         getFieldError('Username') || getFieldError('username') 
                                             ? 'border-red-500' 
                                             : 'border-gray-300'
@@ -106,14 +106,14 @@ export default function Login() {
                         {/* Password Field */}
                         <div>
                             <div className="flex items-center justify-between mb-2">
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="password" className="block text-sm font-medium text-[var(--color-SecondaryText)]">
                                     Password
                                 </label>
                                 <Link 
                                     to="/auth/forgot-password" 
-                                    className="text-sm text-blue-600 hover:text-blue-500"
+                                    className="text-sm text-[var(--color-PrimaryColor)] hover:underline"
                                 >
-                                    Forgot password ?
+                                    Forgot password?
                                 </Link>
                             </div>
                             <div className="relative">
@@ -125,7 +125,7 @@ export default function Login() {
                                     name="password"
                                     type={showPassword ? "text" : "password"}
                                     required
-                                    className={`appearance-none relative block w-full px-3 py-3 pl-10 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 ${
+                                    className={`appearance-none relative block w-full px-3 py-3 pl-10 pr-10 border rounded-md focus:outline-none focus:border-[var(--color-PrimaryColor)] sm:text-sm transition-all duration-300 placeholder:text-[var(--color-TertiaryText)] ${
                                         getFieldError('Password') || getFieldError('password') 
                                             ? 'border-red-500' 
                                             : 'border-gray-300'
@@ -136,12 +136,12 @@ export default function Login() {
                                 />
                                 <button
                                     type="button"
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center bg-transparent!"
                                     onClick={() => setShowPassword(!showPassword)}
                                 >
                                     <FontAwesomeIcon 
                                         icon={showPassword ? faEyeSlash : faEye} 
-                                        className="h-5 w-5 text-gray-400 hover:text-gray-600" 
+                                        className="h-5 w-5 text-[var(--color-SecondaryText)] hover:text-gray-500 transition" 
                                     />
                                 </button>
                             </div>
@@ -160,9 +160,9 @@ export default function Login() {
                                 type="checkbox"
                                 checked={rememberMe}
                                 onChange={(e) => setRememberMe(e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 border-gray-300 rounded"
                             />
-                            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                            <label htmlFor="remember-me" className="ml-2 block text-sm text-[var(--color-SecondaryText)]">
                                 Remember me
                             </label>
                         </div>
@@ -172,7 +172,7 @@ export default function Login() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 {isLoading ? 'Signing in...' : 'Login'}
                             </button>
@@ -180,9 +180,9 @@ export default function Login() {
 
                         {/* Sign Up Link */}
                         <div className="text-center">
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-[var(--color-SecondaryText)]">
                                 Don't have an account?{' '}
-                                <Link to="/auth/signup" className="font-medium text-blue-600 hover:text-blue-500">
+                                <Link to="/auth/signup" className="font-medium  text-[var(--color-PrimaryColor)] hover:underline">
                                     Sign up
                                 </Link>
                             </p>

@@ -10,6 +10,7 @@ import Profile from "../pages/Profile";
 import EditProfile from "../pages/EditProfile";
 import NewsFeed from "../pages/news";
 import Details from "../pages/news/Details";
+import TradingView from "../pages/tradingview/TradingView";
 
 const routes = [
   { path: "/", element: Home },
@@ -24,6 +25,7 @@ const routes = [
   { path: "/edit-profile", element: EditProfile },
   { path: "/news", element: NewsFeed },
   { path: "/news/:id", element: Details },
+  { path: "/trading-view", element: TradingView },
 ];
 
 export default routes;
