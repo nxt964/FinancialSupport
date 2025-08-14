@@ -37,6 +37,9 @@ WORKDIR /app
 # Copy the published application from the build stage
 COPY --from=build /app/publish .
 
+# Copy the Templates folder to maintain the EmailService.Application structure
+COPY --from=build /src/Services/EmailService/src/EmailService.Application/Templates ./EmailService.Application/Templates
+
 # Create certificates directory
 RUN mkdir -p /app/certs
 

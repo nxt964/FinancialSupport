@@ -24,4 +24,8 @@ public interface IAuthAppService
     Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenRequest request);
     
     Task<LogoutResponse> LogoutAsync(LogoutRequest request);
+    
+    Task<ResendCodeResponse> ResendRegisterCodeAsync(ResendCodeRequest request);
+    
+    Task<ResendCodeResponse> ResendResetPasswordCodeAsync(ResendCodeRequest request);
 }

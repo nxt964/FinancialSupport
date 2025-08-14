@@ -150,4 +150,59 @@ public class AuthAppService(
         await tokenAppService.RevokeTokenAsync(request.Id, request.AccessToken);
         return new LogoutResponse { Message = "Logout successful" };
     }
+
+    public async Task<ResendRegisterCodeResponse> ResendRegisterCodeAsync(ResendRegisterCodeRequest request)
+    {
+        // Check if user already exists
+        var isUserExisted = await authDomainService.IsEmailOrUsernameExistedAsync(request.Email, request.Username);
+        if (isUserExisted) 
+            throw new BadRequestException("Email or username already exists");
+        
+        // Generate new confirmation code
+        var confirmationCode = GenerateConfirmationCode();
+        
+        // Store in Redis with new expiration
+        var redisKey = $"register:{confirmationCode}_{request.Email}";
+        await redisService.SetAsync(redisKey, new RegisterRequest
+        {
+            Email = request.Email,
+            Username = request.Username,
+            Password = string.Empty // Will be set when user confirms
+        }, TimeSpan.FromMinutes(10));
+        
+        // Publish event to send email
+        await eventPublisher.PublishUserRegisteredAsync(new UserRegisteredEvent
+        {
+            Email = request.Email,
+            Username = request.Username,
+            ConfirmationCode = confirmationCode
+        });
+
+        return new ResendRegisterCodeResponse
+        {
+            Message = "New confirmation code sent to your email"
+        };
+    }
+
+    public async Task<ResendResetPasswordCodeResponse> ResendResetPasswordCodeAsync(ResendResetPasswordCodeRequest request)
+    {
+        // Generate new reset code
+        var resetCode = GenerateConfirmationCode();
+        
+        // Store in Redis with new expiration
+        var resetKey = $"reset_code:{resetCode}_{request.Email}";
+        await redisService.SetAsync(resetKey, "valid", TimeSpan.FromMinutes(10));
+        
+        // Publish event to send email
+        await eventPublisher.PublishPasswordResetAsync(new PasswordResetEvent
+        {
+            Email = request.Email,
+            ResetCode = resetCode
+        });
+
+        return new ResendResetPasswordCodeResponse
+        {
+            Message = "New reset password code sent to your email"
+        };
+    }
 }

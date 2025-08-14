@@ -9,41 +9,80 @@ namespace UserService.Infrastructure.Data;
 public class DatabaseContextSeed(
     ILogger<DatabaseContextSeed> logger,
     IUserDomainService userRepository,
-    IAuthDomainService authRepository
+    IAuthDomainService authRepository,
+    RoleManager<IdentityRole<Guid>> roleManager,
+    UserManager<ApplicationUser> userManager
 )
 {
     public async Task SeedDatabaseAsync(ApplicationDbContext context)
     {
         try
         {
-            var user = new User()
-            {
-                Username = "admin",
-                Email = "admin@financesupport.com",
-                ProfileImage = "",
-                Role = "ProUser",
-            };
-            const string adminPassword = "Admin@123";
+            await CreateBasicRolesAsync();
             
-            var existingAdmin = await authRepository.IsEmailOrUsernameExistedAsync(user.Email, user.Username);
-            
-            if (existingAdmin)
-            {
-                logger.LogInformation("Default admin already exists.");
-                return;
-            }
-            
-            logger.LogInformation("Creating default admin account...");
-            
-            user.Id = await authRepository.CreateAsync(user.Email, user.Username, adminPassword);
-            await userRepository.AddAsync(user);
-
-            logger.LogInformation("Default admin account created successfully.");
+            await CreateAdminUserAsync();
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "An error occurred while seeding the database.");
             throw;
+        }
+    }
+
+    private async Task CreateBasicRolesAsync()
+    {
+        var roles = new[] { "User", "Premium", "Admin" };
+        
+        foreach (var roleName in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+                logger.LogInformation($"Role '{roleName}' created.");
+            }
+        }
+    }
+
+    private async Task CreateAdminUserAsync()
+    {
+        var adminEmail = "admin@financesupport.com";
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        
+        if (adminUser != null)
+        {
+            logger.LogInformation("Default admin already exists.");
+            return;
+        }
+
+        // Create the Identity user
+        var user = new ApplicationUser
+        {
+            UserName = "admin",
+            Email = adminEmail,
+            EmailConfirmed = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        const string adminPassword = "Admin@123";
+        var result = await userManager.CreateAsync(user, adminPassword);
+        
+        if (result.Succeeded)
+        {
+            // Assign role using ASP.NET Identity
+            await userManager.AddToRoleAsync(user, "Admin");
+            
+            // Also create your custom User entity
+            var customUser = new User
+            {
+                Id = user.Id,
+                Username = user.UserName!,
+                Email = user.Email!,
+                ProfileImage = "",
+                Role = "Admin"
+            };
+            await userRepository.AddAsync(customUser);
+            
+            logger.LogInformation("Default admin account created successfully.");
         }
     }
 }
