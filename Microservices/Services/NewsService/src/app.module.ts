@@ -7,6 +7,7 @@ import { CrawlerModule } from "./crawler/crawler.module";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { GraphQLModule } from "@nestjs/graphql";
 import { CategoryModule } from './category/category.module';
+import { HfModule } from './hf/hf.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CategoryModule } from './category/category.module';
     PrismaModule,
     CrawlerModule,
     CategoryModule,
+    HfModule,
   ],
 })
 export class AppModule {}

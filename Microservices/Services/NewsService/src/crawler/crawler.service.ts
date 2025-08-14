@@ -1,10 +1,10 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { NewsService } from "../news/news.service";
-import { CategoryService } from "../category/category.service";
 import { load } from "cheerio";
 import axios from "axios";
 import { config } from "dotenv";
+import { HfService } from "src/hf/hf.service";
 
 config();
 
@@ -27,12 +27,21 @@ function extractPrimaryCategory($$: ReturnType<typeof load>) {
 @Injectable()
 export class CrawlerService {
   private readonly logger = new Logger(CrawlerService.name);
-  constructor(private newsService: NewsService) {}
+  constructor(
+    private newsService: NewsService,
+    private hf: HfService
+  ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
   async scheduledCrawl() {
     this.logger.log("⏰ Running daily scheduled crawl");
     await this.getNews(1);
+  }
+
+  async analyzeArticle(content: string) {
+    const summary = await this.hf.summarize(content);
+    const sentiment = await this.hf.sentiment(summary);
+    return sentiment;
   }
 
   async getNews(page: number): Promise<void> {
@@ -117,15 +126,13 @@ export class CrawlerService {
         slug: "general",
       };
 
-      let sentimentLabel = null;
-      let sentimentScore = null;
+      let sentimentLabel: string | null = null;
+      let sentimentScore: number | null = null;
 
       try {
-        const sentiment = await axios.post(`${process.env.SENTIMENT_API_URL}`, {
-          text: content,
-        });
-        sentimentLabel = sentiment.data.label;
-        sentimentScore = sentiment.data.score;
+        const { label, score } = await this.analyzeArticle(content);
+        sentimentLabel = label;
+        sentimentScore = score;
       } catch (err) {
         console.warn(`⚠️ Sentiment API failed: ${err.message}`);
       }

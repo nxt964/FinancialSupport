@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { Category } from "./entities/category.entity";
 import { PrismaService } from "src/prisma/prisma.service";
 import { BadRequestException } from "@nestjs/common";
 

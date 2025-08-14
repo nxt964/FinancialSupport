@@ -5,8 +5,9 @@ import { PrismaModule } from "src/prisma/prisma.module";
 import { NewsResolver } from "./news.resolver";
 
 @Module({
+  imports: [PrismaModule],
   controllers: [NewsController],
   providers: [NewsService, NewsResolver],
-  imports: [PrismaModule],
+  exports: [NewsService],
 })
 export class NewsModule {}
