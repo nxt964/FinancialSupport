@@ -1,7 +1,7 @@
 import { faCircleXmark, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
-import { httpClient } from "../utils/httpClient";
+import { httpClient } from "../../utils/httpClient";
 
 const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,7 +55,7 @@ const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
 
       {/* Modal / Search Box */}
       {isOpen && (
-        <div className="absolute z-50 mt-2 w-96 bg-[#202630] shadow-lg rounded p-4 border border-[var(--color-Line)] animate-fade-in transition-opacity duration-300">
+        <div className="absolute z-50 mt-2 w-85 bg-[#202630] shadow-lg rounded p-4 border border-[var(--color-Line)] animate-fade-in transition-opacity duration-300">
           <div className="flex justify-between items-center mb-2">
             <div className="relative flex items-center rounded flex-1">
               <input
@@ -82,20 +82,20 @@ const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
           <div className="text-sm text-white mb-2">{!keyword ? "Hot Trading" : ""}</div>
 
           {loading ? (
-            <div className="text-center text-[var(--color-SecondaryText)] py-4">Searching...</div>
+            <div className="text-center text-white py-4">Searching...</div>
           ) : (
-            <ul className="custom-scrollbar divide-y divide-gray-100 max-h-80 pe-2 overflow-y-auto">
+            <ul className="custom-scrollbar divide-y divide-gray-100 max-h-70 pe-2 overflow-y-auto">
               {results.map((item, index) => (
                 <li
                   key={index}
-                  className="flex justify-between items-center p-2 cursor-pointer hover:bg-gray-600"
+                  className="flex justify-between items-center p-2 cursor-pointer hover:bg-gray-600 text-white"
                   onClick={() => handleSelect(item.symbol)}
                 >
                   <div className="flex flex-col">
                     <span className="font-semibold">{item.symbol}</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium">${item.price > 1 ? Number(item.price).toLocaleString() : item.price}</div>
+                    <div className="text-sm font-medium text-white">${item.price > 1 ? Number(item.price).toLocaleString() : item.price}</div>
                     <div className={`text-xs ${item.priceChangePercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {item.priceChangePercent > 0
                       ? `+${Math.abs(item.priceChangePercent).toFixed(2)}%`
@@ -106,7 +106,7 @@ const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
                   </div>
                 </li>
               ))}
-              {results.length === 0 && <div className="text-center text-[var(--color-SecondaryText)] py-4">No results found</div>}
+              {results.length === 0 && <div className="text-center text-white py-4">No results found</div>}
             </ul>
           )}
         </div>

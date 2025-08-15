@@ -12,7 +12,7 @@ export function ArticleCard({
   const diffMs = now - published; // difference in milliseconds
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   return (
-    <article className="group rounded-lg overflow-hidden bg-[var(--color-CardBg)] border border-[var(--color-InputLine)] shadow-sm hover:shadow-lg transition-shadow">
+    <article className="group rounded-lg overflow-hidden bg-[var(--color-CardBg)] border-2 border-[var(--color-InputLine)] shadow-sm hover:shadow-lg hover:scale-102  hover:text-[var(--color-PrimaryColor)] hover:border-[var(--color-PrimaryColor)] transition-all duration-300">
       <Link to={`${id}`}>
         <div className="relative">
           <img

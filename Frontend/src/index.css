@@ -9,7 +9,11 @@
   color: var(--color-PrimaryText);
 
   button {
-    background-color: var(--color-PrimaryColor);
+    background-color: var(--color-BtnBg);
+  }
+
+  input::placeholder {
+    color: var(--color-Placeholder);
   }
 
   font-synthesis: none;

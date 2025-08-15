@@ -245,7 +245,7 @@ export default function Signup() {
                             <p className="text-sm text-[var(--color-SecondaryText)]">
                                 Already have an account?{' '}
                                 <Link to="/auth/login" className="font-medium text-[var(--color-PrimaryColor)] hover:underline">
-                                    Sign in
+                                    Log In
                                 </Link>
                             </p>
                         </div>

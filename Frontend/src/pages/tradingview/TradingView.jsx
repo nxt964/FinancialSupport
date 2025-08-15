@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Chart from '../../components/Chart';
+import Chart from '../../components/charts/Chart';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
-import EmptyChart from '../../components/EmptyChart';
-import SymbolSearch from '../../components/SymbolSearch';
+import EmptyChart from '../../components/charts/EmptyChart';
+import SymbolSearch from '../../components/charts/SymbolSearch';
 import { httpClient } from '../../utils/httpClient';
 
 function TradingView() {
@@ -41,16 +41,9 @@ function TradingView() {
 
   return (
     <div className="p-4 min-h-screen">
-      <div className="flex justify-end items-center mb-4">
-        <button onClick={addChart} className="p-2 rounded font-bold! text-white">
-          <FontAwesomeIcon icon={faPlus} className='mr-1'/>
-          Add Chart
-        </button>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {charts.map(({ id, symbol, interval }) => (
-          <div key={id} className="bg-gray-800 p-3 rounded-lg shadow-lg">
+          <div key={id} className="bg-gray-800 p-3 rounded-lg shadow-lg h-[480px] border border-gray-500">
             <div className="flex items-center justify-between mb-4">
               <div className="flex space-x-2">
                 <SymbolSearch hotSymbols={hotSymbols} onSelectSymbol={(symbol) => {updateChart(id, 'symbol', symbol)}}/>
@@ -79,6 +72,14 @@ function TradingView() {
             }
           </div>
         ))}
+          { charts.length < 4 && (
+            <div className="flex justify-center items-center w-full h-[480px] p-3 shadow-lg rounded-lg border-2 border-dashed border-[var(--color-PrimaryColor)]">
+              <button onClick={addChart} className="p-2 rounded font-bold! hover:scale-105 hover:opacity-90">
+                <FontAwesomeIcon icon={faPlus} className='mr-1'/>
+                Add Chart
+              </button>
+            </div>
+          )}
       </div>
     </div>
   );

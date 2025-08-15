@@ -68,7 +68,7 @@ export default function Login() {
             <div className="max-w-md w-full border border-[var(--color-Line)] rounded-2xl">
                 <div className="rounded-lg shadow-xl p-8">
                     <h2 className="text-4xl font-bold text-center mb-8 text-[var(--color-PrimaryColor)]">
-                        Login
+                        Log In
                     </h2>
                     
                     <form onSubmit={handleSubmit} className="space-y-6">

@@ -80,12 +80,12 @@ export default function Header() {
             </div>
             
             {/* Authentication */}
-            <div className="relative flex gap-3" ref={dropdownRef}>
+            <div className="flex gap-3" ref={dropdownRef}>
                 {isAuthenticated() ? (
-                    <div className="flex items-center space-x-2">
+                    <div className="relative flex items-center">
                         <button
                             onClick={handleProfileClick}
-                            className="flex items-center space-x-2 rounded-lg px-2.5 py-1 shadow-sm"
+                            className="flex items-center space-x-2 rounded-lg px-2 py-1.5 shadow-sm"
                         >
                             {user.profileImage ? (
                                 <img 
@@ -96,33 +96,31 @@ export default function Header() {
                             ) : (
                                 <FontAwesomeIcon icon={faUser} className="w-3.5 h-3.5" />
                             )}
-                            <span className="text-xs font-medium text-gray-700">
+                            <span className="text-xs font-medium">
                                 {truncateUsername(user.userName)}
                             </span>
                             <FontAwesomeIcon 
                                 icon={faChevronDown} 
-                                className={`w-2.5 h-2.5 text-gray-500 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
+                                className={`w-2.5 h-2.5 text-[var(--color-SecondaryText)] transition-transform ${showDropdown ? 'rotate-180' : ''}`}
                             />
                         </button>
                         
                         {showDropdown && (
-                            <div className="absolute right-0 top-full mt-1 w-36 rounded-lg shadow-lg border z-50">
-                                <div className="py-1">
-                                    <button
-                                        onClick={handleDetailClick}
-                                        className="flex items-center space-x-2 w-full px-2.5 py-1.5 text-xs text-gray-700"
-                                    >
-                                        <FontAwesomeIcon icon={faUserCog} className="w-3.5 h-3.5" />
-                                        <span>Detail</span>
-                                    </button>
-                                    <button
-                                        onClick={handleLogoutClick}
-                                        className="flex items-center space-x-2 w-full px-2.5 py-1.5 text-xs text-red-600"
-                                    >
-                                        <FontAwesomeIcon icon={faSignOutAlt} className="w-3.5 h-3.5" />
-                                        <span>Logout</span>
-                                    </button>
-                                </div>
+                            <div className="absolute right-0 top-full mt-1 w-auto rounded-lg shadow-lg border border-[var(--color-Line)] z-50 bg-[var(--color-InputLine)]">
+                                <button
+                                    onClick={handleDetailClick}
+                                    className="flex items-center space-x-2 bg-transparent! hover:bg-[var(--color-Input)]! w-full px-2.5 py-1.5 text-xs text-[var(--color-SecondaryText)]"
+                                >
+                                    <FontAwesomeIcon icon={faUserCog} className="w-3.5 h-3.5" />
+                                    <span>Detail</span>
+                                </button>
+                                <button
+                                    onClick={handleLogoutClick}
+                                    className="flex items-center space-x-2 bg-transparent! hover:bg-[var(--color-Input)]! w-full px-2.5 py-1.5 text-xs text-[var(--color-TextLink)]"
+                                >
+                                    <FontAwesomeIcon icon={faSignOutAlt} className="w-3.5 h-3.5" />
+                                    <span>Logout</span>
+                                </button>
                             </div>
                         )}
                     </div>
@@ -137,7 +135,7 @@ export default function Header() {
                         
                         <button
                             onClick={() => handleNavigate('/auth/login')}
-                            className="px-2.5 py-1 rounded-lg text-xs font-medium text-[var(--color-TextOnPrimaryColor)] hover:scale-105"
+                            className="px-2.5 py-1 rounded-lg text-xs font-medium hover:scale-105"
                         >
                             Log In
                         </button>
@@ -147,7 +145,7 @@ export default function Header() {
                 {/* Theme toggle button */}
                 <button
                     onClick={toggleTheme}
-                    className="flex items-center bg-[var(--color-Line)]! rounded-lg p-2! shadow-sm"
+                    className="flex items-center bg-[var(--color-Line)]! rounded-lg p-2! shadow-sm ml-2"
                     title="Toggle Theme"
                 >
                     <FontAwesomeIcon

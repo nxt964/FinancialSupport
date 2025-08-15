@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { CandlestickSeries, createChart } from 'lightweight-charts';
-import { useSignalR } from '../contexts/SignalRContext';
-import { httpClient } from '../utils/httpClient';
+import { useSignalR } from '../../contexts/SignalRContext';
+import { httpClient } from '../../utils/httpClient';
 
 const Chart = ({ symbol, interval }) => {
   // From SignalRContext: use 1 connection for the whole website
@@ -158,7 +158,7 @@ const Chart = ({ symbol, interval }) => {
   return (
     <div
       ref={chartContainerRef}
-      className="w-full h-[400px] rounded-lg"
+      className="w-full h-full rounded-lg"
     />
   );
 };

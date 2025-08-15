@@ -20,7 +20,7 @@ export function RelatedCard({
   return (
     <Link
       to={`/news/${id}`}
-      className="group block rounded-lg border border-[var(--color-InputLine)] overflow-hidden hover:shadow-md transition"
+      className="group block rounded-lg border-2 border-[var(--color-InputLine)] overflow-hidden hover:shadow-md hover:scale-102  hover:text-[var(--color-PrimaryColor)] hover:border-[var(--color-PrimaryColor)] transition-all duration-300"
     >
       <img
         src={coverImageUrl}

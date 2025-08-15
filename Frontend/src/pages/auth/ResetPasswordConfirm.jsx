@@ -72,18 +72,18 @@ export default function ResetPasswordConfirm() {
 
     if (!email) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-blue-600 to-blue-400 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-md w-full">
-                    <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    <div className="rounded-lg shadow-xl p-8 text-center border border-[var(--color-Line)]">
+                        <h2 className="text-4xl font-bold mb-4">
                             Invalid Access
                         </h2>
-                        <p className="text-gray-600 mb-4">
+                        <p className="text-[var(--color-SecondaryText)] mb-4">
                             Please request a password reset first.
                         </p>
                         <button
                             onClick={() => navigate('/auth/forgot-password')}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                            className="px-4 py-2 rounded-lg hover:scale-105 hover:opacity-80"
                         >
                             Go to Forgot Password
                         </button>
@@ -94,42 +94,42 @@ export default function ResetPasswordConfirm() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-600 to-blue-400 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full">
-                <div className="bg-white rounded-lg shadow-xl p-8">
+                <div className="rounded-lg shadow-xl p-8 border border-[var(--color-Line)]">
                     <div className="mb-6">
                         <button
                             onClick={() => navigate('/auth/forgot-password')}
-                            className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors mb-4"
+                            className="flex items-center space-x-2 text-[var(--color-PrimaryColor)] bg-transparent! hover:underline mb-4"
                         >
                             <FontAwesomeIcon icon={faArrowLeft} />
                             <span>Back to Forgot Password</span>
                         </button>
-                        <h2 className="text-2xl font-bold text-gray-900 text-center">
+                        <h2 className="text-3xl font-bold text-center">
                             Enter Reset Code
                         </h2>
-                        <p className="text-sm text-gray-600 text-center mt-2">
+                        <p className="text-sm text-[var(--color-TertiaryText)] text-center mt-2">
                             We've sent a verification code to{' '}
-                            <span className="font-medium text-gray-900">{email}</span>
+                            <span className="font-medium text-[var(--color-SecondaryText)]">"{email}"</span>
                         </p>
                     </div>
                     
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Code Field */}
                         <div>
-                            <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-2">
+                            <label htmlFor="code" className="block text-sm font-medium mb-2">
                                 Verification Code
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <FontAwesomeIcon icon={faKey} className="h-5 w-5 text-gray-400" />
+                                    <FontAwesomeIcon icon={faKey} className="h-5 w-5" />
                                 </div>
                                 <input
                                     id="code"
                                     name="code"
                                     type="text"
                                     required
-                                    className={`appearance-none relative block w-full px-3 py-3 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 ${
+                                    className={`appearance-none relative block w-full px-3 py-3 pl-10 border rounded-md focus:outline-none focus:border-[var(--color-PrimaryColor)] sm:text-sm transition-all duration-300 ${
                                         getFieldError('Code') || getFieldError('code') 
                                             ? 'border-red-500' 
                                             : 'border-gray-300'
@@ -152,7 +152,7 @@ export default function ResetPasswordConfirm() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 {isLoading ? 'Verifying...' : 'Verify Code'}
                             </button>
@@ -160,11 +160,11 @@ export default function ResetPasswordConfirm() {
 
                         {/* Resend Link */}
                         <div className="text-center">
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-[var(--color-SecondaryText)]">
                                 Didn't receive the code?{' '}
                                 <button
                                     type="button"
-                                    className="font-medium text-blue-600 hover:text-blue-500"
+                                    className="font-medium px-2 py-1 ml-2 text-[var(--color-PrimaryText)] hover:scale-105"
                                     onClick={() => navigate('/auth/reset-password-request-resend', { state: { email } })}
                                 >
                                     Resend

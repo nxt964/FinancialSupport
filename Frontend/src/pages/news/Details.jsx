@@ -99,7 +99,7 @@ const Details = () => {
 
           {/* Meta Info */}
           <div className="flex flex-wrap items-center gap-4 text-sm bg-[var(--color-CardBg)] rounded-md px-4 py-3 mb-6 shadow-md">
-            <span>
+            <span className="text-[var(--color-SecondaryText)]">
               By <span className="font-semibold">{article.author}</span>
             </span>
             <span className="hidden sm:inline">&#183;</span>

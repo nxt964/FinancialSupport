@@ -5,7 +5,7 @@ export function Pagination({ page, totalPages, onPageChange }) {
       <button
         onClick={() => onPageChange(Math.max(1, page - 1))}
         disabled={page === 1}
-        className="rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 disabled:opacity-40 hover:bg-gray-50 shadow-sm"
+        className="rounded-xl border px-3 py-2 text-sm font-medium disabled:opacity-40 hover:opacity-70 shadow-sm"
       >
         Prev
       </button>
@@ -16,16 +16,16 @@ export function Pagination({ page, totalPages, onPageChange }) {
             onClick={() => onPageChange(n)}
             aria-current={n === page ? "page" : undefined}
             className={
-              "h-10 w-10 flex items-center justify-center rounded-xl border text-sm font-semibold shadow-sm transition " +
+              "h-10 w-10 flex items-center justify-center rounded-xl border text-sm font-semibold shadow-sm transition hover:opacity-80 " +
               (n === page
-                ? "bg-gray-900 text-white border-gray-900"
-                : "bg-white text-gray-800 border-gray-200 hover:bg-gray-50")
+                ? "bg-[var(--color-PrimaryColor)]! text-[var(--color-TextLink)]"
+                : "")
             }
           >
             {n}
           </button>
         ) : (
-          <span key={`dots-${idx}`} className="px-2 text-gray-500 select-none">
+          <span key={`dots-${idx}`} className="px-2 select-none">
             …
           </span>
         )
@@ -33,9 +33,9 @@ export function Pagination({ page, totalPages, onPageChange }) {
       <button
         onClick={() => onPageChange(Math.min(totalPages, page + 1))}
         disabled={page === totalPages}
-        className="rounded-xl border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 disabled:opacity-40 hover:bg-gray-50 shadow-sm"
+        className="rounded-xl border px-3 py-2 text-sm font-medium disabled:opacity-40 hover:opacity-70 shadow-sm"
       >
-        Next »
+        Next
       </button>
     </div>
   );
