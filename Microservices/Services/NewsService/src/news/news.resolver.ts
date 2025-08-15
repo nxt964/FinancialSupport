@@ -7,16 +7,6 @@ import { PaginatedNews } from "./dto/paginated-news.type";
 export class NewsResolver {
   constructor(private readonly newsService: NewsService) {}
 
-  // Featured news: only fetch what you need in the query selection
-  // @Query(() => [News])
-  // featuredNews(
-  //   @Args("page", { type: () => Int, nullable: true, defaultValue: 1 })
-  //   page: number
-  // ) {
-  //   // You can still pull full records here; the client selects fields
-  //   return this.newsService.findFeatured(page);
-  // }
-
   @Query(() => PaginatedNews)
   async featuredNews(
     @Args("page", { type: () => Int, nullable: true }) page = 1

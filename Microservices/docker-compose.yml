@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   # Infrastructure Services
   zookeeper:
@@ -142,6 +142,7 @@ services:
       CRAWL_SITE_URL: "${CRAWL_SITE_URL:-https://cryptoslate.com/news/}"
       HF_TOKEN: "${HF_TOKEN}"
       CORS_ORIGINS: "${CORS_ORIGINS}"
+      REDIS_URL: "${REDIS_URL}"
     networks:
       - microservices-network
     restart: unless-stopped
@@ -174,4 +175,4 @@ volumes:
 
 networks:
   microservices-network:
-    driver: bridge 
+    driver: bridge

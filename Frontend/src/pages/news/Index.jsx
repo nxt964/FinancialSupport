@@ -11,12 +11,18 @@ import ArticleSkeleton from "../../components/skeletons/ArticleSkeleton.jsx";
 import { GET_CATEGORIES } from "../../queries/getCategories.js";
 import { useQuery } from "@apollo/client";
 
+const getInt = (val, def) => {
+  const n = parseInt(val ?? "", 10);
+  return Number.isFinite(n) && n > 0 ? n : def;
+};
+
 export default function NewsFeed() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const categoryId = searchParams.get("category")
-    ? parseInt(searchParams.get("category"), 10)
+    ? getInt(searchParams.get("category"), null)
     : null;
-  const [page, setPage] = useState(1);
+  const page = getInt(searchParams.get("page"), 1);
+  // const [page, setPage] = useState(1);
   const [featuredNews, setFeaturedNews] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [invalidCategory, setInvalidCategory] = useState(false);
@@ -25,11 +31,21 @@ export default function NewsFeed() {
   const { data } = useQuery(GET_CATEGORIES);
 
   useEffect(() => {
-    setPage(1);
-    if (!categoryId) {
-      setCategoryName("All");
+    const currentCat = searchParams.get("category");
+    const currentPage = searchParams.get("page");
+    // If category changed OR page missing, set page=1
+    if (categoryId && currentPage !== "1") {
+      const next = new URLSearchParams(searchParams);
+      next.set("page", "1");
+      setSearchParams(next, { replace: true });
     }
-    setInvalidCategory(false);
+    if (!categoryId && !currentCat && currentPage == null) {
+      const next = new URLSearchParams(searchParams);
+      next.set("page", "1");
+      setCategoryName("All");
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryId]);
 
   useEffect(() => {
@@ -79,6 +95,14 @@ export default function NewsFeed() {
     return <NotFound />;
   }
 
+  const handlePageChange = (nextPage) => {
+    const next = new URLSearchParams(searchParams);
+    next.set("page", String(nextPage));
+    // preserve category if present
+    if (categoryId) next.set("category", String(categoryId));
+    setSearchParams(next);
+  };
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -111,7 +135,7 @@ export default function NewsFeed() {
           <Pagination
             page={page}
             totalPages={totalPages}
-            onPageChange={setPage}
+            onPageChange={handlePageChange}
           />
         </nav>
       </main>
