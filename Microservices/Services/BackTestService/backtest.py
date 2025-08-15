@@ -91,8 +91,11 @@ while True:
         name, strategy_class = strategies[choice]
         print(f"\n=== Chạy backtest cho chiến lược: {name} ===")
         bt = Backtest(GOOG, strategy_class, cash=10000)
+        
         stats = bt.run()
         print(stats)
-        bt.plot()
+        vol=(stats["Volatility (Ann.) [%]"])
+        stra=(stats["_strategy"])
+        bt.plot(filename=f'plots/chart-{stra}-volatility={vol}.html')
     else:
         print("Lựa chọn không hợp lệ!")
