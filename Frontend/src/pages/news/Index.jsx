@@ -7,6 +7,7 @@ import { GET_FEATURED_NEWS_BY_CATEGORY } from "../../queries/featuredNewsByCat.j
 import { useSearchParams } from "react-router-dom";
 import { NotFound } from "../../components/news/NotFound.jsx";
 import { Link } from "react-router-dom";
+import ArticleSkeleton from "../../components/skeletons/ArticleSkeleton.jsx";
 
 export default function NewsFeed() {
   const [searchParams] = useSearchParams();
@@ -18,6 +19,7 @@ export default function NewsFeed() {
   const [totalPages, setTotalPages] = useState(1);
   const [invalidCategory, setInvalidCategory] = useState(false);
   const [categoryName, setCategoryName] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -27,6 +29,7 @@ export default function NewsFeed() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         if (categoryId) {
           const { data } = await apollo.query({
             query: GET_FEATURED_NEWS_BY_CATEGORY,
@@ -59,6 +62,8 @@ export default function NewsFeed() {
         console.error(e);
         setFeaturedNews([]);
         setTotalPages(1);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -69,11 +74,11 @@ export default function NewsFeed() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen">
       {/* Header */}
       <header className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-10 pb-6">
         <nav
-          className="flex px-5 py-4 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700 mb-2"
+          className="flex px-5 py-4 rounded-lg mb-2 bg-[var(--color-LiteBg1)] border border-[var(--color-InputLine)] text-[var(--color-PrimaryText)]"
           aria-label="Breadcrumb"
         >
           <ol className="inline-flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse text-base">
@@ -81,7 +86,7 @@ export default function NewsFeed() {
             <li className="inline-flex items-center">
               <Link
                 to="/"
-                className="inline-flex items-center font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+                className="inline-flex items-center font-medium hover:text-[var(--color-PrimaryColor)]"
               >
                 <svg
                   className="w-4 h-4 me-2.5"
@@ -116,7 +121,7 @@ export default function NewsFeed() {
                 </svg>
                 <Link
                   to="/news"
-                  className="ms-1 font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white"
+                  className="ms-1 font-medium hover:text-[var(--color-PrimaryColor)]"
                 >
                   News
                 </Link>
@@ -142,7 +147,7 @@ export default function NewsFeed() {
                       d="m1 9 4-4-4-4"
                     />
                   </svg>
-                  <span className="ms-1 font-medium text-gray-500 md:ms-2 dark:text-gray-400">
+                  <span className="ms-1 font-medium text-[var(--color-TertiaryText)]">
                     {categoryName}
                   </span>
                 </div>
@@ -154,11 +159,19 @@ export default function NewsFeed() {
 
       {/* Grid */}
       <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {featuredNews.map((n) => (
-            <ArticleCard key={n.id} {...n} />
-          ))}
-        </section>
+        {loading ? (
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <ArticleSkeleton key={i} />
+            ))}
+          </section>
+        ) : (
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {featuredNews.map((n) => (
+              <ArticleCard key={n.id} {...n} />
+            ))}
+          </section>
+        )}
 
         {/* Pagination */}
         <nav

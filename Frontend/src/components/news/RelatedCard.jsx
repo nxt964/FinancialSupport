@@ -20,7 +20,7 @@ export function RelatedCard({
   return (
     <Link
       to={`/news/${id}`}
-      className="group block rounded-lg border border-gray-400 overflow-hidden hover:shadow-md transition"
+      className="group block rounded-lg border border-[var(--color-InputLine)] overflow-hidden hover:shadow-md transition"
     >
       <img
         src={coverImageUrl}
@@ -29,21 +29,21 @@ export function RelatedCard({
         loading="lazy"
       />
       <div className="p-3">
-        <div className="text-xs text-gray-500 mb-2">
+        <div className="text-xs text-[var(--color-SecondaryText)] mb-2">
           {new Date(publishedDate).toLocaleDateString()}
         </div>
 
-        <h4 className="font-medium group-hover:underline line-clamp-2">
+        <h4 className="font-medium hover:underline line-clamp-2 mb-2">
           {title}
         </h4>
 
-        <button
+        <span
           onClick={goCategory}
-          className="mt-2 rounded-full bg-gray-100 hover:bg-gray-200 px-2 py-1 text-xs font-medium text-gray-700"
-          type="button"
+          className="rounded-full px-2 py-1 text-sm text-[var(--color-PrimaryText)] bg-[var(--color-InputLine)] hover:bg-[var(--color-PrimaryColor)]"
+          // type="button"
         >
           {category?.name ?? "General"}
-        </button>
+        </span>
       </div>
     </Link>
   );

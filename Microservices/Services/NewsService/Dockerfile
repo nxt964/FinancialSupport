@@ -1,54 +1,50 @@
-# Use the official Node.js runtime as the base image
-FROM node:18-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+# ---------- base ----------
+FROM node:20-alpine AS base
 WORKDIR /app
+# libc for native deps + CA certs for TLS (Supabase etc.)
+RUN apk add --no-cache libc6-compat ca-certificates && update-ca-certificates
 
-# Install ALL dependencies (including dev dependencies for build)
-COPY Services/NewsService/package.json Services/NewsService/package-lock.json* ./
+# ---------- deps (full deps for build) ----------
+FROM base AS deps
+COPY Services/NewsService/package*.json ./
 RUN npm ci
 
-# Rebuild the source code only when needed
+# ---------- build (compile Nest + generate prisma client) ----------
 FROM base AS builder
-WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY Services/NewsService/ .
-
-# Generate Prisma client
+COPY Services/NewsService/ ./
+# Generate Prisma client for build-time TypeScript compilation
 RUN npx prisma generate
-
-# Build the application
+# Build NestJS -> dist/
 RUN npm run build
 
-# Production image, copy all the files and run the app
-FROM base AS runner
+# ---------- runtime (prod) ----------
+FROM node:20-alpine AS runner
 WORKDIR /app
+ENV NODE_ENV=production
+ENV NEWS_SERVICE_PORT=3000
 
-ENV NODE_ENV production
+# Ensure TLS works to hosted DBs
+RUN apk add --no-cache ca-certificates && update-ca-certificates
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nestjs
+# Copy built app and prisma schema
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY Services/NewsService/package*.json ./
 
-# Copy built application from build stage
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
-COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
+# Install production deps only (this also runs @prisma/client postinstall)
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Install only production dependencies for runtime
-COPY Services/NewsService/package.json Services/NewsService/package-lock.json ./
-RUN npm ci --only=production && npm cache clean --force
+# Install Prisma CLI only for running migrations at startup
+RUN npm i -g prisma
 
-# Install Prisma CLI and NestJS CLI globally
-RUN npm install -g prisma @nestjs/cli
-
+# Run as non-root (optional but recommended)
+RUN addgroup --system --gid 1001 nodejs \
+ && adduser --system --uid 1001 nestjs
 USER nestjs
 
-EXPOSE 80
+EXPOSE 3000
 
-ENV PORT 80
-
-# Run database migrations and start the application
-CMD ["sh", "-c", "prisma migrate deploy && node dist/main"]
+# Runtime: apply migrations, then start the app
+# Requires DATABASE_URL env at runtime (with sslmode=require and % encoded)
+CMD ["sh", "-c", "prisma migrate deploy && node dist/src/main.js"]

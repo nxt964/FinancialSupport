@@ -12,7 +12,7 @@ export function ArticleCard({
   const diffMs = now - published; // difference in milliseconds
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   return (
-    <article className="group rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-lg transition-shadow">
+    <article className="group rounded-lg overflow-hidden bg-[var(--color-CardBg)] border border-[var(--color-InputLine)] shadow-sm hover:shadow-lg transition-shadow">
       <Link to={`${id}`}>
         <div className="relative">
           <img
@@ -23,21 +23,21 @@ export function ArticleCard({
           />
         </div>
         <div className="p-4">
-          <div className="flex items-center text-xs text-gray-500">
+          <div className="flex items-center text-xs text-[var(--color-SecondaryText)]">
             <Link
               to={`?category=${category?.id}`}
-              className="rounded-full bg-gray-100 hover:bg-gray-200 px-2 py-1 font-medium tracking-wide"
+              className="rounded-full bg-[var(--color-InputLine)] hover:bg-[var(--color-PrimaryColor)] hover:text-[var(--color-PrimaryText)] px-2 py-1 font-medium tracking-wide"
             >
               {category?.name || "GENERAL"}
             </Link>
-            <span className="mx-2 text-gray-300">•</span>
+            <span className="mx-2">•</span>
             <span className="uppercase tracking-wide">
               {diffHours < 24
                 ? `${diffHours} hours ago`
                 : published.toLocaleDateString()}
             </span>
           </div>
-          <h3 className="mt-2 text-base font-semibold leading-snug hover:underline">
+          <h3 className="mt-2 text-base font-semibold leading-snug hover:underline line-clamp-2">
             {title}
           </h3>
         </div>
