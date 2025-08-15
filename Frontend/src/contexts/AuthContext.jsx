@@ -84,7 +84,7 @@ export const AuthContextProvider = ({ children }) => {
         };
       }
     } catch (error) {
-      return { success: false, error: 'Network error' };
+      return { success: false, error: `Error: ${error}` };
     }
   };
 
@@ -106,7 +106,7 @@ export const AuthContextProvider = ({ children }) => {
         };
       }
     } catch (error) {
-      return { success: false, error: 'Network error' };
+      return { success: false, error: `Error: ${error}` };
     }
   };
 
@@ -126,7 +126,7 @@ export const AuthContextProvider = ({ children }) => {
         };
       }
     } catch (error) {
-      return { success: false, error: 'Network error' };
+      return { success: false, error: `Error: ${error}` };
     }
   };
 
@@ -166,7 +166,7 @@ export const AuthContextProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        error: 'An error occurred while updating profile'
+        error: `An error occurred while updating profile: ${error}`
       };
     }
   };

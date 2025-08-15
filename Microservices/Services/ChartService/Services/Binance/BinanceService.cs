@@ -10,7 +10,7 @@ public class BinanceService
     // In-memory cache cho các symbol đang giao dịch
     private List<BinanceSymbol> _cachedTradingSymbols = new();
     private DateTime _lastExchangeInfoFetch = DateTime.MinValue;
-    private readonly TimeSpan _exchangeInfoCacheDuration = TimeSpan.FromHours(1);
+    private readonly TimeSpan _exchangeInfoCacheDuration = TimeSpan.FromHours(4);
 
     public BinanceService()
     {
@@ -70,12 +70,14 @@ public class BinanceService
         if (!tickersResult.Success || tickersResult.Data == null)
             throw new Exception("Failed to get tickers");
 
-        var keywordUpper = keyword.ToUpperInvariant();
+        var keywordUpper = keyword.ToUpperInvariant()
+            .Replace("/", "")
+            .Replace("-", "")
+            .Trim();
 
         // Lấy danh sách symbols đang giao dịch, có chứa keyword trong BaseAsset
         var filteredSymbols = tradingSymbols
-            .Where(s => s.Status == SymbolStatus.Trading
-                        && s.BaseAsset.Contains(keywordUpper, StringComparison.OrdinalIgnoreCase))
+            .Where(s => s.Name.Contains(keywordUpper, StringComparison.OrdinalIgnoreCase))
             .Select(s => s.Name)
             .ToHashSet();
 
@@ -83,19 +85,25 @@ public class BinanceService
         var result = tickersResult.Data
             .Where(t => filteredSymbols.Contains(t.Symbol))
             .OrderBy(t => !t.Symbol.StartsWith(keywordUpper)) // Ưu tiên symbol bắt đầu bằng keyword
-            .Select(t => new SymbolInfo
+            .Select(t => 
             {
-                Symbol = t.Symbol,
-                Price = t.LastPrice,
-                PriceChangePercent = t.PriceChangePercent,
-            })
-            .ToList();
+                var sym = tradingSymbols.First(s => s.Name == t.Symbol);
+                return new SymbolInfo
+                {
+                    Symbol = t.Symbol,
+                    Price = t.LastPrice,
+                    PriceChangePercent = t.PriceChangePercent,
+                    BaseAsset = sym.BaseAsset,
+                    QuoteAsset = sym.QuoteAsset
+                };
+            }).ToList();
 
         return result;
     }
 
     public async Task<List<SymbolInfo>> GetTopHotSymbolsAsync()
     {
+        var tradingSymbols = await GetTradingSymbolsAsync();
         var tickers = await _restClient.SpotApi.ExchangeData.GetTickersAsync();
 
         if (!tickers.Success) return new List<SymbolInfo>();
@@ -104,13 +112,18 @@ public class BinanceService
             .Where(t => t.QuoteVolume > 0)
             .OrderByDescending(t => t.TotalTrades)
             .Take(20)
-            .Select(t => new SymbolInfo
+            .Select(t =>
             {
-                Symbol = t.Symbol,
-                Price = t.LastPrice,
-                PriceChangePercent = t.PriceChangePercent
-            })
-            .ToList();
+                var sym = tradingSymbols.First(s => s.Name == t.Symbol);
+                return new SymbolInfo
+                {
+                    Symbol = t.Symbol,
+                    Price = t.LastPrice,
+                    PriceChangePercent = t.PriceChangePercent,
+                    BaseAsset = sym.BaseAsset,
+                    QuoteAsset = sym.QuoteAsset
+                };
+            }).ToList();
     }
 
     public async Task<TickInfo> GetPriceFormatForSymbol(string symbol)

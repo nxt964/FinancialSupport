@@ -54,7 +54,7 @@ export const IndexHeader = ({ categoryName, categories = [] }) => {
 
           <div
             role="menu"
-            className="absolute right-0 mt-2 w-64 max-h-80 overflow-auto rounded-lg border border-[var(--color-InputLine)] bg-[var(--color-LiteBg1)] shadow-lg p-2 z-20"
+            className="custom-scrollbar absolute right-0 mt-2 w-50 max-h-80 overflow-auto rounded-lg border border-[var(--color-InputLine)] bg-[var(--color-LiteBg1)] shadow-lg p-2 z-20"
           >
             {/* All */}
             <Link

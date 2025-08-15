@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Chart from '../../components/charts/Chart';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import EmptyChart from '../../components/charts/EmptyChart';
 import SymbolSearch from '../../components/charts/SymbolSearch';
 import { httpClient } from '../../utils/httpClient';
+import { useAppData } from '../../contexts/AppDataContext';
 
 function TradingView() {
-  const [hotSymbols, setHotSymbols] = useState([]);
+  const { setHotSymbols } = useAppData();
 
   useEffect(() => {
     const fetchHotSymbols = async () => {
@@ -20,14 +21,12 @@ function TradingView() {
       }
     };
     fetchHotSymbols();
-  }, []);
+  }, [setHotSymbols]);
 
-  const [charts, setCharts] = useState([
-    { id: 1, symbol: '', interval: '' },
-  ]);
+  const { charts, setCharts } = useAppData();
 
   const addChart = () => {
-    const newId = charts.length ? Math.max(...charts.map(c => c.id)) + 1 : 1;
+    const newId = charts.length + 1;
     setCharts([...charts, { id: newId, symbol: '', interval: '' }]);
   };
 
@@ -46,7 +45,7 @@ function TradingView() {
           <div key={id} className="bg-gray-800 p-3 rounded-lg shadow-lg h-[480px] border border-gray-500">
             <div className="flex items-center justify-between mb-4">
               <div className="flex space-x-2">
-                <SymbolSearch hotSymbols={hotSymbols} onSelectSymbol={(symbol) => {updateChart(id, 'symbol', symbol)}}/>
+                <SymbolSearch followingSymbol={symbol} onSelectSymbol={(symbol) => {updateChart(id, 'symbol', symbol)}}/>
                 <select
                   value={interval}
                   onChange={(e) => updateChart(id, 'interval', e.target.value)}

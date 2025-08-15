@@ -2,13 +2,16 @@ import { faCircleXmark, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
 import { httpClient } from "../../utils/httpClient";
+import { useAppData } from "../../contexts/AppDataContext";
 
-const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
+const SymbolSearch = ({ followingSymbol, onSelectSymbol }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [symbol, setSymbol] = useState("Symbol")
+  const [symbol, setSymbol] = useState(followingSymbol != "" ? followingSymbol : "Symbol")
   const [keyword, setKeyword] = useState("");
-  const [results, setResults] = useState(hotSymbols);
   const [loading, setLoading] = useState(false);
+
+  const { hotSymbols } = useAppData();
+  const [results, setResults] = useState(hotSymbols);
 
   // Debounce fetch
   useEffect(() => {
@@ -36,9 +39,9 @@ const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
     setLoading(false);
   };
 
-  const handleSelect = (symbol) => {
+  const handleSelect = (symbol, baseAsset, quoteAsset) => {
+    setSymbol(`${baseAsset}/${quoteAsset}`)
     onSelectSymbol(symbol)
-    setSymbol(symbol)
     setIsOpen(false)
   }
 
@@ -75,7 +78,7 @@ const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
               )}
             </div>
             <button className="ml-2 px-2 py-1.5 hover:scale-105 text-white" onClick={() => setIsOpen(false)}>
-              Cancel
+              Close
             </button>
           </div>
 
@@ -89,10 +92,10 @@ const SymbolSearch = ({ hotSymbols, onSelectSymbol }) => {
                 <li
                   key={index}
                   className="flex justify-between items-center p-2 cursor-pointer hover:bg-gray-600 text-white"
-                  onClick={() => handleSelect(item.symbol)}
+                  onClick={() => handleSelect(item.symbol, item.baseAsset, item.quoteAsset)}
                 >
                   <div className="flex flex-col">
-                    <span className="font-semibold">{item.symbol}</span>
+                    <span className="font-semibold">{item.baseAsset}/{item.quoteAsset}</span>
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-medium text-white">${item.price > 1 ? Number(item.price).toLocaleString() : item.price}</div>
