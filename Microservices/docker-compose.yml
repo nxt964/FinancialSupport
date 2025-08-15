@@ -128,23 +128,23 @@ services:
     restart: unless-stopped
 
   # NewsService
-  # newsservice:
-  #   build:
-  #     context: .
-  #     dockerfile: Services/NewsService/Dockerfile
-  #   ports:
-  #     - "${NEWS_SERVICE_HTTP_PORT:-3000}:80"
-  #   environment:
-  #     NODE_ENV: production
-  #     PORT: 80
-  #     DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@news-service-db:5432/NewsServiceDb
-  #     HF_TOKEN: ${HF_TOKEN:-}
-  #   depends_on:
-  #     news-service-db:
-  #       condition: service_healthy
-  #   networks:
-  #     - microservices-network
-  #   restart: unless-stopped
+  newsservice:
+    build:
+      context: .
+      dockerfile: Services/NewsService/Dockerfile
+    ports:
+      - "${NEWS_SERVICE_HTTP_PORT}:${NEWS_SERVICE_HTTP_PORT}"
+    environment:
+      NODE_ENV: production
+      PORT: "${NEWS_SERVICE_HTTP_PORT}"
+      DATABASE_URL: "${DATABASE_URL}"
+      DIRECT_URL: "${DIRECT_URL}"
+      CRAWL_SITE_URL: "${CRAWL_SITE_URL:-https://cryptoslate.com/news/}"
+      HF_TOKEN: "${HF_TOKEN}"
+      CORS_ORIGINS: "${CORS_ORIGINS}"
+    networks:
+      - microservices-network
+    restart: unless-stopped
 
   # API Gateway
   apigateway:

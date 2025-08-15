@@ -42,7 +42,11 @@ public class TokenValidationMiddleware
         _logger = logger;
         var userServiceUrl = configuration["UserService:BaseUrl"] ?? "https://localhost:44568";
 
-        // Configure HttpClient for UserService
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+        _httpClient = new HttpClient(handler);
         _httpClient.BaseAddress = new Uri(userServiceUrl);
         _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
     }
