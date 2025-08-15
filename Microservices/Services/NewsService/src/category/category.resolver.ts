@@ -15,4 +15,9 @@ export class CategoryResolver {
   ) {
     return this.categoryService.getFeaturedNewsByCategory(categoryId, page);
   }
+
+  @Query(() => [Category])
+  async getAllCategories() {
+    return this.categoryService.getAllCategories();
+  }
 }

@@ -6,8 +6,10 @@ import { FEATURED_NEWS } from "../../queries/featuredNews.js";
 import { GET_FEATURED_NEWS_BY_CATEGORY } from "../../queries/featuredNewsByCat.js";
 import { useSearchParams } from "react-router-dom";
 import { NotFound } from "../../components/news/NotFound.jsx";
-import { Link } from "react-router-dom";
+import { IndexHeader } from "../../components/news/IndexHeader.jsx";
 import ArticleSkeleton from "../../components/skeletons/ArticleSkeleton.jsx";
+import { GET_CATEGORIES } from "../../queries/getCategories.js";
+import { useQuery } from "@apollo/client";
 
 export default function NewsFeed() {
   const [searchParams] = useSearchParams();
@@ -20,10 +22,14 @@ export default function NewsFeed() {
   const [invalidCategory, setInvalidCategory] = useState(false);
   const [categoryName, setCategoryName] = useState("");
   const [loading, setLoading] = useState(false);
+  const { data } = useQuery(GET_CATEGORIES);
 
   useEffect(() => {
     setPage(1);
-    setCategoryName("");
+    if (!categoryId) {
+      setCategoryName("All");
+    }
+    setInvalidCategory(false);
   }, [categoryId]);
 
   useEffect(() => {
@@ -38,7 +44,7 @@ export default function NewsFeed() {
           });
           const res = data.featuredNewsByCategory;
 
-          setCategoryName(res.items?.[0]?.category?.name ?? "");
+          setCategoryName(res.items?.[0]?.category?.name ?? categoryName);
 
           if (!res || res.totalCount === 0) {
             setInvalidCategory(true);
@@ -76,86 +82,10 @@ export default function NewsFeed() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-10 pb-6">
-        <nav
-          className="flex px-5 py-4 rounded-lg mb-2 bg-[var(--color-LiteBg1)] border border-[var(--color-InputLine)] text-[var(--color-PrimaryText)]"
-          aria-label="Breadcrumb"
-        >
-          <ol className="inline-flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse text-base">
-            {/* Home */}
-            <li className="inline-flex items-center">
-              <Link
-                to="/"
-                className="inline-flex items-center font-medium hover:text-[var(--color-PrimaryColor)]"
-              >
-                <svg
-                  className="w-4 h-4 me-2.5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
-                </svg>
-                Home
-              </Link>
-            </li>
-
-            {/* News */}
-            <li>
-              <div className="flex items-center">
-                <svg
-                  className="rtl:rotate-180 w-4 h-4 mx-1 text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 6 10"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m1 9 4-4-4-4"
-                  />
-                </svg>
-                <Link
-                  to="/news"
-                  className="ms-1 font-medium hover:text-[var(--color-PrimaryColor)]"
-                >
-                  News
-                </Link>
-              </div>
-            </li>
-
-            {/* Category */}
-            {categoryName && categoryId && (
-              <li aria-current="page">
-                <div className="flex items-center">
-                  <svg
-                    className="rtl:rotate-180 w-4 h-4 mx-1 text-gray-400"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 6 10"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m1 9 4-4-4-4"
-                    />
-                  </svg>
-                  <span className="ms-1 font-medium text-[var(--color-TertiaryText)]">
-                    {categoryName}
-                  </span>
-                </div>
-              </li>
-            )}
-          </ol>
-        </nav>
-      </header>
+      <IndexHeader
+        categoryName={categoryName}
+        categories={data?.getAllCategories ?? []}
+      />
 
       {/* Grid */}
       <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">

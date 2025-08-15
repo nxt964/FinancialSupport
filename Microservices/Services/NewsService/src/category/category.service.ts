@@ -27,4 +27,8 @@ export class CategoryService {
 
     return { items, totalCount: Math.ceil(totalCount / take) };
   }
+
+  async getAllCategories() {
+    return this.prisma.category.findMany();
+  }
 }
