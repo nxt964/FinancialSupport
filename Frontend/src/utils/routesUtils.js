@@ -1,10 +1,4 @@
 import Home from "../pages/Home";
-<<<<<<< Updated upstream
-
-const routes = [
-    { path: '/', element: Home }
-]
-=======
 import Login from "../pages/auth/Login";
 import Signup from "../pages/auth/Signup";
 import ConfirmEmail from "../pages/auth/ConfirmEmail";
@@ -35,6 +29,5 @@ const routes = [
   { path: "/trading-view", element: TradingView },
   { path: "/backtest", element: Backtest},
 ];
->>>>>>> Stashed changes
 
 export default routes
