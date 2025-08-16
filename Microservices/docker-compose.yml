@@ -1,4 +1,4 @@
-version: "3.8"
+# version: "3.8"
 services:
   # Infrastructure Services
   zookeeper:
@@ -31,11 +31,6 @@ services:
     extends:
       file: ./Infras/postgres/docker-compose.yml
       service: user-service-db
-
-  news-service-db:
-    extends:
-      file: ./Infras/postgres/docker-compose.yml
-      service: news-service-db
 
   pgadmin:
     extends:
@@ -136,13 +131,12 @@ services:
       - "${NEWS_SERVICE_HTTP_PORT}:${NEWS_SERVICE_HTTP_PORT}"
     environment:
       NODE_ENV: production
-      PORT: "${NEWS_SERVICE_HTTP_PORT}"
-      DATABASE_URL: "${DATABASE_URL}"
-      DIRECT_URL: "${DIRECT_URL}"
-      CRAWL_SITE_URL: "${CRAWL_SITE_URL:-https://cryptoslate.com/news/}"
-      HF_TOKEN: "${HF_TOKEN}"
-      CORS_ORIGINS: "${CORS_ORIGINS}"
-      REDIS_URL: "${REDIS_URL}"
+      PORT: ${NEWS_SERVICE_HTTP_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      DIRECT_URL: ${DIRECT_URL}
+      CRAWL_SITE_URL: ${CRAWL_SITE_URL:-https://cryptoslate.com/news/}
+      HF_TOKEN: ${HF_TOKEN}
+      # CORS_ORIGINS: ${CORS_ORIGINS}
     networks:
       - microservices-network
     restart: unless-stopped
@@ -171,7 +165,6 @@ volumes:
   kafka-data:
   redis-data:
   user-service-db-data:
-  news-service-db-data:
 
 networks:
   microservices-network:

@@ -19,26 +19,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # NewsService Database
-  news-service-db:
-    image: postgres:latest
-    container_name: news-service-db
-    ports:
-      - "5433:5432"
-    environment:
-      POSTGRES_DB: NewsServiceDb
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - news-service-db-data:/var/lib/postgresql/data
-    networks:
-      - microservices-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U news_service_user -d NewsServiceDb"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
@@ -51,13 +31,11 @@ services:
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
     depends_on:
       - user-service-db
-      - news-service-db
     networks:
       - microservices-network
 
 volumes:
   user-service-db-data:
-  news-service-db-data:
 
 networks:
   microservices-network:

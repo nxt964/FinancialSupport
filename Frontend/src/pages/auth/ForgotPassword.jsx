@@ -122,7 +122,7 @@ export default function ForgotPassword() {
                         <div className="text-center">
                             <p className="text-sm text-[var(--color-SecondaryText)]">
                                 Remember your password?{' '}
-                                <Link to="/auth/login" className="font-medium text-[var(--color-PrimaryColor)] hover:underline">
+                                <Link to="auth/login" className="font-medium text-[var(--color-PrimaryColor)] hover:underline">
                                     Back to Login
                                 </Link>
                             </p>
