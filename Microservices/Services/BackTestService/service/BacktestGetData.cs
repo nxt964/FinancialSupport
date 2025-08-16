@@ -33,8 +33,4 @@ public class BinanceDownloader
             Console.WriteLine($"❌ Lỗi: {ex.Message}");
         }
     }
-<<<<<<< Updated upstream
 }
-=======
-}
->>>>>>> Stashed changes

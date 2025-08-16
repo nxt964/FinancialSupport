@@ -11,6 +11,7 @@ import EditProfile from "../pages/auth/EditProfile";
 import NewsFeed from "../pages/news";
 import Details from "../pages/news/Details";
 import TradingView from "../pages/tradingview/TradingView";
+import Backtest from "../pages/backtest/Backtest";
 
 const routes = [
   { path: "/", element: Home },
