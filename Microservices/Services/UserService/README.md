@@ -1,160 +1,86 @@
-# UserService with Redis Configuration
+# UserService
 
-This document explains how Redis is configured and used in the UserService.
+A microservice for user management and authentication in the FinancialSupport system, built with .NET 9.0 and following Clean Architecture principles.
 
-## Redis Configuration
+## ✨ Features
 
-### 1. Connection Settings
+### Authentication & Authorization
+- User registration with email confirmation
+- Login/logout functionality
+- JWT token-based authentication
+- Password reset with email verification
+- Role-based access control
+- Token refresh mechanism
 
-Redis is configured in `appsettings.json`:
+### User Management
+- CRUD operations for user profiles
+- User role management
+- Secure password handling
+- User information updates
 
-```json
-{
-  "Redis": {
-    "ConnectionString": "redis-cache:6379",
-    "InstanceName": "UserService:"
-  }
-}
-```
+### Security
+- JWT token validation
+- Password hashing and validation
+- Global exception handling
 
-- **ConnectionString**: Points to the Redis container in Docker
-- **InstanceName**: Prefix for all Redis keys to avoid conflicts
+## 🚀 Getting Started
 
-### 2. Docker Setup
+### Seed Data
+The service automatically creates an initial admin user on first startup:
 
-The service includes a `docker-compose.yml` file that sets up:
-- UserService API
+- **Username**: `admin`
+- **Email**: `admin@financesupport.com`
+- **Password**: `Admin@123`
+- **Role**: `ProUser`
+- **Profile Image**: Empty string
+
+This seed data is created by `DatabaseContextSeed` and executed through `DatabaseInitializer` during application startup via `AutomatedMigration.MigrateAsync()`.
+
+### Prerequisites
+- .NET 9.0 SDK
 - PostgreSQL database
-- Redis cache
+- Redis server
+- Kafka server
 
-To run the entire stack:
+## 📡 API Endpoints
 
-```bash
-cd Microservices/UserService
-docker-compose up -d
-```
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/confirm-register` - Confirm registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `POST /api/auth/refresh-token` - Refresh access token
+- `POST /api/auth/reset-password-request` - Request password reset
+- `POST /api/auth/reset-password` - Reset password
 
-### 3. Redis Service
+### User Management
+- `GET /api/user/all` - Get all users (Admin only)
+- `GET /api/user/{id}` - Get user by ID
+- `PUT /api/user/update` - Update user information
+- `PUT /api/user/role` - Update user role (Admin only)
+- `DELETE /api/user/{id}` - Delete user
 
-The `IRedisService` interface provides the following methods:
 
-- `GetAsync<T>(string key)` - Retrieve a value from Redis
-- `SetAsync<T>(string key, T value, TimeSpan? expiry)` - Store a value with optional expiry
-- `DeleteAsync(string key)` - Remove a key from Redis
-- `ExistsAsync(string key)` - Check if a key exists
-- `GetOrSetAsync<T>(string key, Func<Task<T>> factory, TimeSpan? expiry)` - Get value or create if not exists
-- `SetExpiryAsync(string key, TimeSpan expiry)` - Set expiry for existing key
-- `GetTimeToLiveAsync(string key)` - Get remaining TTL for a key
+## 🗄️ Database
 
-### 4. Usage Examples
+The service uses PostgreSQL with Entity Framework Core. Database migrations are automatically applied on startup.
 
-#### Token Caching
+### Key Entities
+- **User** - User account information
+- **ApplicationUser** - Identity user with custom properties
 
-The `TokenAppService` uses Redis to store refresh tokens:
+## 🔐 Security
 
-```csharp
-// Store refresh token with 7-day expiry
-var refreshTokenKey = $"refresh_token:{refreshToken}";
-var tokenData = new { UserId = userId, Email = email, CreatedAt = DateTime.UtcNow };
-await _redisService.SetAsync(refreshTokenKey, tokenData, TimeSpan.FromDays(7));
+- JWT tokens with configurable expiration
+- Password hashing using ASP.NET Core Identity
+- Role-based authorization
+- Request validation and sanitization
+- Global exception handling
 
-// Validate refresh token
-var isValid = await _redisService.ExistsAsync(refreshTokenKey);
 
-// Revoke refresh token
-await _redisService.DeleteAsync(refreshTokenKey);
-```
+## 📊 Monitoring
 
-#### User Session Caching
-
-```csharp
-// Cache user session data
-var sessionKey = $"user_session:{userId}";
-var sessionData = new { UserId = userId, LastActivity = DateTime.UtcNow };
-await _redisService.SetAsync(sessionKey, sessionData, TimeSpan.FromHours(24));
-
-// Get cached session
-var session = await _redisService.GetAsync<dynamic>(sessionKey);
-```
-
-#### Cache-Aside Pattern
-
-```csharp
-// Get user data with caching
-var userData = await _redisService.GetOrSetAsync(
-    $"user:{userId}",
-    async () => await _userRepository.GetByIdAsync(userId),
-    TimeSpan.FromMinutes(30)
-);
-```
-
-## Development
-
-### Running Locally
-
-1. Start Redis using the infrastructure setup:
-   ```bash
-   cd Infras/redis
-   docker-compose up -d
-   ```
-
-2. Update `appsettings.Development.json` to use localhost:
-   ```json
-   {
-     "Redis": {
-       "ConnectionString": "localhost:6379",
-       "InstanceName": "UserService:"
-     }
-   }
-   ```
-
-3. Run the UserService:
-   ```bash
-   cd Microservices/UserService/src/UserService.API
-   dotnet run
-   ```
-
-### Testing Redis Connection
-
-You can test the Redis connection by:
-
-1. Using Redis CLI:
-   ```bash
-   docker exec -it userservice-redis redis-cli
-   ```
-
-2. Testing basic operations:
-   ```bash
-   SET UserService:test "Hello Redis"
-   GET UserService:test
-   ```
-
-## Production Considerations
-
-1. **Security**: Enable Redis password authentication in production
-2. **Persistence**: Configure Redis persistence for data durability
-3. **Monitoring**: Set up Redis monitoring and alerting
-4. **Scaling**: Consider Redis Cluster for high availability
-5. **Backup**: Implement regular Redis data backups
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Connection refused**: Ensure Redis container is running
-2. **Key not found**: Check if the key prefix (InstanceName) is correct
-3. **Serialization errors**: Ensure objects are serializable
-
-### Debug Commands
-
-```bash
-# Check Redis container status
-docker ps | grep redis
-
-# View Redis logs
-docker logs userservice-redis
-
-# Connect to Redis and check keys
-docker exec -it userservice-redis redis-cli
-KEYS UserService:*
-``` 
+- Health checks for database connectivity
+- Request logging middleware
+- Performance metrics collection
+- Error tracking and reporting

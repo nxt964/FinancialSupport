@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using UserService.Domain.Interfaces;
 using UserService.Domain.Services;
 using UserService.Infrastructure.Data;
@@ -17,8 +19,8 @@ public static class InfrastructureModule
         services.AddDatabase(configuration);
         services.AddIdentityServices();
         services.AddService();
-        // services.AddScoped<DatabaseInitializer>();
-        // services.AddScoped<DatabaseContextSeed>();
+        services.AddScoped<DatabaseInitializer>();
+        services.AddScoped<DatabaseContextSeed>();
     }
 
     private static void AddService(this IServiceCollection services)

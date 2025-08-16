@@ -1,6 +1,6 @@
 using ApiGateway.Middlewares;
 using AspNetCoreRateLimit;
-using StackExchange.Redis;
+using Yarp.ReverseProxy.Transforms;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +21,8 @@ builder.Services.AddHttpClient();
 
 // Add YARP
 builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+    .AddTransforms<SignalRTransformProvider>();
 
 // Add Redis for distributed rate limiting
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -45,9 +46,11 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:5173", "https://localhost:5173")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials()
+              .WithExposedHeaders("X-User-Id", "X-User-Email", "X-User-Role", "X-User-FirstName", "X-User-LastName");
     });
 });
 
@@ -81,7 +84,7 @@ app.MapGet("/info", () => new
     Environment = app.Environment.EnvironmentName,
     Timestamp = DateTime.UtcNow
 });
-
+app.UseWebSockets();
 app.MapReverseProxy();
 
 app.Run();

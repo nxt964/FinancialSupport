@@ -9,10 +9,21 @@ public class TemplateService : ITemplateService
 
     public TemplateService()
     {
-        var projectPath = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName;
-        var templateProject = Assembly.GetExecutingAssembly().GetName().Name;
-        _templatesPath = Path.Combine(projectPath, templateProject, "Templates");
-
+        // Get the directory where the assembly is located
+        var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+        var assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
+        
+        // In Docker, templates are copied to /app/EmailService.Application/Templates
+        // In development, they're in the project's Templates folder
+        if (Directory.Exists(Path.Combine(assemblyDirectory, "Templates")))
+        {
+            _templatesPath = Path.Combine(assemblyDirectory, "Templates");
+        }
+        else
+        {
+            // Fallback for Docker container - maintain the folder structure
+            _templatesPath = "/app/EmailService.Application/Templates";
+        }
     }
 
     public async Task<string> GetTemplateAsync(string templateName)

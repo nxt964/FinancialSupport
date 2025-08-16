@@ -6,7 +6,7 @@ public class ChartHub : Hub
 {
     private readonly BinanceCollectorManager _collectorManager;
     private static readonly ConcurrentDictionary<string, int> _groupClientCounts = new();
-    private static readonly ConcurrentDictionary<string, HashSet<string>> _connectionGroups = new();
+    private static readonly ConcurrentDictionary<string, HashSet<string>> _subcribedGroupsByClient = new();
 
     public ChartHub(BinanceCollectorManager collectorManager)
     {
@@ -24,7 +24,7 @@ public class ChartHub : Hub
 
         _groupClientCounts.AddOrUpdate(groupName, 1, (_, count) => count + 1);
 
-        _connectionGroups.AddOrUpdate(connectionId,
+        _subcribedGroupsByClient.AddOrUpdate(connectionId,
             _ => new HashSet<string> { groupName },
             (_, groups) => { groups.Add(groupName); return groups; });
 
@@ -47,11 +47,11 @@ public class ChartHub : Hub
             _groupClientCounts.TryRemove(groupName, out _);
         }
 
-        if (_connectionGroups.TryGetValue(connectionId, out var groups))
+        if (_subcribedGroupsByClient.TryGetValue(connectionId, out var groups))
         {
             groups.Remove(groupName);
             if (groups.Count == 0)
-                _connectionGroups.TryRemove(connectionId, out _);
+                _subcribedGroupsByClient.TryRemove(connectionId, out _);
         }
     }
 
@@ -59,7 +59,7 @@ public class ChartHub : Hub
     {
         string connectionId = Context.ConnectionId;
 
-        if (_connectionGroups.TryRemove(connectionId, out var groups))
+        if (_subcribedGroupsByClient.TryRemove(connectionId, out var groups))
         {
             foreach (var groupName in groups)
             {

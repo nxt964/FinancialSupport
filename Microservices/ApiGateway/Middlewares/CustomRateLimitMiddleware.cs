@@ -22,14 +22,20 @@ public class CustomRateLimitMiddleware
         var userRole = context.Request.Headers["X-User-Role"].FirstOrDefault();
         if (!string.IsNullOrEmpty(userRole))
         {
-            if (userRole.Equals("Premium", StringComparison.OrdinalIgnoreCase))
+            if (userRole.Equals("Admin", StringComparison.OrdinalIgnoreCase))
             {
-                context.Request.Headers["X-ClientId"] = "premium-user";
-                _logger.LogDebug("Applied premium rate limiting for user with role: {Role}", userRole);
-            }
-            else
-            {
-                context.Request.Headers["X-ClientId"] = "standard-user";
+                context.Request.Headers["X-ClientId"] = "admin-user";
+                _logger.LogDebug("Applied admin rate limiting for user with role: {Role}", userRole);
+            } else {
+                if (userRole.Equals("Premium", StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Request.Headers["X-ClientId"] = "premium-user";
+                    _logger.LogDebug("Applied premium rate limiting for user with role: {Role}", userRole);
+                }
+                else
+                {
+                    context.Request.Headers["X-ClientId"] = "standard-user";
+                }
             }
         }
 

@@ -42,7 +42,11 @@ public class TokenValidationMiddleware
         _logger = logger;
         var userServiceUrl = configuration["UserService:BaseUrl"] ?? "https://localhost:44568";
 
-        // Configure HttpClient for UserService
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+        _httpClient = new HttpClient(handler);
         _httpClient.BaseAddress = new Uri(userServiceUrl);
         _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
     }
@@ -58,12 +62,17 @@ public class TokenValidationMiddleware
         var token = ExtractBearerToken(context);
         if (!string.IsNullOrEmpty(token))
         {
+            _logger.LogInformation("Token: {token}", token);
             var userContext = await ValidateTokenWithUserService(token);
             if (userContext != null)
             {
                 AddUserContextHeaders(context, userContext);
                 _logger.LogInformation("Token validation successful for route: {Path}, User: {UserId}, Role: {Role}", 
                     path, userContext.UserId, userContext.Role);
+            }
+            else
+            {
+                _logger.LogError("Token validation failed");
             }
         }
         
@@ -90,7 +99,7 @@ public class TokenValidationMiddleware
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync("/api/token/validate", content);
-
+            
             if (!response.IsSuccessStatusCode) return null;
             var responseContent = await response.Content.ReadAsStringAsync();
             var validationResponse = JsonSerializer.Deserialize<TokenValidationResponse>(responseContent, new JsonSerializerOptions

@@ -11,6 +11,6 @@ public class UnauthorizedController() : ApiController
     [AllowAnonymous]
     public IActionResult Login()
     {
-        throw new UnauthorizedAccessException("Access denied");
+        return Failure<string>("Access denied");
     }
 }

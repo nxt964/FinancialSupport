@@ -27,7 +27,7 @@ public static class ApplicationModule
 
     private static void AddJwtSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+        services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
         services.AddScoped<ITokenAppService, TokenAppService>();
     }
     
