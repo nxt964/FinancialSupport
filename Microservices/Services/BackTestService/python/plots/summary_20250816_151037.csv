@@ -1,5 +1,2 @@
 Strategy,Return [%],Sharpe Ratio,Max Drawdown [%],Win Rate [%],Total Trades
-MA30-MA90,-2.27,,-3.33,44.44,9
 RSI,0.0,,-0.0,,0
-MACD,-1.9,,-2.66,34.62,78
-MA50-MA200,-1.83,,-2.23,20.0,5
