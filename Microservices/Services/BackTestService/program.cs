@@ -49,8 +49,6 @@ public class Program
 
         // FORCE PORT 7207 để tránh conflict với API Gateway (port 5000)
         app.Urls.Clear();
-        app.Urls.Add("http://localhost:7206");
-        app.Urls.Add("https://localhost:7207");
 
         Console.WriteLine("BackTestService starting on:");
         Console.WriteLine("HTTP:  http://localhost:7206");
