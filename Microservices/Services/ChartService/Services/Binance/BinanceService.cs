@@ -49,19 +49,19 @@ public class BinanceService
 
         // Tính sẵn 4 list
         _cachedHotTrading = FilterUniqueByBaseAsset(
-            _cachedTickers.OrderByDescending(t => t.TotalTrades), 20
+            _cachedTickers.OrderByDescending(t => t.TotalTrades), 30
         );
 
         _cachedTopVolume = FilterUniqueByBaseAsset(
-            _cachedTickers.OrderByDescending(t => t.QuoteVolume), 20
+            _cachedTickers.OrderByDescending(t => t.QuoteVolume), 30
         );
 
         _cachedTopGainers = FilterUniqueByBaseAsset(
-            _cachedTickers.OrderByDescending(t => t.PriceChangePercent), 20
+            _cachedTickers.OrderByDescending(t => t.PriceChangePercent), 30
         );
 
         _cachedTopLosers = FilterUniqueByBaseAsset(
-            _cachedTickers.OrderBy(t => t.PriceChangePercent), 20
+            _cachedTickers.OrderBy(t => t.PriceChangePercent), 30
         );
 
         _lastCacheUpdate = DateTime.UtcNow;

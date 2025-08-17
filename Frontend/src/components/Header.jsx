@@ -20,6 +20,11 @@ export default function Header() {
     };
 
     useEffect(() => {
+        document.documentElement.className = theme;
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setShowDropdown(false);
@@ -54,7 +59,7 @@ export default function Header() {
     };
 
     return (
-        <div className="px-4 py-2.5 flex justify-between items-center shadow-lg h-fit">
+        <div className="px-4 py-2.5 flex justify-between items-center shadow-sm h-fit">
             {/* Navigation */}
             <div className='flex items-center gap-10'>
                 <button
@@ -101,17 +106,17 @@ export default function Header() {
                         </button>
                         
                         {showDropdown && (
-                            <div className="absolute right-0 top-full mt-1 w-auto rounded-lg shadow-lg border border-[var(--color-Line)] z-50 bg-[var(--color-InputLine)]">
+                            <div className="absolute right-0 top-full mt-1 w-auto rounded-lg shadow-lg border border-[var(--color-Line)] z-50 bg-[var(--color-Input)]">
                                 <button
                                     onClick={handleDetailClick}
-                                    className="flex items-center space-x-2 bg-transparent! hover:bg-[var(--color-Input)]! w-full px-2.5 py-1.5 text-xs text-[var(--color-SecondaryText)]"
+                                    className="flex items-center space-x-2 bg-transparent! hover:bg-[var(--color-InputLine)]! w-full px-2.5 py-1.5 text-xs text-[var(--color-SecondaryText)]"
                                 >
                                     <FontAwesomeIcon icon={faUserCog} className="w-3.5 h-3.5" />
                                     <span>Detail</span>
                                 </button>
                                 <button
                                     onClick={handleLogoutClick}
-                                    className="flex items-center space-x-2 bg-transparent! hover:bg-[var(--color-Input)]! w-full px-2.5 py-1.5 text-xs text-[var(--color-TextLink)]"
+                                    className="flex items-center space-x-2 bg-transparent! hover:bg-[var(--color-InputLine)]! w-full px-2.5 py-1.5 text-xs text-[var(--color-TextLink)]"
                                 >
                                     <FontAwesomeIcon icon={faSignOutAlt} className="w-3.5 h-3.5" />
                                     <span>Logout</span>

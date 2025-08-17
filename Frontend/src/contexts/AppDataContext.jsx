@@ -30,10 +30,6 @@ export const AppDataContextProvider = ({ children }) => {
     const [theme, setTheme] = useState(() => {
         return localStorage.getItem('theme') || 'theme-dark';
     });
-    useEffect(() => {
-        document.documentElement.className = theme;
-        localStorage.setItem('theme', theme);
-    }, [theme]);
 
     return (
         <AppDataContext.Provider value=

@@ -195,7 +195,7 @@ export default function FullChart() {
 
 
     const [tickerData, setTickerData] = useState({lastPrice: 0, change: 0, percentChange: 0, volume: 0, high: 0, low: 0});
-    const [symbolInfor, setSymbolInfor] = useState({baseAsset: symbol});
+    const [symbolInfor, setSymbolInfor] = useState({baseAsset: symbol, quoteAsset: interval});
     // Lắng nghe realtime ticker
     useEffect(() => {
         if (!connection || !isConnected) return;
@@ -229,9 +229,13 @@ export default function FullChart() {
     // Fetch Hot Trading & Top Volumn Symbols
     const [hotSymbols, setHotSymbols] = useState([]);
     const [topVolume, setTopVolume] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
     useEffect(() => {
         const fetchData = async () => {
         try {
+            setIsLoading(true);
+
             const resHotTrading = await httpClient.get(`${import.meta.env.VITE_API_BINANCE_HOT_TRADING}`);
             const dataHotTrading = await resHotTrading.json();
             setHotSymbols(dataHotTrading);
@@ -239,9 +243,15 @@ export default function FullChart() {
             const resTopVolume = await httpClient.get(`${import.meta.env.VITE_API_BINANCE_TOP_VOLUME}`);
             const dataTopVolume = await resTopVolume.json();
             setTopVolume(dataTopVolume);
+
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 200);
         } catch (err) {
             console.error("Failed to load hot symbols", err);
+            setIsLoading(false);
         }
+        setIsLoading(false);
         };
 
 
@@ -250,19 +260,24 @@ export default function FullChart() {
 
     // Search symbol
     const [keyword, setKeyword] = useState("");
-    const [loading, setLoading] = useState(false);
     const [searchResults, setSearchResults] = useState(hotSymbols);
 
     const fetchSearchResults = async (keyword) => {
-        setLoading(true);
         try {
+            setIsLoading(true);
+
             const res = await httpClient.get(`${import.meta.env.VITE_API_BINANCE_SEARCH}?keyword=${keyword}`)
             const data = await res.json();
             setSearchResults(data);
+
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 500);
         } catch (err) {
             console.error("Failed to search symbols", err);
+            setIsLoading(false);
         }
-        setLoading(false);
+        setIsLoading(false);
     };
 
     useEffect(() => {
@@ -324,20 +339,16 @@ export default function FullChart() {
 
                     {/* Symbol */}
                     {/* <div className='text-xs text-[var(--color-TertiaryText)]'>Symbol</div> */}
-                    { !symbolInfor.quoteAsset 
-                    ? (
+                    {/* { !symbolInfor.quoteAsset? (
                         <div className='flex items-center'>
                             <div className="font-bold text-xl text-red-600">Undefined Symbol ({symbol} - {interval})</div>
+                        </div>) : ()} */}
+                    <div className='flex flex-1 items-center'>
+                        <div className="font-bold text-2xl text-[var(--color-PrimaryColor)]">{symbolInfor.baseAsset}
+                            <span className="font-normal text-[var(--color-TertiaryText)] ml-0.5">({symbolInfor.quoteAsset})</span>
                         </div>
-                    ) 
-                    : (
-                        <div className='flex flex-1 items-center'>
-                            <div className="font-bold text-2xl text-[var(--color-PrimaryColor)]">{symbolInfor.baseAsset}
-                                <span className="font-normal text-[var(--color-TertiaryText)] ml-0.5">({symbolInfor.quoteAsset})</span>
-                            </div>
-                        </div>
-                    )
-                    }
+                    </div>
+
                     {/* Price */}
                     <div className='flex flex-1 items-center'>
                         {/* <div className='text-xs text-[var(--color-TertiaryText)]'>Price</div> */}
@@ -457,23 +468,21 @@ export default function FullChart() {
                     </div>
                     <p className='font-semibold'>{!keyword ? "Top Trading" : "Search Results"}</p>
                     <div className='flex-1 min-h-0'>
-                        <ListCoins listCoins={searchResults}/>
+                        <ListCoins isLoading={isLoading} listCoins={searchResults}/>
                     </div>
                     {
-                    loading 
-                        ? (<div className="flex-1 text-center text-xl">Searching...</div>)
-                        : searchResults.length === 0 && 
-                            <div className="text-center text-xl flex-1">
-                                No results found for
-                                <span className='text-[var(--color-PrimaryColor)] ml-2'>"{keyword}"</span>
-                            </div>
+                    searchResults.length === 0 && 
+                        <div className="text-center text-xl flex-1">
+                            No results found for
+                            <span className='text-[var(--color-PrimaryColor)] ml-2'>"{keyword}"</span>
+                        </div>
                     }
                 </div>
 
                 <div className='flex-1 flex flex-col gap-2 p-2 bg-[var(--color-ChartBg)] rounded-lg min-h-0 border border-[var(--color-Line)]'>
                     <p className='font-semibold'>Top Volume</p>
                     <div className='flex-1 min-h-0'>
-                        <ListCoins listCoins={topVolume}/>
+                        <ListCoins isLoading={isLoading} listCoins={topVolume}/>
                     </div>
                 </div>
             </div>
