@@ -1,36 +1,34 @@
-using System;
-using System.IO;
 using System.Net.Http;
-using System.Threading.Tasks;
 
-public class BinanceDownloader
+namespace BacktestService.Services
 {
-    public async Task DownloadCandlesAsync(string url, string outputPath)
+    public class BinanceService
     {
-        try
+        private readonly HttpClient _httpClient;
+
+        public BinanceService()
         {
-            using (HttpClientHandler handler = new HttpClientHandler())
+            _httpClient = new HttpClient(new HttpClientHandler
             {
-                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
-
-                using (HttpClient client = new HttpClient(handler))
-                {
-                    Console.WriteLine($"Đang tải dữ liệu từ {url}...");
-
-                    HttpResponseMessage response = await client.GetAsync(url);
-                    response.EnsureSuccessStatusCode();
-
-                    string jsonData = await response.Content.ReadAsStringAsync();
-
-                    await File.WriteAllTextAsync(outputPath, jsonData);
-
-                    Console.WriteLine($"✅ Đã lưu dữ liệu vào {outputPath}");
-                }
-            }
+                ServerCertificateCustomValidationCallback = (sender, cert, chain, errors) => true
+            });
         }
-        catch (Exception ex)
+
+        public async Task<string> DownloadCandles(string symbol, string interval)
         {
-            Console.WriteLine($"❌ Lỗi: {ex.Message}");
+            string url = $"https://localhost:7114/api/Binance/history-candles?symbol={symbol}&interval={interval}";
+            string folder = "data";
+            Directory.CreateDirectory(folder);
+            string filePath = Path.Combine(folder, "candles.json");
+
+            Console.WriteLine($"Đang tải dữ liệu từ {url}...");
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            string jsonData = await response.Content.ReadAsStringAsync();
+            await File.WriteAllTextAsync(filePath, jsonData);
+
+            Console.WriteLine($"✅ Đã lưu dữ liệu vào {filePath}");
+            return filePath;
         }
     }
 }

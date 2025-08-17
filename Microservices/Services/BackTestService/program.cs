@@ -1,102 +1,62 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+﻿
 
-class Program
+using Microsoft.OpenApi.Models;
+using BacktestService.Services;
+
+public class Program
 {
-    static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
-        string apiUrl = "https://localhost:7114/api/Binance/history-candles?symbol=ETHUSDT&interval=5m";
+        var builder = WebApplication.CreateBuilder(args);
 
-        // Create data directory if it doesn't exist
-        Directory.CreateDirectory("data");
-        string outputFile = "data/candles.json";
-
-        Console.WriteLine("🔄 Step 1: Downloading candle data...");
-        var downloader = new BinanceDownloader();
-        await downloader.DownloadCandlesAsync(apiUrl, outputFile);
-
-        if (File.Exists(outputFile))
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen(c =>
         {
-            Console.WriteLine($"✅ Data file confirmed at: {Path.GetFullPath(outputFile)}");
-            Console.WriteLine($"📁 File size: {new FileInfo(outputFile).Length} bytes");
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Binance Backtest API", Version = "v1" });
+        });
 
-            // Small delay to ensure file is fully written
-            await Task.Delay(1000);
+        // Register services
+        builder.Services.AddSingleton<BinanceService>();
+        builder.Services.AddSingleton<BacktestRunner>();
 
-            // ✅ Get strategy number from your existing call/function (1–4)
-            // Replace GetStrategyChoice() with your real function that returns 1..4.
-            int strategyChoice = GetStrategyChoice();
-
-            Console.WriteLine($"\n🐍 Step 2: Running Python backtest with strategy #{strategyChoice}...");
-            await RunPythonBacktest(strategyChoice);
-        }
-        else
+        // CORS - Similar to ChartsService but allow any origin for backtest service
+        builder.Services.AddCors(options =>
         {
-            Console.WriteLine("❌ Failed to download data. Python backtest will not run.");
-        }
-
-        Console.WriteLine("\n✅ Process completed!");
-        //Console.ReadKey();
-    }
-
-    /// <summary>
-    /// TODO: Replace this with YOUR real call that returns a number 1..4.
-    /// </summary>
-    static int GetStrategyChoice()
-    {
-        // Example placeholder: always return 1.
-        // Plug in your logic that returns 1, 2, 3, or 4.
-        return 1;
-    }
-
-    static async Task RunPythonBacktest(int strategyChoice)
-    {
-        try
-        {
-            var processInfo = new ProcessStartInfo
+            options.AddPolicy("AllowCORS", policy =>
             {
-                FileName = "python",
-                Arguments = $"backtest.py {strategyChoice}",   // <-- pass choice to Python
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = false,
-                WorkingDirectory = "python"  // Set working directory to python folder
-            };
+                policy.WithOrigins("https://localhost:5001", "http://localhost:5000")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            });
+        });
 
-            using (var process = Process.Start(processInfo))
-            {
-                if (process != null)
-                {
-                    // Read output in real-time
-                    string output = await process.StandardOutput.ReadToEndAsync();
-                    string error = await process.StandardError.ReadToEndAsync();
+        var app = builder.Build();
 
-                    await process.WaitForExitAsync();
+        app.UseCors("AllowCORS");
+        app.UseRouting();
 
-                    if (!string.IsNullOrEmpty(output))
-                        Console.WriteLine(output);
+        // Always show Swagger for development and testing
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
-                    if (!string.IsNullOrEmpty(error))
-                    {
-                        Console.WriteLine($"❌ Python Error Output:");
-                        Console.WriteLine(error);
-                    }
-
-                    if (process.ExitCode == 0)
-                        Console.WriteLine("🎉 Python backtest completed successfully!");
-                    else
-                        Console.WriteLine($"❌ Python backtest failed with exit code: {process.ExitCode}");
-                }
-            }
-        }
-        catch (Exception ex)
+        // Use UseEndpoints similar to ChartsService
+        app.UseEndpoints(endpoints =>
         {
-            Console.WriteLine($"❌ Error running Python script: {ex.Message}");
-            //Console.WriteLine("Make sure Python is installed and in your PATH");
-            //Console.WriteLine("You can manually run: python python/backtest.py 1");
-        }
+            endpoints.MapControllers();
+        });
+
+        // FORCE PORT 7207 để tránh conflict với API Gateway (port 5000)
+        app.Urls.Clear();
+        app.Urls.Add("http://localhost:7206");
+        app.Urls.Add("https://localhost:7207");
+
+        Console.WriteLine("BackTestService starting on:");
+        Console.WriteLine("HTTP:  http://localhost:7206");
+        Console.WriteLine("HTTPS: https://localhost:7207");
+        
+        app.Run();
     }
 }
+    
