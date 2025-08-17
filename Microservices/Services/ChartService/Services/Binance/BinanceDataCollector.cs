@@ -37,7 +37,7 @@ public class BinanceDataCollector
         // 1.Gửi 1000 nến lịch sử về cho client
         await SendHistoryCandlesToClientAsync(connectionId);
 
-        // 2. Subscribe websocket để nhận realtime
+        // 2. Subscribe websocket để nhận realtime Candle (cho chart) và Ticker (cho thông tin Symbol)
         await _socketClient.SpotApi.ExchangeData.SubscribeToKlineUpdatesAsync(
             _symbol,
             Utils.MapInterval(_interval),
@@ -56,6 +56,27 @@ public class BinanceDataCollector
 
                 //Console.WriteLine($"[DataCollector] Get new candle of {groupName} successfully! Broasdcast is sending...");
                 await _chartBroadcastService.BroadcastNewCandleAsync(_symbol, _interval, UpdatedCandleDto);
+            });
+
+        await _socketClient.SpotApi.ExchangeData.SubscribeToTickerUpdatesAsync(
+            _symbol,
+            async update =>
+            {
+                var symbolInfo = await _binanceService.GetSymbolInfoAsync(_symbol);
+
+                var newTicker = new Ticker
+                {
+                    LastPrice = update.Data.LastPrice,
+                    Change = update.Data.PriceChange,
+                    PercentChange = update.Data.PriceChangePercent,
+                    High = update.Data.HighPrice,
+                    Low = update.Data.LowPrice,
+                    Volume = update.Data.Volume,
+                    BaseAsset = symbolInfo.BaseAsset,
+                    QuoteAsset = symbolInfo.QuoteAsset
+                };
+
+                await _chartBroadcastService.BroadcastNewTickerAsync(_symbol, _interval, newTicker);
             });
     }
 

@@ -10,7 +10,10 @@ import Profile from "../pages/auth/Profile";
 import EditProfile from "../pages/auth/EditProfile";
 import NewsFeed from "../pages/news";
 import Details from "../pages/news/Details";
-import TradingView from "../pages/tradingview/TradingView";
+import MultiCharts from "../pages/charts/MultiCharts";
+import FullChart from "../pages/charts/FullChart";
+import { Navigate } from "react-router-dom";
+import RedirectToDefaultChart from "../components/charts/RedirectToDefaultChart";
 
 const routes = [
   { path: "/", element: Home },
@@ -25,7 +28,9 @@ const routes = [
   { path: "/edit-profile", element: EditProfile },
   { path: "/news", element: NewsFeed },
   { path: "/news/:id", element: Details },
-  { path: "/trading-view", element: TradingView },
+  { path: "/multi-charts", element: MultiCharts },
+  { path: "/chart", element: RedirectToDefaultChart},
+  { path: "/chart/:symbol/:interval", element: FullChart }
 ];
 
 export default routes;

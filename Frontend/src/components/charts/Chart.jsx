@@ -2,9 +2,12 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import { CandlestickSeries, createChart } from 'lightweight-charts';
 import { useSignalR } from '../../contexts/SignalRContext';
 import { httpClient } from '../../utils/httpClient';
+import { useNavigate } from 'react-router-dom';
+import { faExpand } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useAppData } from '../../contexts/AppDataContext';
 
 const Chart = ({ symbol, interval }) => {
-  // From SignalRContext: use 1 connection for the whole website
   const { connection, isConnected } = useSignalR();
 
   const chartContainerRef = useRef(null);
@@ -35,16 +38,21 @@ const Chart = ({ symbol, interval }) => {
       return;
     }
 
+    const styles = getComputedStyle(document.documentElement);
+    const bgColor = styles.getPropertyValue("--color-ChartBg").trim();
+    const textColor = styles.getPropertyValue("--color-PrimaryText").trim();
+    const gridColor = styles.getPropertyValue("--color-Line").trim();
+
     const chart = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
       height: 400,
       layout: {
-        background: { color: '#1a202c' },
-        textColor: '#cbd5e0',
+        background: { color: bgColor },
+        textColor: textColor,
       },
       grid: {
-        vertLines: { color: '#2d3748' },
-        horzLines: { color: '#2d3748' },
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor },
       },
       timeScale: {
         timeVisible: true,
@@ -87,6 +95,27 @@ const Chart = ({ symbol, interval }) => {
       window.removeEventListener('resize', handleResize);
     };
   }, [interval, priceFormat]);
+
+  const { theme } = useAppData();
+  useEffect(() => {
+    if (!chartInstanceRef.current) return;
+
+    const styles = getComputedStyle(document.documentElement);
+    const bgColor = styles.getPropertyValue("--color-ChartBg").trim();
+    const textColor = styles.getPropertyValue("--color-PrimaryText").trim();
+    const gridColor = styles.getPropertyValue("--color-Line").trim();
+
+    chartInstanceRef.current.applyOptions({
+      layout: {
+        background: { color: bgColor },
+        textColor: textColor,
+      },
+      grid: {
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor },
+      },
+    });
+  }, [theme]);
 
   // SignalR subscribe và xử lý dữ liệu
   useEffect(() => {
@@ -131,9 +160,9 @@ const Chart = ({ symbol, interval }) => {
                 .catch((err) => console.error('[Chart] Subscribe error:', err));
     }
 
-    connection.on('ReceiveHistory', handleHistoryCandlesData);
+    connection.on('ReceiveHistoryCandles', handleHistoryCandlesData);
 
-    connection.on('ReceiveRealtime', handleRealtimeCandleData);
+    connection.on('ReceiveRealtimeCandle', handleRealtimeCandleData);
 
     connection.on('Error', (message) => {
       console.error('[Chart] Server error:', message);
@@ -142,8 +171,8 @@ const Chart = ({ symbol, interval }) => {
     return () => {
       const cleanup = async () => {
         try {
-          connection.off('ReceiveHistory', handleHistoryCandlesData);
-          connection.off('ReceiveRealtime', handleRealtimeCandleData);
+          connection.off('ReceiveHistoryCandles', handleHistoryCandlesData);
+          connection.off('ReceiveRealtimeCandle', handleRealtimeCandleData);
           connection.invoke('UnsubscribeSymbol', symbol, interval)
                     .catch((err) => console.warn('[Chart] Unsubscribe error:', err));
         } catch (err) {
@@ -155,11 +184,20 @@ const Chart = ({ symbol, interval }) => {
     };
   }, [symbol, interval, connection, isConnected]);
 
+  const navigate = useNavigate();
+
   return (
     <div
       ref={chartContainerRef}
-      className="w-full h-full rounded-lg"
-    />
+      className="relative w-full h-fit rounded-lg"
+    >
+      <button
+        onClick={() => navigate(`/chart/${symbol}/${interval}`)}
+        className="absolute bottom-[-8px] right-[-8px] p-1 hover:bg-gray-600 rounded hover:opacity-80 hover:scale-110 z-50"
+      >
+        <FontAwesomeIcon icon={faExpand} className='text-lg'/>  
+      </button>
+    </div>
   );
 };
 

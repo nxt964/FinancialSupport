@@ -30,14 +30,6 @@ public class BinanceController : ControllerBase
         return Ok(results);
     }
 
-    
-    [HttpGet("top-hot-trading")]
-    public async Task<IActionResult> GetTopHotSymbols()
-    {
-        var topSymbols = await _binanceService.GetTopHotSymbolsAsync();
-        return Ok(topSymbols);
-    }
-
     [HttpGet("ticket-size")]
     public async Task<IActionResult> GetTiketSize([FromQuery] string symbol)
     {
@@ -45,4 +37,31 @@ public class BinanceController : ControllerBase
         return Ok(tickInfo);
     }
 
+    [HttpGet("hot-trading")]
+    public async Task<IActionResult> GetHotTradingSymbols()
+    {
+        var topSymbols = await _binanceService.GetHotTradingAsync();
+        return Ok(topSymbols);
+    }
+
+    [HttpGet("top-volume")]
+    public async Task<IActionResult> GetTopVolumeSymbols()
+    {
+        var topSymbols = await _binanceService.GetTopVolumeAsync();
+        return Ok(topSymbols);
+    }
+
+    [HttpGet("top-gainers")]
+    public async Task<IActionResult> GetTopGainersSymbols()
+    {
+        var topSymbols = await _binanceService.GetTopGainersAsync();
+        return Ok(topSymbols);
+    }
+
+    [HttpGet("top-losers")]
+    public async Task<IActionResult> GetTopLosersSymbols()
+    {
+        var topSymbols = await _binanceService.GetTopLosersAsync();
+        return Ok(topSymbols);
+    }
 }

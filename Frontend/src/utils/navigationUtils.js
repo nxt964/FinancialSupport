@@ -1,6 +1,7 @@
 const headerRoutes = [
-  { path: "/trading-view", tag: "Trading View" },
+  { path: "/chart", tag: "Chart" },
   { path: "/news", tag: "News" },
+  { path: "/multi-charts", tag: "Multi-Charts" },
 ];
 
 export default headerRoutes;

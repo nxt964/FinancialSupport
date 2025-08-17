@@ -23,7 +23,7 @@ public class BinanceCollectorManager
         if (!_collectors.ContainsKey(key))
         {
             var collector = new BinanceDataCollector(_chartBroadcastService, _binanceService, symbol, interval);
-            Console.WriteLine($"[CollectionManager] Create new collector for group: {key}");
+            //Console.WriteLine($"[CollectionManager] Create new collector for group: {key}");
             _collectors[key] = collector;
             await collector.StartAsync(connectionId);
         }
@@ -40,7 +40,7 @@ public class BinanceCollectorManager
         if (_collectors.TryRemove(key, out var collector))
         {
             await collector.StopAsync();
-            Console.WriteLine($"[CollectorManager] Stopped collector {key}");
+            //Console.WriteLine($"[CollectorManager] Stopped collector {key}");
         }
     }
 }

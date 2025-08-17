@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faSignOutAlt, faUserCog, faChevronDown, faMoon, faSun, faCoins } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faSignOutAlt, faUserCog, faChevronDown, faMoon, faCoins } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 import headerRoutes from '../utils/navigationUtils';
+import { useAppData } from '../contexts/AppDataContext';
+import { faSun } from '@fortawesome/free-regular-svg-icons';
 
 export default function Header() {
     const { user, logout, isAuthenticated } = useAuth();
@@ -11,14 +13,7 @@ export default function Header() {
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
 
-    const [theme, setTheme] = useState(() => {
-        return localStorage.getItem('theme') || 'theme-dark';
-    });
-
-    useEffect(() => {
-        document.documentElement.className = theme;
-        localStorage.setItem('theme', theme);
-    }, [theme]);
+    const { theme, setTheme } = useAppData(); 
 
     const toggleTheme = () => {
         setTheme(prev => (prev === 'theme-light' ? 'theme-dark' : 'theme-light'));
@@ -59,7 +54,7 @@ export default function Header() {
     };
 
     return (
-        <div className="px-4 py-2.5 flex justify-between items-center shadow-lg">
+        <div className="px-4 py-2.5 flex justify-between items-center shadow-lg h-fit">
             {/* Navigation */}
             <div className='flex items-center gap-10'>
                 <button
@@ -145,7 +140,7 @@ export default function Header() {
                 {/* Theme toggle button */}
                 <button
                     onClick={toggleTheme}
-                    className="flex items-center bg-[var(--color-Line)]! rounded-lg p-2! shadow-sm ml-2"
+                    className="flex items-center bg-[var(--color-Line)]! rounded-lg p-2! shadow-sm ml-2 hover:opacity-80"
                     title="Toggle Theme"
                 >
                     <FontAwesomeIcon

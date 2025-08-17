@@ -33,6 +33,7 @@ body {
   overflow: auto;
   --color-BasicBg: #FFFFFF;
   --color-SecondaryBg: #FAFAFA;
+  --color-ChartBg: #FAFAFA;
   --color-Input: #F5F5F5;
   --color-InputLine: #DDDDDD;
   --color-CardBg: #FFFFFF;
@@ -88,6 +89,7 @@ body {
 .theme-dark {
   --color-BasicBg: #181A20;
   --color-SecondaryBg: #0B0E11;
+  --color-ChartBg: #1a202c;
   --color-Input: #2B3139;
   --color-InputLine: #474D57;
   --color-CardBg: #1E2329;
