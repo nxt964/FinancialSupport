@@ -141,6 +141,35 @@ services:
       - microservices-network
     restart: unless-stopped
 
+  # BackTestService
+  backtestservice:
+    build:
+      context: .
+      dockerfile: Services/BackTestService/Dockerfile
+    ports:
+      - "${BACKTEST_SERVICE_HTTP_PORT}:80"
+      - "${BACKTEST_SERVICE_HTTPS_PORT}:443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      Redis__ConnectionString: redis:${REDIS_PORT},abortConnect=false
+      Redis__InstanceName: ${REDIS_INSTANCE_NAME}
+      Kafka__BootstrapServers: ${KAFKA_BOOTSTRAP_SERVERS}
+      ASPNETCORE_URLS: https://+:443;http://+:80
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /app/certs/server.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Password: password
+      ASPNETCORE_Kestrel__Certificates__Default__AllowInvalid: true
+    volumes:
+      - ./certs:/app/certs:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+
   # API Gateway
   apigateway:
     build:
