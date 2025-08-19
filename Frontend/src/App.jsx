@@ -9,7 +9,7 @@ function App() {
   return (
     <DefaultLayout>
       <ScrollToTop />
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster position="top-right" reverseOrder={false}/>
       <Routes>
         {routes.map((route, index) => {
           const Page = route.element;

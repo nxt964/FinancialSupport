@@ -308,11 +308,13 @@ export default function FullChart() {
         if (!existing) {
             if (charts.length < 4) {
                 addChart(symbol, interval);
+                toast.success(`Followed ${symbolInfor.baseAsset}/${symbolInfor.quoteAsset} - ${interval}`)
             } else {
                 toast.error("You can follow up to 4 charts only");
             }
         } else {
             removeChart(existing.id);
+            toast.success(`Unfollowed ${symbolInfor.baseAsset}/${symbolInfor.quoteAsset} - ${interval}`)
         }
     }
 

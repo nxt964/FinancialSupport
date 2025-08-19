@@ -78,21 +78,12 @@ const Chart = ({ symbol, interval }) => {
     chartInstanceRef.current = chart;
     seriesRef.current = candleSeries;
 
-    const handleResize = () => {
-      if (chartInstanceRef.current && chartContainerRef.current) {
-        chartInstanceRef.current.resize(chartContainerRef.current.clientWidth, 400);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-
     return () => {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.remove();
         chartInstanceRef.current = null;
         seriesRef.current = null;
       }
-      window.removeEventListener('resize', handleResize);
     };
   }, [interval, priceFormat]);
 
@@ -191,6 +182,11 @@ const Chart = ({ symbol, interval }) => {
       ref={chartContainerRef}
       className="relative w-full h-fit rounded-lg"
     >
+      { !seriesRef.current && 
+        <div className="flex justify-center items-center h-full z-50">
+            <div className="w-6 h-6 border-2 border-[var(--color-Line)] border-t-[var(--color-PrimaryColor)] rounded-full animate-spin"></div>
+        </div>
+      }
       <button
         onClick={() => navigate(`/chart/${symbol}/${interval}`)}
         className="absolute bottom-[-8px] right-[-8px] p-1 hover:bg-gray-600 rounded hover:opacity-80 hover:scale-110 z-50"
