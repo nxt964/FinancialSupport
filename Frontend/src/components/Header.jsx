@@ -129,7 +129,7 @@ export default function Header() {
                             <FontAwesomeIcon icon={faCircleXmark}/>
                         </button>
                         ) : (
-                            <FontAwesomeIcon className='absolute right-0 p-2' icon={faSearch}/>
+                            <FontAwesomeIcon className='absolute right-0 p-2 text-[var(--color-TertiaryText)]' icon={faSearch}/>
                         )
                     }
 

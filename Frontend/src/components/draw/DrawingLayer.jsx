@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import DrawingToolbar from './DrawingToolBar';
-import { Circle, Group, Layer, Line, Rect, Stage } from 'react-konva';
+import { Circle, Group, Layer, Line, Rect, Stage, Text } from 'react-konva';
 
 /**
  * Shapes được lưu dưới dạng toạ độ logic:
@@ -36,15 +36,16 @@ export default function DrawingLayer({
   const redoRef = useRef([]);
 
   // ===== helpers: mapping pixel <-> logic =====
-  const priceScale = () => series?.priceScale();
   const toX = (t) => chart?.timeScale().timeToCoordinate(t);
-  const toY = (p) => priceScale()?.priceToCoordinate(p);
   const fromX = (x) => {
     const r = chart?.timeScale().coordinateToTime(x);
-    // có thể trả về BusinessDay hay timestamp; ta ép về seconds
-    return typeof r === 'number' ? r : (r ? Date.UTC(r.year, r.month-1, r.day)/1000 : undefined);
+    return typeof r === 'number'
+      ? r
+      : (r ? Date.UTC(r.year, r.month - 1, r.day) / 1000 : undefined);
   };
-  const fromY = (y) => priceScale()?.coordinateToPrice(y);
+
+  const toY = (p) => series?.priceToCoordinate(p);
+  const fromY = (y) => series?.coordinateToPrice(y);
 
   // cập nhật kích thước overlay khi chart resize
   useEffect(() => {
@@ -53,13 +54,13 @@ export default function DrawingLayer({
       setSize({ w: containerRef.current.clientWidth, h: containerRef.current.clientHeight });
     };
     resize();
-    const unsub1 = chart?.timeScale().subscribeVisibleTimeRangeChange(resize);
+    //const unsub1 = chart?.timeScale().subscribeVisibleTimeRangeChange(resize);
     // fallback
     const ro = new ResizeObserver(resize);
     containerRef.current && ro.observe(containerRef.current);
     window.addEventListener('resize', resize);
     return () => {
-      unsub1 && chart?.timeScale().unsubscribeVisibleTimeRangeChange(resize);
+      //unsub1 && chart?.timeScale().unsubscribeVisibleTimeRangeChange(resize);
       ro.disconnect();
       window.removeEventListener('resize', resize);
     };
@@ -139,9 +140,9 @@ export default function DrawingLayer({
   };
 
   const deleteSelected = () => {
-    if (!selectedId) return;
+    if (!shapes.length) return;
     pushUndo(shapes);
-    setShapes(shapes.filter(s => s.id !== selectedId));
+    setShapes([]);        // clear toàn bộ
     setSelectedId(null);
   };
 
@@ -152,8 +153,11 @@ export default function DrawingLayer({
     if (A.x==null || A.y==null || B.x==null || B.y==null) return null;
 
     if (type === TOOL_RAY) {
-      // kéo về bên phải đến rìa stage
-      const m = (B.y - A.y) / (B.x - A.x || 1e-9);
+    if (Math.abs(B.x - A.x) < 1e-6) {
+        // gần như vertical ray
+        return [A.x, A.y, A.x, size.h];
+      }
+      const m = (B.y - A.y) / (B.x - A.x);
       const x2 = size.w;
       const y2 = A.y + m * (x2 - A.x);
       return [A.x, A.y, x2, y2];
@@ -208,31 +212,33 @@ export default function DrawingLayer({
 
   return (
     <>
-      <div className="z-20">
+      {/* TOOLBAR nổi trên cùng, không bị Stage che */}
+      <div className="absolute left-0 top-0 bottom-0 z-30">
         <DrawingToolbar
           tool={tool} setTool={setTool}
           onDelete={deleteSelected} onUndo={undo} onRedo={redo}
         />
       </div>
 
-      {/* Stage phủ trọn chart */}
-      {/* <Stage
+      {/* STAGE phủ khít chart container */}
+      <Stage
         width={size.w}
         height={size.h}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
-        className="stage absolute inset-0 z-70 pointer-events-auto"
+        className="absolute inset-0 z-20"
+        style={{ pointerEvents: tool === 'select' ? 'none' : 'auto' }}
       >
         <Layer>
           {shapes.map(s => (
-            <Group key={s.id} onClick={()=>{ setSelectedId(s.id); }}>
+            <Group key={s.id} onClick={()=> setSelectedId(s.id)}>
               {renderShape(s)}
             </Group>
           ))}
           {draft && renderShape(draft, true)}
         </Layer>
-      </Stage> */}
+      </Stage>
     </>
   );
 }

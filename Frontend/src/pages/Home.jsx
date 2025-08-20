@@ -98,7 +98,7 @@ export default function Home() {
                 <ListCoinsTabs isLoading={loadingSymbols} tabLabels={["Top Gainers", "Top Losers"]} tabData={[topSymbols.topGainers, topSymbols.topLosers]}/>
                 
             </div>
-            
+
             {/* Slogan & News */}
             <div className="flex-1">
                 <div className="flex flex-col h-full">
@@ -116,7 +116,7 @@ export default function Home() {
 
                     <div className="flex-2 flex flex-col min-h-0">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-lg font-semibold mb-2 text-[var(--color-PrimaryColor)]">What's new today?</h2>
+                            <h2 className="text-lg font-bold mb-2 text-[var(--color-PrimaryColor)]">What's new today?</h2>
                             <Link to={'/news'} className="text-sm cursor-pointer p-1 text-[var(--color-SecondaryText)] hover:text-[var(--color-PrimaryText)] hover:underline">
                                 View all news
                                 <FontAwesomeIcon icon={faAnglesRight} className="ml-1 text-xs"/>

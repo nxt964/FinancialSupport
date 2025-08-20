@@ -37,13 +37,26 @@ export default function FullChart() {
         if (symbol) fetchPriceFormat();
     }, [symbol]);
 
+    // Khi priceFormat thay đổi → chỉ apply vào series
+    useEffect(() => {
+        if (seriesRef.current) {
+            seriesRef.current.applyOptions({
+                priceFormat: {
+                    type: 'price',
+                    precision: priceFormat.precision,
+                    minMove: priceFormat.minMove,
+                },
+            });
+        }
+    }, [priceFormat]);
+
     // Khởi tạo và quản lý biểu đồ
     const chartContainerRef = useRef(null);
     const chartInstanceRef = useRef(null);
     const seriesRef = useRef(null);
     useEffect(() => {
         if (!chartContainerRef.current) {
-        return;
+            return;
         }
 
         const styles = getComputedStyle(document.documentElement);
@@ -55,32 +68,26 @@ export default function FullChart() {
             width: chartContainerRef.current.clientWidth,
             height: chartContainerRef.current.clientHeight,
             layout: {
-            background: { color: bgColor },
-            textColor: textColor,
+                background: { color: bgColor },
+                textColor: textColor,
             },
             grid: {
-            vertLines: { color: gridColor },
-            horzLines: { color: gridColor },
+                vertLines: { color: gridColor },
+                horzLines: { color: gridColor },
             },
             timeScale: {
-            timeVisible: true,
-            secondsVisible: interval === '1m',
+                timeVisible: true,
+                secondsVisible: interval === '1m',
             },
         });
 
         const candleSeries = chart.addSeries(CandlestickSeries, {
-        upColor: '#26a69a',
-        downColor: '#ef5350',
-        borderUpColor: '#26a69a',
-        borderDownColor: '#ef5350',
-        wickUpColor: '#26a69a',
-        wickDownColor: '#ef5350',
-
-        priceFormat: {
-            type: 'price',
-            precision: priceFormat.precision,
-            minMove: priceFormat.minMove,
-        },
+            upColor: '#26a69a',
+            downColor: '#ef5350',
+            borderUpColor: '#26a69a',
+            borderDownColor: '#ef5350',
+            wickUpColor: '#26a69a',
+            wickDownColor: '#ef5350',
         });
 
         chartInstanceRef.current = chart;
@@ -102,7 +109,7 @@ export default function FullChart() {
         }
         window.removeEventListener('resize', handleResize);
         };
-    }, [interval, priceFormat]);
+    }, [interval]);
 
     // Lắng nghe theme thay đổi
     const { theme } = useAppData();
@@ -427,22 +434,26 @@ export default function FullChart() {
                 </div>
 
                 {/* Overlay tools & Chart */}
-                <div className='flex flex-1 gap-2'>
-                    <DrawingLayer
-                        chart={chartInstanceRef.current}
-                        series={seriesRef.current}
-                        containerRef={chartContainerRef}
-                    />
-                    
-                    <div className='relative p-4 flex-1 bg-[var(--color-ChartBg)] rounded-lg border border-[var(--color-Line)]'>
-                        <div ref={chartContainerRef} className='flex-1 w-full h-full' />
+                <div className='flex flex-1 gap-2 relative h-full w-full'>
+                    <div className='relative p-4 pl-14 flex-1 bg-[var(--color-ChartBg)] rounded-lg border border-[var(--color-Line)]'>
+                        {/* CHART CONTAINER */}
+                        <div ref={chartContainerRef} className='w-full h-full' />
+
+                        {/* OVERLAY DRAWING (đặt SAU chart container để overlay) */}
+                        {chartInstanceRef.current && seriesRef.current && (
+                        <DrawingLayer
+                            chart={chartInstanceRef.current}
+                            series={seriesRef.current}
+                            containerRef={chartContainerRef}
+                        />
+                        )}
 
                         {/* Nút thu nhỏ */}
                         <button
-                            onClick={() => navigate('/multi-charts')}
-                            className="absolute bottom-2 right-2 z-30 p-1.5 rounded-xl hover:opacity-80 hover:scale-110"
+                        onClick={() => navigate('/multi-charts')}
+                        className="absolute bottom-2 right-2 z-40 p-1.5 rounded-xl hover:opacity-80 hover:scale-110"
                         >
-                            <FontAwesomeIcon icon={faCompress}/>
+                        <FontAwesomeIcon icon={faCompress}/>
                         </button>
                     </div>
                 </div>

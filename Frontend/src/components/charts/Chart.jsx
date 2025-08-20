@@ -32,6 +32,19 @@ const Chart = ({ symbol, interval }) => {
     if (symbol) fetchPriceFormat();
   }, [symbol]);
 
+  // Khi priceFormat thay đổi → chỉ apply vào series
+  useEffect(() => {
+      if (seriesRef.current) {
+          seriesRef.current.applyOptions({
+              priceFormat: {
+                  type: 'price',
+                  precision: priceFormat.precision,
+                  minMove: priceFormat.minMove,
+              },
+          });
+      }
+  }, [priceFormat]);
+
   // Khởi tạo và quản lý biểu đồ
   useEffect(() => {
     if (!chartContainerRef.current) {
@@ -67,12 +80,6 @@ const Chart = ({ symbol, interval }) => {
       borderDownColor: '#ef5350',
       wickUpColor: '#26a69a',
       wickDownColor: '#ef5350',
-
-      priceFormat: {
-        type: 'price',
-        precision: priceFormat.precision,
-        minMove: priceFormat.minMove,
-      },
     });
 
     chartInstanceRef.current = chart;
@@ -85,7 +92,7 @@ const Chart = ({ symbol, interval }) => {
         seriesRef.current = null;
       }
     };
-  }, [interval, priceFormat]);
+  }, [interval]);
 
   const { theme } = useAppData();
   useEffect(() => {
