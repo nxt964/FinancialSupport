@@ -200,7 +200,7 @@ try:
     print(f"  Trades: {total_trades}")
 
     # Save chart (delete if exists)
-    filename = f"plots/chart_{name}.html"
+    filename = f"plots/chart.html"
     if os.path.exists(filename):
         os.remove(filename)
         print(f"Deleted old chart: {filename}")

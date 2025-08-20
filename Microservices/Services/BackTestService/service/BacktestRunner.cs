@@ -35,7 +35,7 @@ namespace BacktestService.Services
             var processInfo = new ProcessStartInfo
             {
                 FileName = "python",
-                Arguments = $"backtest.py {strategyChoice}",
+                Arguments = $"-u backtest.py {strategyChoice}",  // <- -u = unbuffered stdout/stderr
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
