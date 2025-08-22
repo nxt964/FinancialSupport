@@ -14,6 +14,7 @@ import MultiCharts from "../pages/charts/MultiCharts";
 import FullChart from "../pages/charts/FullChart";
 import { Navigate } from "react-router-dom";
 import RedirectToDefaultChart from "../components/charts/RedirectToDefaultChart";
+import Backtest from "../pages/backtest/Backtest";
 
 const routes = [
   { path: "/", element: Home },
@@ -31,6 +32,7 @@ const routes = [
   { path: "/multi-charts", element: MultiCharts },
   { path: "/chart", element: RedirectToDefaultChart},
   { path: "/chart/:symbol/:interval", element: FullChart }
+  { path: "/backtest", element: Backtest},
 ];
 
 export default routes;
