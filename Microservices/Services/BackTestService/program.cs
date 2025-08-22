@@ -24,8 +24,6 @@ public class Program
         // Register services
         builder.Services.AddSingleton<BinanceService>();
         builder.Services.AddSingleton<BacktestRunner>();
-        builder.Services.AddScoped<SendBacktestResult>();
-
 
         // CORS - Allow API Gateway
         builder.Services.AddCors(options =>
