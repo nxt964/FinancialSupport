@@ -11,6 +11,12 @@ export class NewsService {
     @Inject(CACHE_MANAGER) private cache: Cache
   ) {}
 
+  async findByUrl(url: string) {
+    return this.prisma.news.findUnique({
+      where: { url }, // make sure url has a unique constraint in schema
+    });
+  }
+
   private async invalidateAfterWrite(categoryId: number | null) {
     await Promise.all(
       [1, 2, 3, 4, 5].map((page) => this.cache.del(`news:page:${page}`))
@@ -105,5 +111,54 @@ export class NewsService {
     const payload = { items, totalCount: Math.ceil(totalCount / limit) };
     await this.cache.set(key, payload, 60); // 1 min
     return payload;
+  }
+
+  async findNewsBetweenTimestamp(
+    start: number,
+    end: number,
+    symbols?: string[]
+  ) {
+    const where: any = {
+      publishedDate: {
+        gte: new Date(start),
+        lte: new Date(end),
+      },
+    };
+
+    if (symbols && symbols.length > 0) {
+      where.OR = symbols.flatMap((sym) => [
+        {
+          title: {
+            contains: sym,
+            mode: "insensitive",
+          },
+        },
+        {
+          content: {
+            contains: sym,
+            mode: "insensitive",
+          },
+        },
+        {
+          category: {
+            name: {
+              contains: sym,
+              mode: "insensitive",
+            },
+          },
+        },
+      ]);
+    }
+
+    return this.prisma.news.findMany({
+      where,
+      orderBy: { publishedDate: "desc" },
+      select: {
+        sentimentLabel: true,
+        sentimentScore: true,
+        publishedDate: true,
+        category: { select: { name: true } },
+      },
+    });
   }
 }

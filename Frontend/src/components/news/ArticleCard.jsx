@@ -16,7 +16,10 @@ export function ArticleCard({
       <Link to={`${id}`}>
         <div className="relative">
           <img
-            src={coverImageUrl}
+            src={
+              coverImageUrl ||
+              "https://img.freepik.com/free-psd/money-illustration-isolated_23-2151568514.jpg?semt=ais_hybrid&w=740&q=80"
+            }
             alt=""
             className="h-44 w-full object-cover sm:h-40 lg:h-44 xl:h-40"
             loading="lazy"

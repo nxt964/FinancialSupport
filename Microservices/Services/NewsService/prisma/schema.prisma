@@ -14,12 +14,11 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
-        
 
 model News {
   id             Int       @id @default(autoincrement())
   title          String
-  url            String
+  url            String    @unique
   categoryId     Int
   category       Category  @relation(fields: [categoryId], references: [id])
   content        String?

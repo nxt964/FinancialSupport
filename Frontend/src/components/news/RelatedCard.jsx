@@ -23,7 +23,10 @@ export function RelatedCard({
       className="group block rounded-lg border-2 border-[var(--color-InputLine)] overflow-hidden hover:shadow-md hover:scale-102  hover:text-[var(--color-PrimaryColor)] hover:border-[var(--color-PrimaryColor)] transition-all duration-300"
     >
       <img
-        src={coverImageUrl}
+        src={
+          coverImageUrl ||
+          "https://img.freepik.com/free-psd/money-illustration-isolated_23-2151568514.jpg?semt=ais_hybrid&w=740&q=80"
+        }
         alt={title}
         className="h-36 w-full object-cover"
         loading="lazy"

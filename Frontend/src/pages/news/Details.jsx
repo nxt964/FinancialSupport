@@ -112,7 +112,7 @@ const Details = () => {
               })}
             </span>
             <span className="hidden sm:inline">&#183;</span>
-            {article.sentimentScore && (
+            {article.sentimentScore ? (
               <span
                 className={`text-xs font-medium px-2 py-0.5 rounded
                 ${
@@ -127,13 +127,18 @@ const Details = () => {
                 {article.sentimentLabel} (
                 {Math.round(article.sentimentScore * 100)}%)
               </span>
+            ) : (
+              <span>No sentiment data</span>
             )}
           </div>
 
           {/* Cover Image */}
           <div className="mb-4">
             <img
-              src={article.coverImageUrl}
+              src={
+                article.coverImageUrl ||
+                "https://img.freepik.com/free-psd/money-illustration-isolated_23-2151568514.jpg?semt=ais_hybrid&w=740&q=80"
+              }
               alt={article.title}
               className="w-full max-h-[450px] object-cover rounded-lg shadow-md"
             />
