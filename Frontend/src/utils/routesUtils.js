@@ -31,7 +31,7 @@ const routes = [
   { path: "/news/:id", element: Details },
   { path: "/multi-charts", element: MultiCharts },
   { path: "/chart", element: RedirectToDefaultChart},
-  { path: "/chart/:symbol/:interval", element: FullChart }
+  { path: "/chart/:symbol/:interval", element: FullChart },
   { path: "/backtest", element: Backtest},
 ];
 
