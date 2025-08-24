@@ -37,18 +37,27 @@ export default function Profile() {
                         <FontAwesomeIcon icon={faArrowLeft} />
                         <span>Back to Home</span>
                     </button>
-                    <button
-                        onClick={() => navigate('/edit-profile')}
-                        className="flex items-center space-x-2 p-2 rounded-lg hover:scale-103"
-                    >
-                        <FontAwesomeIcon icon={faEdit} />
-                        <span>Edit Profile</span>
-                    </button>
+                    <div className="flex space-x-2">
+                        <button
+                            onClick={() => navigate('/edit-profile')}
+                            className="flex items-center space-x-2 p-2 rounded-lg hover:scale-103"
+                        >
+                            <FontAwesomeIcon icon={faEdit} />
+                            <span>Edit Profile</span>
+                        </button>
+                        <button
+                            onClick={() => navigate('/edit-password')}
+                            className="flex items-center space-x-2 p-2 rounded-lg hover:scale-103"
+                        >
+                            <FontAwesomeIcon icon={faEdit} />
+                            <span>Edit Password</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div className="shadow-lg rounded-lg p-6 border border-[var(--color-Line)]">
                     <div className="flex items-center space-x-4 mb-6">
-                        {user.profileImage ? (
+                        {/* {user.profileImage ? (
                             <img 
                                 src={user.profileImage} 
                                 alt="Profile" 
@@ -58,7 +67,7 @@ export default function Profile() {
                             <div className="w-16 h-16 bg-[var(--color-TagBg)] rounded-full flex items-center justify-center">
                                 <FontAwesomeIcon icon={faUser} className="w-8 h-8 text-[var(--color-SecondaryText)]" />
                             </div>
-                        )}
+                        )} */}
                         <div>
                             <h1 className="text-2xl font-bold">{user.userName}</h1>
                             <p className="text-[var(--color-SecondaryText)] capitalize">{user.role}</p>

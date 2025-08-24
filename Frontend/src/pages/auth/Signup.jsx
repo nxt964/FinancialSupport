@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 export default function Signup() {
     const [formData, setFormData] = useState({
-        userName: '',
+        username: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -48,9 +48,9 @@ export default function Signup() {
 
         try {
             const result = await signup({
-                userName: formData.userName,
-                email: formData.email,
-                password: formData.password
+                Username: formData.username,
+                Email: formData.email,
+                Password: formData.password
             });
             
             if (result.success) {
@@ -85,33 +85,33 @@ export default function Signup() {
                     </h2>
                     
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Username Field */}
+                        {/* username Field */}
                         <div>
-                            <label htmlFor="userName" className="block text-sm font-medium text-[var(--color-SecondaryText)] mb-2">
-                                Username
+                            <label htmlFor="username" className="block text-sm font-medium text-[var(--color-SecondaryText)] mb-2">
+                                username
                             </label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <FontAwesomeIcon icon={faUser} className="h-5 w-5 text-gray-400" />
                                 </div>
                                 <input
-                                    id="userName"
-                                    name="userName"
+                                    id="username"
+                                    name="username"
                                     type="text"
                                     required
                                     className={`appearance-none relative block w-full px-3 py-3 pl-10 border rounded-md focus:outline-none focus:border-[var(--color-PrimaryColor)] sm:text-sm transition-all duration-300 placeholder:text-[var(--color-TertiaryText)] ${
-                                        getFieldError('UserName') || getFieldError('userName') 
+                                        getFieldError('username') || getFieldError('username') 
                                             ? 'border-red-500' 
                                             : 'border-gray-300'
                                     }`}
                                     placeholder="Enter your username"
-                                    value={formData.userName}
+                                    value={formData.username}
                                     onChange={handleInputChange}
                                 />
                             </div>
-                            {(getFieldError('UserName') || getFieldError('userName')) && (
+                            {(getFieldError('username') || getFieldError('username')) && (
                                 <div className="text-red-600 text-sm mt-1">
-                                    {getFieldError('UserName') || getFieldError('userName')}
+                                    {getFieldError('username') || getFieldError('username')}
                                 </div>
                             )}
                         </div>

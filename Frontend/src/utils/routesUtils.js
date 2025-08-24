@@ -8,6 +8,7 @@ import ResetPasswordConfirm from "../pages/auth/ResetPasswordConfirm";
 import ResetPassword from "../pages/auth/ResetPassword";
 import Profile from "../pages/auth/Profile";
 import EditProfile from "../pages/auth/EditProfile";
+import EditPassword from "../pages/auth/EditPassword";
 import NewsFeed from "../pages/news";
 import Details from "../pages/news/Details";
 import MultiCharts from "../pages/charts/MultiCharts";
@@ -27,6 +28,7 @@ const routes = [
   { path: "/auth/reset-password", element: ResetPassword },
   { path: "/profile", element: Profile },
   { path: "/edit-profile", element: EditProfile },
+  { path: "/edit-password", element: EditPassword },
   { path: "/news", element: NewsFeed },
   { path: "/news/:id", element: Details },
   { path: "/multi-charts", element: MultiCharts },

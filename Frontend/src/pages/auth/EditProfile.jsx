@@ -137,7 +137,7 @@ export default function EditProfile() {
                     
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Profile Image Section */}
-                        <div className="flex flex-col items-center space-y-4">
+                        {/* <div className="flex flex-col items-center space-y-4">
                             <div className="relative">
                                 <div className="w-20 h-20 rounded-full overflow-hidden bg-[var(--color-TagBg)] flex items-center justify-center">
                                     {previewUrl ? (
@@ -168,7 +168,7 @@ export default function EditProfile() {
                             <p className="text-sm text-[var(--color-SecondaryText)]">
                                 Click the camera icon to change your profile picture
                             </p>
-                        </div>
+                        </div> */}
 
                         {/* Username Field */}
                         <div>

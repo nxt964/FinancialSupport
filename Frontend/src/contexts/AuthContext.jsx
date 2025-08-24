@@ -24,6 +24,13 @@ export const AuthContextProvider = ({ children }) => {
   }, []);
 
   const parseValidationErrors = (data) => {
+    if(data.Errors){
+      return {
+        fieldErrors: {},
+        generalErrors: [data.Errors.join(', ')]
+      };
+    }
+    
     if (data.errors && typeof data.errors === 'object') {
       // Handle FluentValidation field-specific errors
       const fieldErrors = {};
@@ -171,6 +178,36 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
+  const updatePassword = async (passwordData) => {
+    try {
+      const response = await httpClient.post('/api/auth/update-password', {
+        oldPassword: passwordData.oldPassword,
+        newPassword: passwordData.newPassword,
+        confirmPassword: passwordData.confirmPassword
+      });
+      const data = await response.json();
+      
+      if (response.ok && data.succeeded) {
+        return {
+          success: true,
+          fieldErrors: {}
+        };
+      } else {
+        const { fieldErrors, generalErrors } = parseValidationErrors(data);
+        return {
+          success: false,
+          fieldErrors,
+          error: generalErrors.length > 0 ? generalErrors[0] : 'Password update failed'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `An error occurred while updating password: ${error}`
+      };
+    }
+  };
+
   const logout = async () => {
     try {
       if (user && httpClient.accessToken) {
@@ -200,6 +237,7 @@ export const AuthContextProvider = ({ children }) => {
       signup,
       confirmEmail,
       updateProfile,
+      updatePassword,
       logout,
       isAuthenticated
     }}>
