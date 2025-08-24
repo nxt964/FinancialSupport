@@ -32,4 +32,15 @@ export class NewsController {
   findOne(@Param("id") id: string) {
     return this.newsService.findOne(+id);
   }
+
+  @Post("news-to-train")
+  findNewsToTrain(
+    @Body() body: { start: number; end: number; symbols?: string[] }
+  ) {
+    return this.newsService.findNewsBetweenTimestamp(
+      body.start,
+      body.end,
+      body.symbols
+    );
+  }
 }

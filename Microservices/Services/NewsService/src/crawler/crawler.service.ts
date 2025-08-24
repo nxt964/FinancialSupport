@@ -59,6 +59,14 @@ export class CrawlerService {
       const title = anchor.find("h2").text().trim();
       const fullUrl = anchor.attr("href") || "";
 
+      const exists = await this.newsService.findByUrl(fullUrl);
+      if (exists) {
+        this.logger.log(
+          `⏭️ Found existing article "${title}", skipping rest of page`
+        );
+        break; // <-- stop crawling further articles from this page
+      }
+
       // Cover image
       const noscriptHtml = $(article).find("div.cover noscript").html() || "";
 
