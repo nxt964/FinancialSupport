@@ -8,6 +8,8 @@ A microservices architecture with API Gateway, User Service, Email Service, and 
 - **User Service** - User management and authentication
 - **Email Service** - Email notifications
 - **Chart Service** - Real-time chart data
+- **Backtest Service** - Backtest service
+- **News Service** - Service to fetch news
 - **Kafka** - Message broker for event-driven communication
 - **Redis** - Caching and session storage
 - **PostgreSQL** - Primary database
@@ -30,7 +32,7 @@ A microservices architecture with API Gateway, User Service, Email Service, and 
 
 ### HTTP Setup (Development)
 ```bash
-docker-compose up -d
+docker-compose --env-file docker.env up -d
 ```
 
 ### Start Individual Services
@@ -60,12 +62,15 @@ cd postgres
 - **User Service**: https://localhost:44569
 - **Email Service**: https://localhost:44570
 - **Chart Service**: https://localhost:7115
+- **Backtest Service**: https://localhost:7207
 
 ### HTTP (Development)
 - **API Gateway**: http://localhost:5000
 - **User Service**: http://localhost:44568
 - **Email Service**: http://localhost:44567
 - **Chart Service**: http://localhost:7114
+- **Backtest Service**: http://localhost:7206
+- **News Service**: http://localhost:5005
 
 ## Infrastructure Ports
 

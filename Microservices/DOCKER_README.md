@@ -7,6 +7,9 @@ This project is fully dockerized with all microservices and infrastructure compo
 - **API Gateway**: Entry point for all client requests
 - **User Service**: User management and authentication
 - **Email Service**: Email sending functionality
+- **Chart Service** - Real-time chart data
+- **Backtest Service** - Backtest service
+- **News Service** - Service to fetch news
 - **Infrastructure**: Kafka, Redis, PostgreSQL
 
 ## Services Overview
@@ -17,6 +20,8 @@ This project is fully dockerized with all microservices and infrastructure compo
 | User Service | 5002 | 44568 | User management |
 | Email Service | 5003 | 44567 | Email functionality |
 | ChartService | 5004 | 7114| Chart Functionanlity |
+| NewsService | 5005 |  | News Functionanlity |
+| BacktestService | 7206 | 7207 | Backtest Functionanlity |
 | PostgreSQL | 5432 | - | Database |
 | Redis | 6379 | - | Cache/Message broker |
 | Kafka UI | 8080 | - | Kafka management UI |
@@ -29,7 +34,7 @@ This project is fully dockerized with all microservices and infrastructure compo
 
 ### Start All Services
 ```bash
-docker-compose up -d
+docker-compose --env-file docker.env up -d
 ```
 
 ### Start Specific Services
@@ -60,22 +65,23 @@ docker-compose logs -f api-gateway
 ### Building Services
 ```bash
 # Build all services
-docker-compose build
+docker-compose --env-file docker.env up --build
 
 # Build specific service
-docker-compose build user-service
+docker-compose --env-file docker.env up --build user-service
 ```
 
 ### Rebuilding After Code Changes
 ```bash
-docker-compose up -d --build
+docker-compose --env-file docker.env up --build
 ```
 
 ## Service Dependencies
 
 - **API Gateway** → User Service, Email Service
-- **User Service** → PostgreSQL, Redis
-- **Email Service** → Redis
+- **User Service** → PostgreSQL, Redis, Kafka
+- **Email Service** → Redis, Kafka
+- **Backtest Service** → Kafka, Redis
 - **Kafka** → Zookeeper
 
 ## Network
@@ -98,8 +104,8 @@ If ports are already in use, modify the port mappings in `docker-compose.yml`.
 For HTTPS to work, ensure SSL certificates are available at `~/.aspnet/https/`.
 
 ### Database Connection
-PostgreSQL connection string: `Host=postgres;Port=5432;Database=UserServiceDb;Username=postgres;Password=123456`
+PostgreSQL connection string: `Host=postgres;Port=5432;Database={POSTGRES_DB};Username={POSTGRES_USER};Password={POSTGRES_PASSWORD}`
 
 ## Environment Variables
 
-All services use `ASPNETCORE_ENVIRONMENT=Development` by default. For production, update the environment variables in `docker-compose.yml`. 
+All services use `ASPNETCORE_ENVIRONMENT=Production` by default. For development, update the environment variables in `docker-compose.yml`. 
