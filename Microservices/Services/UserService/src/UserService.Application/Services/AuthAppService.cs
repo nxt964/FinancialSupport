@@ -57,7 +57,7 @@ public class AuthAppService(
         };
         await redisService.SetAsync(redisKey, registerInfo, TimeSpan.FromMinutes(10));
         
-        await eventPublisher.PublishUserRegisteredAsync(new UserRegisteredEvent
+        _ = eventPublisher.PublishUserRegisteredAsync(new UserRegisteredEvent
         {
             Email = request.Email,
             Username = request.Username,
@@ -98,7 +98,7 @@ public class AuthAppService(
         await redisService.SetAsync(redisKey, regInfo, TimeSpan.FromMinutes(10));
         
         // Publish event to send email
-        await eventPublisher.PublishUserRegisteredAsync(new UserRegisteredEvent
+        _ = eventPublisher.PublishUserRegisteredAsync(new UserRegisteredEvent
         {
             Email = request.Email,
             Username = request.Username,
@@ -164,7 +164,7 @@ public class AuthAppService(
         };
         await redisService.SetAsync(resetKey, resetInfo, TimeSpan.FromMinutes(10));
         
-        await eventPublisher.PublishPasswordResetAsync(new PasswordResetEvent
+        _ = eventPublisher.PublishPasswordResetAsync(new PasswordResetEvent
         {
             Email = request.Email,
             ResetCode = resetCode
@@ -195,7 +195,7 @@ public class AuthAppService(
         await redisService.SetAsync(resetKey, resetInfo, TimeSpan.FromMinutes(10));
         
         // Publish event to send email
-        await eventPublisher.PublishPasswordResetAsync(new PasswordResetEvent
+        _ = eventPublisher.PublishPasswordResetAsync(new PasswordResetEvent
         {
             Email = request.Email,
             ResetCode = resetCode
