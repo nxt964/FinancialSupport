@@ -69,7 +69,6 @@ export const AuthContextProvider = ({ children }) => {
       
       if (response.ok && data.succeeded) {
         const userData = data.result;
-        console.log('User data:', userData);
         httpClient.setTokens(userData.accessToken, userData.refreshToken);
         const userInfo = {
           id: userData.id,
@@ -98,9 +97,7 @@ export const AuthContextProvider = ({ children }) => {
   const signup = async (signupData) => {
     try {
       const response = await httpClient.post('/api/auth/register', signupData);
-      console.log('Signup response:', response);
       const data = await response.json();
-      console.log('Signup data:', data);
       
       if (response.ok && data.succeeded) {
         return { success: true, data: data.result };
@@ -229,6 +226,37 @@ export const AuthContextProvider = ({ children }) => {
     return user !== null;
   };
 
+  const getProfile = async () => {
+    try {
+      const response = await httpClient.get('/api/users/profile');
+      const data = await response.json();
+      
+      if (response.ok && data.succeeded) {
+        const userData = data.result;
+        const userInfo = {
+          id: userData.id,
+          userName: userData.userName,
+          email: userData.email,
+          profileImage: userData.profileImage,
+          role: userData.role
+        };
+        setUser(userInfo);
+        localStorage.setItem('user', JSON.stringify(userInfo));
+        return { success: true, data: userData };
+      } else {
+        console.error('Profile fetch error:', data.errors);
+        const { fieldErrors, generalErrors } = parseValidationErrors(data);
+        return { 
+          success: false, 
+          error: generalErrors[0],
+          fieldErrors 
+        };
+      }
+    } catch (error) {
+      return { success: false, error: `Error: ${error}` };
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -239,7 +267,8 @@ export const AuthContextProvider = ({ children }) => {
       updateProfile,
       updatePassword,
       logout,
-      isAuthenticated
+      isAuthenticated,
+      getProfile
     }}>
       {children}
     </AuthContext.Provider>

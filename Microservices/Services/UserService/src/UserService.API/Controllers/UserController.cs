@@ -19,11 +19,27 @@ public class UserController(IUserAppService userAppService) : ApiController
     }
 
     [Authorize]
+    [HttpGet("profile")]
+    public async Task<IActionResult> GetProfile()
+    {
+        var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdFromToken == null)
+        {
+            throw new UnauthorizedAccessException("User ID not found in token");
+        }
+        
+        var userId = Guid.Parse(userIdFromToken);
+        var user = await userAppService.GetByIdAsync(userId);
+        return Success(user);
+    }
+
+    [Authorize]
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userIdFromToken == null || userIdFromToken != id.ToString())
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        if (userRole != "Admin" && (userIdFromToken == null || userIdFromToken != id.ToString()))
         {
             throw new UnauthorizedAccessException();
         }

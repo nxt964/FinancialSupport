@@ -1,14 +1,47 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faArrowLeft, faEdit } from '@fortawesome/free-solid-svg-icons';
 
 export default function Profile() {
-    const { user } = useAuth();
+    const { user, getProfile } = useAuth();
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    if (!user) {
+    useEffect(() => {
+        const fetchProfile = async () => {
+            setIsLoading(true);
+            setError(null);
+            
+            try {
+                const result = await getProfile();
+                if (!result.success) {
+                    setError(result.error || 'Failed to fetch profile');
+                }
+            } catch (err) {
+                setError('An error occurred while fetching profile');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProfile();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-PrimaryColor)] mx-auto mb-4"></div>
+                    <p className="text-lg">Loading profile...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!user || error) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
