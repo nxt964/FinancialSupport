@@ -55,15 +55,22 @@ public class Program
 
         app.MapControllers();
 
-        // Configure URLs - Make sure both HTTP and HTTPS work
+        // Configure URLs - Use standard ports for Docker compatibility
         app.Urls.Clear();
-        app.Urls.Add("http://localhost:7206");   // HTTP fallback
-        app.Urls.Add("https://localhost:7207");  // HTTPS - match gateway config
+        app.Urls.Add("http://+:80");   // HTTP - standard port for Docker
+        app.Urls.Add("https://+:443"); // HTTPS - standard port for Docker
         
-        // Bypass HTTPS certificate validation for development
+        // Configure HTTPS for development
         if (app.Environment.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+            // Bypass HTTPS certificate validation for development
+            app.UseHttpsRedirection();
+        }
+        else
+        {
+            // Production HTTPS configuration
+            app.UseHttpsRedirection();
         }
 
         // Ensure data directory exists
@@ -71,8 +78,8 @@ public class Program
         Directory.CreateDirectory("python");
 
         Console.WriteLine("BackTestService starting on:");
-        Console.WriteLine("HTTP:  http://localhost:5000");
-        Console.WriteLine("HTTPS: https://localhost:5001");
+        Console.WriteLine("HTTP:  http://localhost:80");
+        Console.WriteLine("HTTPS: https://localhost:443");
         Console.WriteLine("Data folder: ./data");
         Console.WriteLine("Python folder: ./python");
         

@@ -95,7 +95,7 @@ export default function Backtest() {
   // Fetch backtest result with GET
   const fetchBacktestResult = async (id) => {
     try {
-      const response = await httpClient.get("/api/backtest/chart-file", null, "https://localhost:7207")
+      const response = await httpClient.get("/api/backtest/chart-file", null)
       if (response.ok) {
         const resultText = await response.text() // might be HTML/SVG
         console.log("📊 Backtest GET response:", resultText)
@@ -120,7 +120,7 @@ export default function Backtest() {
     }
     try {
       const jsonData = { symbol, interval, strategy }
-      await httpClient.post(`${import.meta.env.VITE_API_BACKTEST_GET}`, jsonData, "https://localhost:7207")
+      await httpClient.post(`${import.meta.env.VITE_API_BACKTEST_GET}`, jsonData)
       // Start polling every 3s until result is ready
       const pollInterval = setInterval(async () => {
         const success = await fetchBacktestResult(id)

@@ -62,7 +62,6 @@ public class TokenValidationMiddleware
         var token = ExtractBearerToken(context);
         if (!string.IsNullOrEmpty(token))
         {
-            _logger.LogInformation("Token: {token}", token);
             var userContext = await ValidateTokenWithUserService(token);
             if (userContext != null)
             {
