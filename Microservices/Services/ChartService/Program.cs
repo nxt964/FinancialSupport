@@ -20,22 +20,22 @@ public class Program
         builder.Services.AddSingleton<BinanceService>();
         builder.Services.AddSingleton<ChartBroadcastService>();
 
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowCORS", policy =>
-            {
-                policy.WithOrigins("https://localhost:5001", "http://localhost:5000")
-                      .AllowAnyHeader()
-                      .AllowAnyMethod()
-                      .AllowCredentials();
+        // builder.Services.AddCors(options =>
+        // {
+        //     options.AddPolicy("AllowCORS", policy =>
+        //     {
+        //         policy.WithOrigins("https://localhost:5001", "http://localhost:5000", "https://localhost:7207", "http://localhost:7206")
+        //               .AllowAnyHeader()
+        //               .AllowAnyMethod()
+        //               .AllowCredentials();
 
-            });
-        });
+        //     });
+        // });
 
 
         var app = builder.Build();
 
-        app.UseCors("AllowCORS");
+        // app.UseCors("AllowCORS");
         app.UseRouting();
 
         app.UseSwagger();

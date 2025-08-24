@@ -20,7 +20,7 @@ This project is fully dockerized with all microservices and infrastructure compo
 | User Service | 5002 | 44568 | User management |
 | Email Service | 5003 | 44567 | Email functionality |
 | ChartService | 5004 | 7114| Chart Functionanlity |
-| NewsService | 5005 |  | News Functionanlity |
+| NewsService | 5005 | - | News Functionanlity |
 | BacktestService | 7206 | 7207 | Backtest Functionanlity |
 | PostgreSQL | 5432 | - | Database |
 | Redis | 6379 | - | Cache/Message broker |
