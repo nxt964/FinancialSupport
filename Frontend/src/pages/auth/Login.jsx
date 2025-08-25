@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,6 +18,21 @@ export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
 
+    // Load saved credentials on component mount
+    useEffect(() => {
+        const savedCredentials = localStorage.getItem('rememberedCredentials');
+        if (savedCredentials) {
+            try {
+                const { username, password, rememberMe: savedRememberMe } = JSON.parse(savedCredentials);
+                setFormData({ username, password });
+                setRememberMe(savedRememberMe);
+            } catch (error) {
+                console.error('Error parsing saved credentials:', error);
+                localStorage.removeItem('rememberedCredentials');
+            }
+        }
+    }, []);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -33,6 +48,16 @@ export default function Login() {
         }
     };
 
+    const handleRememberMeChange = (e) => {
+        const checked = e.target.checked;
+        setRememberMe(checked);
+        
+        // If unchecking, remove saved credentials
+        if (!checked) {
+            localStorage.removeItem('rememberedCredentials');
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -43,6 +68,18 @@ export default function Login() {
             console.log('Login result fe:', result);
             
             if (result.success) {
+                // Save credentials if "Remember Me" is checked
+                if (rememberMe) {
+                    localStorage.setItem('rememberedCredentials', JSON.stringify({
+                        username: formData.username,
+                        password: formData.password,
+                        rememberMe: true
+                    }));
+                } else {
+                    // Remove saved credentials if "Remember Me" is unchecked
+                    localStorage.removeItem('rememberedCredentials');
+                }
+                
                 toast.success('Login successful!');
                 navigate('/');
             } else {
@@ -159,7 +196,7 @@ export default function Login() {
                                 name="remember-me"
                                 type="checkbox"
                                 checked={rememberMe}
-                                onChange={(e) => setRememberMe(e.target.checked)}
+                                onChange={handleRememberMeChange}
                                 className="h-4 w-4 border-gray-300 rounded"
                             />
                             <label htmlFor="remember-me" className="ml-2 block text-sm text-[var(--color-SecondaryText)]">
