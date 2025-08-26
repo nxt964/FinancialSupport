@@ -3,12 +3,15 @@ from pydantic import BaseModel, Field
 
 
 class CandleData(BaseModel):
-    timestamp: int
+    openTime: int
     open: float = Field(..., gt=0)
     high: float = Field(..., gt=0)
     low: float = Field(..., gt=0)
     close: float = Field(..., gt=0)
     volume: float = Field(..., ge=0)
+    closeTime: Optional[int] = None
+
+    timestamp: int = Field(0, alias="openTime")
 
 
 class SentimentData(BaseModel):
@@ -19,7 +22,7 @@ class SentimentData(BaseModel):
 
 
 class PredictionRequest(BaseModel):
-    candles: List[List] = Field(..., min_items=100, max_items=1000)
+    candles: List[CandleData] = Field(..., min_items=100, max_items=1000)
     sentiment: Optional[List[SentimentData]] = None
     symbol: str = Field(default="UNKNOWN")
 

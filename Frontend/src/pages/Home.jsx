@@ -75,7 +75,6 @@ export default function Home() {
             }
 
             setNews(items);
-            console.log(items);
           } catch (e) {
             console.error(e);
             setNews([]);
@@ -86,6 +85,7 @@ export default function Home() {
         fetchNewsData();
     }, []);
 
+    
 
     return (
         <div className="px-4 py-2 flex gap-4 h-full w-full">

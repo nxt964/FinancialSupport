@@ -12,6 +12,8 @@ export default function Backtest() {
   const [selectedStrategy, setSelectedStrategy] = useState(strategy || "")
 
   const [isLoading, setIsLoading] = useState(false)
+
+  const [isRunningBacktest, setIsRunningBacktest] = useState(false);
   const [backtestResults, setBacktestResults] = useState({})
 
   //Fetch Symbols
@@ -79,10 +81,6 @@ export default function Backtest() {
     }
   }, [hotSymbols, keyword])
 
-  const handleSymbolChange = (e) => {
-    setSelectedSymbol(e.target.value)
-  }
-
   const handleIntervalChange = (e) => {
     setSelectedInterval(e.target.value)
   }
@@ -94,10 +92,11 @@ export default function Backtest() {
   // Fetch backtest result with GET
   const fetchBacktestResult = async (id) => {
     try {
-      const response = await httpClient.get(`${import.meta.env.VITE_API_BACKTEST_RUN}`, null)
+      setIsRunningBacktest(true);
+      const response = await httpClient.get(`${import.meta.env.VITE_API_BACKTEST_RUN}`)
       if (response.ok) {
         const resultText = await response.text() // might be HTML/SVG
-        console.log("📊 Backtest GET response:", resultText)
+        // console.log("📊 Backtest GET response:", resultText)
         setBacktestResults((prev) => ({ ...prev, [id]: resultText }))
         return true // success
       } else {
@@ -107,17 +106,20 @@ export default function Backtest() {
     } catch (error) {
       console.error("Error fetching backtest result:", error)
       return false
+    } finally {
+      setIsRunningBacktest(false);
     }
   }
 
   // Run backtest with POST, then auto-poll GET until result is ready
   const runBacktest = async (id, symbol, interval, strategy) => {
-    console.log("runBacktest called with:", { symbol, interval, strategy })
+    // console.log("runBacktest called with:", { symbol, interval, strategy })
     if (!symbol || !interval || !strategy) {
       alert("Please select symbol, interval, and strategy")
       return
     }
     try {
+      setIsRunningBacktest(true);
       const jsonData = { symbol, interval, strategy }
       await httpClient.post(`${import.meta.env.VITE_API_BACKTEST_GET}`, jsonData)
       // Start polling every 3s until result is ready
@@ -130,6 +132,8 @@ export default function Backtest() {
     } catch (error) {
       console.error("Error running backtest:", error)
       alert(`Error running backtest: ${error.message}`)
+    } finally {
+      setIsRunningBacktest(false);
     }
   }
 
@@ -172,7 +176,7 @@ export default function Backtest() {
     )
   }
 
-  const StrategyDropdown = ({ value, onChange }) => {
+  const StrategyDropdown = ({ selectedStrategy, onChange }) => {
     const [hoveredOption, setHoveredOption] = useState(null);
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
@@ -195,8 +199,8 @@ export default function Backtest() {
     return (
       <div className="relative">
         <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          value={selectedStrategy}
+          onChange={(e) => onChange(e)}
           className="p-2 rounded-xl w-full bg-[var(--color-InputLine)] text-[var(--color-PrimaryText)] border border-[var(--color-Line)] focus:border-[var(--color-PrimaryColor)] cursor-pointer"
           onMouseLeave={() => setHoveredOption(null)}
         >
@@ -238,8 +242,8 @@ export default function Backtest() {
   }
 
   return (
-    <div className="theme-dark relative flex flex-col w-full h-screen p-4 bg-[var(--color-BasicBg)] text-[var(--color-PrimaryText)]">
-      <div className="relative w-full flex-shrink-0 grid grid-cols-4 gap-4 py-4 rounded-lg bg-[var(--color-ChartBg)] border border-[var(--color-Line)]">
+    <div className="relative flex flex-col w-full h-full p-4">
+      <div className="relative w-full flex-shrink-0 grid grid-cols-4 gap-4 rounded-lg bg-[var(--color-ChartBg)] border border-[var(--color-Line)]">
         <div className="relative col-span-1 m-5">
           {/* Search Input */}
           <input
@@ -256,14 +260,15 @@ export default function Backtest() {
             onFocus={() => setShowDropdown(true)}
             onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
             placeholder="Search symbols..."
-            className={`w-full p-2 bg-[var(--color-InputLine)] text-[var(--color-PrimaryText)] border border-[var(--color-Line)] focus:outline-none focus:border-[var(--color-PrimaryColor)] transition-all duration-300 ${
-              showDropdown ? "rounded-t-xl" : "rounded-xl"
-            }`}
+            className={`w-full p-2 bg-[var(--color-InputLine)] text-[var(--color-PrimaryText)] border border-[var(--color-Line)] focus:outline-none focus:border-[var(--color-PrimaryColor)] transition-all duration-300 
+              ${showDropdown ? "rounded-t-xl" : "rounded-xl"} 
+              placeholder:text-[var(--color-PrimaryText)]!
+              `}
           />
 
           {/* Custom Dropdown */}
           {showDropdown && (
-            <div className="absolute top-full left-0 right-0 bg-[var(--color-InputLine)] border border-[var(--color-Line)] rounded-b-xl border-t max-h-60 overflow-y-auto z-10 shadow-lg">
+            <div className="absolute top-full left-0 right-0 bg-[var(--color-InputLine)] border border-[var(--color-Line)] rounded-b-xl border-t max-h-60 overflow-y-auto custom-scrollbar z-10 shadow-lg">
               {isLoading ? (
                 <div className="p-3 text-center text-[var(--color-TertiaryText)]">Loading symbols...</div>
               ) : searchResults.length > 0 ? (
@@ -305,11 +310,11 @@ export default function Backtest() {
           <option value="1d">1 Day</option>
         </select>
         <div className="m-5 col-span-1">
-        <StrategyDropdown value={selectedStrategy} onChange={handleStrategyChange} />
+        <StrategyDropdown selectedStrategy={selectedStrategy} onChange={(value) => {handleStrategyChange(value)}} />
         </div> {/* Strategy Dropdown with tooltips */}
         <button
           onClick={handleStartBacktest}
-          className="text-2xl font-semibold m-5 p-2 rounded-xl col-span-1 hover:opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-[var(--color-PrimaryColor)] text-white"
+          className="text-2xl font-semibold m-5 p-2 rounded-xl col-span-1 hover:opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={!selectedSymbol || !selectedInterval || !selectedStrategy}
         >
           Start Backtesting
@@ -318,18 +323,27 @@ export default function Backtest() {
 
       {/* Results Section */}
       <div className="flex-1 mt-4 min-h-0">
-        {Object.keys(backtestResults).length > 0 && (
-          <div className="rounded-xl p-4 h-full flex flex-col shadow bg-[var(--color-ChartBg)] border border-[var(--color-Line)]">
-            <h3 className="text-xl mb-4 flex-shrink-0 text-[var(--color-PrimaryText)]">Backtest Results</h3>
-            <div className="flex-1 min-h-0">
-              {Object.entries(backtestResults).map(([id, htmlContent]) => (
-                <div key={id} className="h-full rounded-lg overflow-hidden bg-[var(--color-ChartBg)]">
-                  <HtmlRenderer htmlContent={htmlContent} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <div className="rounded-xl p-4 pr-0 h-full flex flex-col shadow bg-[var(--color-ChartBg)] border border-[var(--color-Line)]">
+          <h3 className="text-xl font-bold mb-4 flex-shrink-0">Backtest Results</h3>
+          { isRunningBacktest ? (
+              <div className="flex justify-center items-center h-full">
+                  <div className="w-10 h-10 border-2 border-[var(--color-Line)] border-t-2 border-t-[var(--color-PrimaryColor)] rounded-full animate-spin"></div>
+              </div>
+            ) : Object.keys(backtestResults).length === 0
+                ? (
+                  <div className="text-[var(--color-SecondaryText)]">Start a backtest to see results here.</div>
+                )
+                : (
+                  <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
+                    {Object.entries(backtestResults).map(([id, htmlContent]) => (
+                      <div key={id} className="h-full w-full rounded-lg">
+                        <HtmlRenderer htmlContent={htmlContent} className='w-full'/>
+                      </div>
+                    ))}
+                  </div>
+                )
+          }
+        </div>
       </div>
     </div>
   )

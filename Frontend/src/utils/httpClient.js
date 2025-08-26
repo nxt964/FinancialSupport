@@ -206,8 +206,12 @@ class HttpClient {
     }
   }
 
-  async get(endpoint) {
-    return this.request(endpoint, { method: 'GET' });
+  async get(endpoint, customBaseUrl = null) {
+    return this.request(
+      endpoint, 
+      { method: 'GET' },
+      customBaseUrl
+    );
   }
 
   async post(endpoint, data, customBaseUrl = null) {
@@ -224,31 +228,26 @@ class HttpClient {
     );
   }
 
-  async get(endpoint, data, customBaseUrl = null){
+  async put(endpoint, data, customBaseUrl = null) {
     return this.request(
-      endpoint,
+      endpoint, 
       {
-        method: "GET",
-        headers:{
-          'Content-Type':'text/html',
-        }
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       },
       customBaseUrl
+  );
+  }
+
+  async delete(endpoint, customBaseUrl = null) {
+    return this.request(
+      endpoint, 
+      { method: 'DELETE' },
+      customBaseUrl
     );
-  }
-
-  async put(endpoint, data) {
-    return this.request(endpoint, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-  }
-
-  async delete(endpoint) {
-    return this.request(endpoint, { method: 'DELETE' });
   }
 }
 

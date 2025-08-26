@@ -15,24 +15,13 @@ async def predict_next_close(request: PredictionRequest):
             raise HTTPException(
                 status_code=400, detail="Minimum 100 candles required")
 
-        candles = [
-            CandleData(
-                timestamp=int(item[0]),
-                open=float(item[1]),
-                high=float(item[2]),
-                low=float(item[3]),
-                close=float(item[4]),
-                volume=float(item[5])
-            )
-            for item in request.candles
-        ]
+        sorted_candles = sorted(request.candles, key=lambda x: x.timestamp)
 
-        sorted_candles = sorted(candles, key=lambda x: x.timestamp)
         predicted_close, confidence, features_used = predictor.predict(
             sorted_candles, request.sentiment)
 
         return PredictionResponse(
-            predicted_close=round(predicted_close, 4),
+            predicted_close=predicted_close,
             confidence_score=round(confidence, 4),
             model_version="1.0.0",
             features_used=features_used[:10],

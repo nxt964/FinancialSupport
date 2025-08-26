@@ -93,21 +93,12 @@ export default function FullChart() {
         chartInstanceRef.current = chart;
         seriesRef.current = candleSeries;
 
-        const handleResize = () => {
-        if (chartInstanceRef.current && chartContainerRef.current) {
-            chartInstanceRef.current.resize(chartContainerRef.current.clientWidth, 400);
-        }
-        };
-
-        window.addEventListener('resize', handleResize);
-
         return () => {
-        if (chartInstanceRef.current) {
-            chartInstanceRef.current.remove();
-            chartInstanceRef.current = null;
-            seriesRef.current = null;
-        }
-        window.removeEventListener('resize', handleResize);
+            if (chartInstanceRef.current) {
+                chartInstanceRef.current.remove();
+                chartInstanceRef.current = null;
+                seriesRef.current = null;
+            }
         };
     }, [interval]);
 
@@ -156,24 +147,24 @@ export default function FullChart() {
         }; 
 
         const handleRealtimeCandleData = ({ symbolCheck, intervalCheck, newCandle }) => {
-        if (symbolCheck !== symbol || intervalCheck !== interval) return;
-        if (!seriesRef.current) {
-            console.error('[Chart] Series disposed, skipping update');
-            return;
-        }
-        const formatted = {
-            time: Math.floor(new Date(newCandle.openTime).getTime() / 1000) + 7 * 3600,
-            open: parseFloat(newCandle.open),
-            high: parseFloat(newCandle.high),
-            low: parseFloat(newCandle.low),
-            close: parseFloat(newCandle.close),
-        };
-        seriesRef.current.update(formatted);
+            if (symbolCheck !== symbol || intervalCheck !== interval) return;
+            if (!seriesRef.current) {
+                console.error('[Chart] Series disposed, skipping update');
+                return;
+            }
+            const formatted = {
+                time: Math.floor(new Date(newCandle.openTime).getTime() / 1000) + 7 * 3600,
+                open: parseFloat(newCandle.open),
+                high: parseFloat(newCandle.high),
+                low: parseFloat(newCandle.low),
+                close: parseFloat(newCandle.close),
+            };
+            seriesRef.current.update(formatted);
         };
 
         if (isConnected) {
-        connection.invoke('SubscribeSymbol', symbol, interval)
-                    .catch((err) => console.error('[Chart] Subscribe error:', err));
+            connection.invoke('SubscribeSymbol', symbol, interval)
+                        .catch((err) => console.error('[Chart] Subscribe error:', err));
         }
 
         connection.on('ReceiveHistoryCandles', handleHistoryCandlesData);
@@ -181,22 +172,22 @@ export default function FullChart() {
         connection.on('ReceiveRealtimeCandle', handleRealtimeCandleData);
 
         connection.on('Error', (message) => {
-        console.error('[Chart] Server error:', message);
+            console.error('[Chart] Server error:', message);
         });
 
         return () => {
-        const cleanup = async () => {
-            try {
-            connection.off('ReceiveHistoryCandles', handleHistoryCandlesData);
-            connection.off('ReceiveRealtimeCandle', handleRealtimeCandleData);
-            connection.invoke('UnsubscribeSymbol', symbol, interval)
-                        .catch((err) => console.warn('[Chart] Unsubscribe error:', err));
-            } catch (err) {
-            console.warn('[Chart] Error during cleanup:', err);
-            }
-        };
+            const cleanup = async () => {
+                try {
+                    connection.off('ReceiveHistoryCandles', handleHistoryCandlesData);
+                    connection.off('ReceiveRealtimeCandle', handleRealtimeCandleData);
+                    connection.invoke('UnsubscribeSymbol', symbol, interval)
+                                .catch((err) => console.warn('[Chart] Unsubscribe error:', err));
+                } catch (err) {
+                    console.warn('[Chart] Error during cleanup:', err);
+                }
+            };
 
-        cleanup();
+            cleanup();
         };
     }, [symbol, interval, connection, isConnected]);
 
@@ -346,12 +337,6 @@ export default function FullChart() {
                         </button>
                     </div>
 
-                    {/* Symbol */}
-                    {/* <div className='text-xs text-[var(--color-TertiaryText)]'>Symbol</div> */}
-                    {/* { !symbolInfor.quoteAsset? (
-                        <div className='flex items-center'>
-                            <div className="font-bold text-xl text-red-600">Undefined Symbol ({symbol} - {interval})</div>
-                        </div>) : ()} */}
                     <div className='flex flex-1 items-center'>
                         <div className="font-bold text-2xl text-[var(--color-PrimaryColor)]">{symbolInfor.baseAsset}
                             <span className="font-normal text-[var(--color-TertiaryText)] ml-0.5">({symbolInfor.quoteAsset})</span>
@@ -449,12 +434,14 @@ export default function FullChart() {
                         )}
 
                         {/* Nút thu nhỏ */}
-                        <button
-                        onClick={() => navigate('/multi-charts')}
-                        className="absolute bottom-2 right-2 z-40 p-1.5 rounded-xl hover:opacity-80 hover:scale-110"
-                        >
-                        <FontAwesomeIcon icon={faCompress}/>
-                        </button>
+                        {charts.find(c => c.symbol === symbol && c.interval === interval) &&
+                            <button
+                                onClick={() => navigate('/multi-charts')}
+                                className="absolute bottom-2 right-2 z-40 p-1.5 rounded-xl hover:opacity-80 hover:scale-110"
+                            >
+                                <FontAwesomeIcon icon={faCompress}/>
+                            </button>
+                        }
                     </div>
                 </div>
             </div>

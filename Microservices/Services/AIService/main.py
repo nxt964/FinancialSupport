@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from api.endpoints import router
 import logging
 import os
@@ -15,6 +16,25 @@ app = FastAPI(
     title="Stock Price Prediction API",
     description="Predicts next closing price using historical candle data and optional sentiment",
     version=os.getenv("MODEL_VERSION", "1.0.0")
+)
+
+origins = [
+    # apigateway
+    "http://localhost:5000",
+    "http://127.0.0.1:5000",
+    "https://localhost:5001",
+    
+    # vite react
+    "http://localhost:5173",   
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(router)

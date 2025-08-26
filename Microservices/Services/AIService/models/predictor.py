@@ -73,7 +73,7 @@ class StockPredictor:
         candle_data = []
         for candle in candles:
             candle_data.append({
-                'timestamp': candle.timestamp,
+                'timestamp': candle.openTime,   # ✅ use OpenTime as timestamp
                 'open': candle.open,
                 'high': candle.high,
                 'low': candle.low,
