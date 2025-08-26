@@ -17,7 +17,7 @@ namespace BacktestService.Services
 
         public async Task<string> DownloadCandles(string symbol, string interval)
         {
-            string url = $"https://localhost:7114/api/Binance/history-candles?symbol={symbol}&interval={interval}";
+            string url = $"http://microservices-chartservice-1:80/api/Binance/history-candles?symbol={symbol}&interval={interval}";
             string folder = "data";
             Directory.CreateDirectory(folder);
             string filePath = Path.Combine(folder, "candles.json");

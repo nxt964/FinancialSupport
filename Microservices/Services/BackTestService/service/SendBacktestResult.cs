@@ -10,7 +10,7 @@ namespace BacktestService.Services
         public SendBacktestResult(IWebHostEnvironment env)
         {
             // Use the content root path as base
-            _dataFolder = Path.Combine(env.ContentRootPath, "python", "plots");
+            _dataFolder = Path.Combine(env.ContentRootPath, "plots");
 
             // Ensure the directory exists
             Directory.CreateDirectory(_dataFolder);

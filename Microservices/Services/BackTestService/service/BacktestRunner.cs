@@ -34,13 +34,13 @@ namespace BacktestService.Services
 
             var processInfo = new ProcessStartInfo
             {
-                FileName = "python",
-                Arguments = $"-u backtest.py {strategyChoice}",  // <- -u = unbuffered stdout/stderr
+                FileName = "python3",
+                Arguments = $"-u python/backtest.py {strategyChoice}",  // <- -u = unbuffered stdout/stderr
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true,
-                WorkingDirectory = "python"
+                WorkingDirectory = "/app"
             };
 
             using var process = Process.Start(processInfo);

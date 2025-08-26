@@ -95,7 +95,7 @@ export default function Backtest() {
   // Fetch backtest result with GET
   const fetchBacktestResult = async (id) => {
     try {
-      const response = await httpClient.get("/api/backtest/chart-file", null)
+      const response = await httpClient.get(`${import.meta.env.VITE_API_BACKTEST_RUN}`, null)
       if (response.ok) {
         const resultText = await response.text() // might be HTML/SVG
         console.log("📊 Backtest GET response:", resultText)

@@ -35,11 +35,11 @@ os.makedirs("plots", exist_ok=True)
 print("Starting Automated Backtesting...")
 print("=" * 50)
 
-data_file = "../data/candles.json"
+data_file = "/app/data/candles.json"
 print(f"Loading data from: {data_file}")
 
 # ---------------------------------------------------------
-# Load JSON data
+# Load JSON data 
 # ---------------------------------------------------------
 try:
     with open(data_file, "r") as f:
@@ -172,7 +172,7 @@ print(f"Selected Strategy [{choice}]: {name}")
 # ---------------------------------------------------------
 results_summary = []
 try:
-    bt = Backtest(df, strategy_class, cash=10000)
+    bt = Backtest(df, strategy_class, cash=10000, finalize_trades=True)
     stats = bt.run()
 
     # Extract metrics
