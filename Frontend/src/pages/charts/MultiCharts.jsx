@@ -34,7 +34,7 @@ function MultiCharts() {
     <div className="p-4 min-h-full">
       <div className="grid grid-cols-2 gap-6">
         {charts.map(({ id, symbol, interval }) => (
-          <div key={id} className={`bg-[var(--color-ChartBg)] h-[480px] p-4 pb-6! rounded-lg shadow-lg border border-gray-500`}>
+          <div key={`${symbol}-${interval}`} className={`bg-[var(--color-ChartBg)] h-[480px] p-4 pb-6! rounded-lg shadow-lg border border-gray-500`}>
             <div className="flex items-center justify-between mb-4">
               <SymbolSearch followingSymbol={symbol} onSelectSymbol={(symbol) => {updateChart(id, 'symbol', symbol)}}
                             followingInterval={interval} onSelectInterval={(interval) => {updateChart(id, 'interval', interval)}}

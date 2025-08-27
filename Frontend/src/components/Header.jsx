@@ -7,7 +7,6 @@ import headerRoutes from '../utils/navigationUtils';
 import { useAppData } from '../contexts/AppDataContext';
 import { faSun } from '@fortawesome/free-regular-svg-icons';
 import { httpClient } from '../utils/httpClient';
-import candles from '../utils/fakeHistoryCandles';
 
 export default function Header() {
     const { user, logout, isAuthenticated } = useAuth();
@@ -89,20 +88,6 @@ export default function Header() {
     const truncateUsername = (username) => {
         return username.length > 12 ? username.substring(0, 12) + '...' : username;
     };
-
-    useEffect(() => {
-        const fetchPrediction = async () => {
-            const res = await httpClient.post(`${import.meta.env.VITE_API_AI_PREDICT_NEXT_CANDLE}`, {
-                candles: candles,
-                sentiment: null,
-                symbol: "BTCUSDT"
-            });
-            const body = await res.json();
-            console.log(body);
-        }
-
-        fetchPrediction();
-    }, [])
 
     return (
         <div className="px-4 py-2.5 flex justify-between items-center shadow-sm h-fit">

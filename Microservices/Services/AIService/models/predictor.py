@@ -21,7 +21,6 @@ class StockPredictor:
             random_state=42,
             n_jobs=-1
         )
-        self.is_trained = False
         self.feature_names = []
 
     def create_technical_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -144,7 +143,6 @@ class StockPredictor:
 
             # Train model
             self.model.fit(X_scaled, y)
-            self.is_trained = True
 
             logger.info(f"Model trained successfully with {len(X)} samples")
 
@@ -157,10 +155,7 @@ class StockPredictor:
         try:
             df = self.prepare_features(candles, sentiment)
 
-            # If model is not trained, train it with the provided data
-            if not self.is_trained:
-                logger.info("Training model with provided data...")
-                self.train_model(df)
+            self.train_model(df)
 
             # Prepare the last sequence for prediction
             X, _, _ = self.create_sequences(df, sequence_length=20)

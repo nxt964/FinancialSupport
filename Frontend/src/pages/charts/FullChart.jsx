@@ -2,15 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CandlestickSeries, createChart } from 'lightweight-charts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleXmark, faCompress, faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
+import { faCompress, faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 import DrawingLayer from '../../components/draw/DrawingLayer';
 import { useSignalR } from '../../contexts/SignalRContext';
 import { httpClient } from '../../utils/httpClient';
-import ListCoins from '../../components/charts/ListCoins';
 import { useAppData } from '../../contexts/AppDataContext';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
+import ListCoinsTabs from '../../components/ListCoinsTabs';
+import { intervalToMs } from '../../utils/functionUtils';
 
 export default function FullChart() {
     const { symbol, interval } = useParams();
@@ -225,71 +226,36 @@ export default function FullChart() {
 
 
     // Fetch Hot Trading & Top Volumn Symbols
-    const [hotSymbols, setHotSymbols] = useState([]);
-    const [topVolume, setTopVolume] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [topSymbols, setTopSymbols] = useState({
+        topTrading: [],
+        topVolume: []
+    });
+    const [loadingSymbols, setLoadingSymbols] = useState(false);
 
+    // Fetch top symbols
     useEffect(() => {
-        const fetchData = async () => {
-        try {
-            setIsLoading(true);
+        const fetchSymbolsData = async () => {
+            try {
+                setLoadingSymbols(true);
+                const [resHotTrading, resTopVolume] = await Promise.all([
+                    httpClient.get(import.meta.env.VITE_API_BINANCE_HOT_TRADING),
+                    httpClient.get(import.meta.env.VITE_API_BINANCE_TOP_VOLUME)
+                ]);
 
-            const resHotTrading = await httpClient.get(`${import.meta.env.VITE_API_BINANCE_HOT_TRADING}`);
-            const dataHotTrading = await resHotTrading.json();
-            setHotSymbols(dataHotTrading);
-
-            const resTopVolume = await httpClient.get(`${import.meta.env.VITE_API_BINANCE_TOP_VOLUME}`);
-            const dataTopVolume = await resTopVolume.json();
-            setTopVolume(dataTopVolume);
-
-            setTimeout(() => {
-                setIsLoading(false);
-            }, 200);
-        } catch (err) {
-            console.error("Failed to load hot symbols", err);
-            setIsLoading(false);
-        }
-        setIsLoading(false);
+                setTopSymbols({
+                    topTrading: await resHotTrading.json(),
+                    topVolume: await resTopVolume.json(),
+                });
+                setLoadingSymbols(false);
+            } catch (err) {
+                console.error("Failed to load top symbols", err);
+            } finally {
+                setLoadingSymbols(false);
+            }
         };
 
-
-        fetchData();
+        fetchSymbolsData();
     }, []);
-
-    // Search symbol
-    const [keyword, setKeyword] = useState("");
-    const [searchResults, setSearchResults] = useState(hotSymbols);
-
-    const fetchSearchResults = async (keyword) => {
-        try {
-            setIsLoading(true);
-
-            const res = await httpClient.get(`${import.meta.env.VITE_API_BINANCE_SEARCH}?keyword=${keyword}`)
-            const data = await res.json();
-            setSearchResults(data);
-
-            setTimeout(() => {
-                setIsLoading(false);
-            }, 500);
-        } catch (err) {
-            console.error("Failed to search symbols", err);
-            setIsLoading(false);
-        }
-        setIsLoading(false);
-    };
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (!keyword.trim()) {
-                setSearchResults(hotSymbols)
-            } else {
-                fetchSearchResults(keyword);
-            }
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [keyword, hotSymbols]);
-
 
     // Handle follow/unfollow chart
     const { isAuthenticated } = useAuth();
@@ -315,6 +281,93 @@ export default function FullChart() {
             toast.success(`Unfollowed ${symbolInfor.baseAsset}/${symbolInfor.quoteAsset} - ${interval}`)
         }
     }
+
+
+    // AI Prediction
+    const [predictedData, setPredictedData] = useState(null);
+    const [predicting, setPredicting] = useState(false);
+
+    const resetTimerRef = useRef(null);
+
+    // Cleanup khi unmount
+    useEffect(() => {
+        return () => {
+            if (resetTimerRef.current) {
+                clearTimeout(resetTimerRef.current);
+            }
+            };
+    }, []);
+
+    useEffect(() => {
+        setPredictedData(null);
+    }, [symbol, interval])
+
+    const handlePredict = async () => {
+        if (!seriesRef.current) {
+            toast.error("No chart data available for prediction");
+            return;
+        }
+
+        try {
+            setPredicting(true);
+
+            const candlesRes = await httpClient.get(
+                `${import.meta.env.VITE_API_BINANCE_HISTORY_CANDLES}?symbol=${symbol}&interval=${interval}`
+            );
+
+            const candlesResult = await candlesRes.json()
+
+            const formattedCandles = candlesResult.map(c => {
+                const openTimeSec = Math.floor(new Date(c.openTime).getTime() / 1000) + 7 * 3600;
+                return {
+                    time: openTimeSec,
+                    openTime: openTimeSec,
+                    open: parseFloat(c.open),
+                    high: parseFloat(c.high),
+                    low: parseFloat(c.low),
+                    close: parseFloat(c.close),
+                    volume: parseFloat(c.volume),
+                };
+            });
+
+            const predictionRes = await httpClient.post(
+                import.meta.env.VITE_API_AI_PREDICT_NEXT_CANDLE,
+                { 
+                    candles: formattedCandles,
+                    sentiment: null,
+                    symbol: symbol
+                }
+            );
+            const predictionResult = await predictionRes.json();
+
+            if (predictionResult?.predicted_close) {
+                const now = Date.now();
+                const intervalMs = intervalToMs(interval);
+                const nextCloseTime = new Date(Math.floor(now / intervalMs) * intervalMs + intervalMs);
+                setPredictedData({
+                    predictedPrice: parseFloat(predictionResult.predicted_close),
+                    closeTime: nextCloseTime
+                }); 
+
+                toast.success("Prediction success!");
+
+                if (resetTimerRef.current) {
+                    clearTimeout(resetTimerRef.current);
+                }
+                const delay = nextCloseTime.getTime() - now;
+                resetTimerRef.current = setTimeout(() => {
+                    setPredictedData(null);
+                }, delay);
+            } else {
+                toast.error("Prediction failed!");
+            }
+        } catch (err) {
+            console.error("Predict error:", err);
+            toast.error("Prediction failed");
+        } finally {
+            setPredicting(false);
+        }
+    };
 
     return (
         <div ref={wrapRef} className="flex w-full h-full py-2">
@@ -355,7 +408,7 @@ export default function FullChart() {
                     {/* Change */}
                     <div className='flex flex-col flex-1 items-start'>
                         <div className='text-xs text-[var(--color-TertiaryText)]'>24h Chg</div>
-                        <div className={`font-semibold text-sm ${tickerData.change >= 0 ? "text-green-600" : "text-red-600"}`}>
+                        <div className={`font-semibold text-sm ${tickerData.change >= 0 ? "text-green-500" : "text-red-500"}`}>
                             {Math.abs(tickerData.change) > 1 
                                 ? Math.abs(tickerData.change).toLocaleString(undefined, {maximumFractionDigits: priceFormat.precision})
                                 : Math.abs(tickerData.change).toFixed(priceFormat.precision)}
@@ -446,45 +499,99 @@ export default function FullChart() {
                 </div>
             </div>
 
-            {/* Hot Trading panel */}
-            <div id='hot-trading-panel' className='h-full flex flex-col gap-2 w-[23%]'>
-                <div className='flex-1 flex flex-col gap-2 p-2 bg-[var(--color-ChartBg)] rounded-lg min-h-0 border border-[var(--color-Line)]'>
-                    <div className="relative flex items-center rounded">
-                        <input
-                        type="text"
-                        value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
-                        className="w-full p-2 pr-9 focus:outline-none rounded-md border border-[var(--color-Line)] focus:border-[var(--color-PrimaryColor)] transition-all duration-300"
-                        placeholder="Search symbol..."
-                        />
-                        {keyword && (
-                        <button
-                            onClick={() => setKeyword("")}
-                            className="absolute right-0 p-2! bg-transparent! text-gray-400 hover:text-white text-sm"
+            {/* Prediction Part & Top List Coins */}
+            <div className="flex flex-col gap-2 w-[24%]">
+                {/* AI Prediction Service */}
+                <div className='border border-[var(--color-Line)] rounded-lg p-2 bg-[var(--color-ChartBg)] flex flex-col gap-3'>
+                    <div className="flex justify-between items-center">
+                        <h3 className="font-bold text-lg text-[var(--color-PrimaryColor)]">AI Price Prediction</h3>
+                        <button 
+                            onClick={handlePredict} 
+                            disabled={predicting}
+                            className="px-3 py-1 rounded-md bg-[var(--color-PrimaryColor)] hover:scale-102 disabled:opacity-50"
                         >
-                            <FontAwesomeIcon icon={faCircleXmark}/>
+                            {predicting ? "Predicting..." : "Predict"}
                         </button>
-                        )}
                     </div>
-                    <p className='font-semibold'>{!keyword ? "Top Trading" : "Search Results"}</p>
-                    <div className='flex-1 min-h-0'>
-                        <ListCoins isLoading={isLoading} listCoins={searchResults}/>
-                    </div>
-                    {
-                    searchResults.length === 0 && 
-                        <div className="text-center text-xl flex-1">
-                            No results found for
-                            <span className='text-[var(--color-PrimaryColor)] ml-2'>"{keyword}"</span>
+
+                    {predicting 
+                    ? (
+                        <div className="flex justify-center items-center h-full">
+                            <div className="w-6 h-6 border-2 border-[var(--color-Line)] border-t-[var(--color-PrimaryColor)] rounded-full animate-spin"></div>
                         </div>
-                    }
+                    )
+                    : (
+                        <div className="flex flex-col gap-2">
+                            <div className="text-sm">
+                                <span className="text-[var(--color-TertiaryText)] mr-2">Predicted Close Price:</span>
+                                <span className="font-semibold text-[var(--color-PrimaryColor)]">
+                                    ${predictedData !== null   
+                                        ? (predictedData.predictedPrice > 1 
+                                            ? predictedData.predictedPrice.toLocaleString(undefined, {maximumFractionDigits: priceFormat.precision})
+                                            : predictedData.predictedPrice.toFixed(priceFormat.precision)
+                                        )
+                                        : "0.00"
+                                    }
+                                </span>
+                            </div>
+                            <div className="text-sm">
+                                <span className="text-[var(--color-TertiaryText)] mr-2">Change:</span>
+                                { predictedData !== null && tickerData?.lastPrice 
+                                    ? (
+                                        <span
+                                            className={`ml-2 font-semibold ${
+                                                predictedData.predictedPrice - tickerData.lastPrice >= 0 ? "text-green-500" : "text-red-500"
+                                            }`}
+                                            >
+                                            {(predictedData.predictedPrice - tickerData.lastPrice).toFixed(priceFormat.precision)}
+                                        </span>
+                                    )
+                                    : "0.00"
+                                }
+                            </div>
+                            <div className="text-sm">
+                                <span className="text-[var(--color-TertiaryText)] mr-2">Change %:</span>
+                                { predictedData !== null && tickerData?.lastPrice 
+                                    ? (
+                                        <span
+                                            className={`ml-2 font-semibold ${
+                                                predictedData.predictedPrice - tickerData.lastPrice >= 0 ? "text-green-500" : "text-red-500"
+                                            }`}
+                                            >
+                                            {((predictedData.predictedPrice - tickerData.lastPrice) / tickerData.lastPrice * 100).toFixed(2)}%
+                                        </span>
+                                    )
+                                    : "0.00"
+                                }
+                            </div>
+
+                            <div className="text-sm">
+                                <span className="text-[var(--color-TertiaryText)] mr-2">Close Time:</span>
+                                <span className="font-semibold">
+                                    {predictedData 
+                                        ? predictedData.closeTime.toLocaleString() 
+                                        : "--"}
+                                </span>
+                            </div>
+
+                            <div className="text-sm text-[var(--color-TertiaryText)] italic">
+                                {predictedData 
+                                    ? `*Prediction will reset automatically at ${predictedData.closeTime.toLocaleTimeString("en-GB", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                            second: "2-digit",
+                                            hour12: false,
+                                            timeZone: "Asia/Ho_Chi_Minh",
+                                        })}*`
+                                    : "*Press Predict to get next candle prediction*"
+                                }
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                <div className='flex-1 flex flex-col gap-2 p-2 bg-[var(--color-ChartBg)] rounded-lg min-h-0 border border-[var(--color-Line)]'>
-                    <p className='font-semibold'>Top Volume</p>
-                    <div className='flex-1 min-h-0'>
-                        <ListCoins isLoading={isLoading} listCoins={topVolume}/>
-                    </div>
-                </div>
+                {/* Top Trading & Volumn */}
+                <ListCoinsTabs isLoading={loadingSymbols} tabLabels={["Top Trading", "Top Volume"]} tabData={[topSymbols.topTrading, topSymbols.topVolume]}/>                
             </div>
         </div>
         </div>
