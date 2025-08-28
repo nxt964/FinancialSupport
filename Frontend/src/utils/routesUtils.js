@@ -16,9 +16,11 @@ import FullChart from "../pages/charts/FullChart";
 import { Navigate } from "react-router-dom";
 import RedirectToDefaultChart from "../components/charts/RedirectToDefaultChart";
 import Backtest from "../pages/backtest/Backtest";
+import AuthRequired from "../pages/AuthRequired";
 
 const routes = [
   { path: "/", element: Home },
+
   { path: "/auth/login", element: Login },
   { path: "/auth/signup", element: Signup },
   { path: "/auth/confirm-email", element: ConfirmEmail },
@@ -26,15 +28,23 @@ const routes = [
   { path: "/auth/forgot-password", element: ForgotPassword },
   { path: "/auth/reset-password-confirm", element: ResetPasswordConfirm },
   { path: "/auth/reset-password", element: ResetPassword },
+
   { path: "/profile", element: Profile },
   { path: "/edit-profile", element: EditProfile },
   { path: "/edit-password", element: EditPassword },
+
   { path: "/news", element: NewsFeed },
   { path: "/news/:id", element: Details },
-  { path: "/multi-charts", element: MultiCharts },
+
   { path: "/chart", element: RedirectToDefaultChart},
   { path: "/chart/:symbol/:interval", element: FullChart },
-  { path: "/backtest", element: Backtest},
+
+  { path: "/authentication-required", element: AuthRequired }
 ];
 
-export default routes;
+const authRequiredRoutes = [
+  { path: "/multi-charts", element: MultiCharts },
+  { path: "/backtest", element: Backtest },
+]
+
+export { routes, authRequiredRoutes };

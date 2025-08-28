@@ -4,32 +4,10 @@ import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import EmptyChart from '../../components/charts/EmptyChart';
 import SymbolSearch from '../../components/charts/SymbolSearch';
 import { useAppData } from '../../contexts/AppDataContext';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 function MultiCharts() {
-  const { isAuthenticated } = useAuth();
   const { charts, addChart, updateChart, removeChart } = useAppData();
-  const navigate = useNavigate();
 
-  if (!isAuthenticated()) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <h2 className="text-4xl font-bold mb-4">
-                        Please log in to use view multi-charts
-                    </h2>
-                    <button
-                        onClick={() => navigate('/auth/login')}
-                        className="px-4 py-2 rounded-lg hover:scale-105 hover:opacity-80"
-                    >
-                        Go to Login
-                    </button>
-                </div>
-            </div>
-        );
-    }
-  
   return (
     <div className="p-4 min-h-full">
       <div className="grid grid-cols-2 gap-6">
