@@ -23,6 +23,7 @@ public class DatabaseContextSeed(
             await CreateBasicRolesAsync();
             
             await CreateAdminUserAsync();
+            await CreateNormalUserAsync();
         }
         catch (Exception ex)
         {
@@ -85,6 +86,45 @@ public class DatabaseContextSeed(
             await userRepository.AddAsync(customUser);
             
             logger.LogInformation("Default admin account created successfully.");
+        }
+    }
+
+    private async Task CreateNormalUserAsync()
+    {
+        var normalUserEmail = "user@financesupport.com";
+        var normalUser = await userManager.FindByEmailAsync(normalUserEmail);
+        
+        if (normalUser != null)
+        {
+            logger.LogInformation("Default normal user already exists.");
+        }
+
+        var user = new ApplicationUser
+        {
+            UserName = "user",
+            Email = normalUserEmail,
+            EmailConfirmed = true,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        const string normalPassword = "User@12345";
+        var result = await userManager.CreateAsync(user, normalPassword);
+
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(user, "User");
+
+            var customUser = new User
+            {
+                Id = user.Id,
+                Username = user.UserName!,
+                Email = user.Email!,
+                ProfileImage = "",
+                Role = "User"
+            };
+            await userRepository.AddAsync(customUser);
+            
+            logger.LogInformation("Default normal user created successfully.");
         }
     }
 }

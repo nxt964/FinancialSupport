@@ -27,6 +27,7 @@ public static class InfrastructureModule
     {
         services.AddScoped<IUserDomainService, UserDomainService>();
         services.AddScoped<IAuthDomainService, AuthDomainService>();
+        services.AddScoped<IChartSubcriptionDomainService, ChartSubcriptionDomainService>();
     }
     
     private static void AddDatabase(this IServiceCollection services, IConfiguration configuration)

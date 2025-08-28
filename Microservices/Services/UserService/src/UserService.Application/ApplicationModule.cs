@@ -18,6 +18,7 @@ public static class ApplicationModule
         
         services.AddScoped<IUserAppService, UserAppService>();
         services.AddScoped<IAuthAppService, AuthAppService>();
+        services.AddScoped<IChartSubscriptionAppService, ChartSubscriptionAppService>();
         services.AddScoped<IEventPublisher, EventPublisher>();
 
         AddJwtSettings(services, configuration);
