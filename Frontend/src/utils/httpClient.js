@@ -170,7 +170,6 @@ class HttpClient {
 
   async request(endpoint, options = {}, customBaseUrl = null) {
     const url = `${customBaseUrl || this.API_BASE_URL}${endpoint}`;
-    
     // Add authorization header if token exists
     if (this.accessToken) {
       options.headers = {
@@ -183,7 +182,7 @@ class HttpClient {
       const response = await fetch(url, options);
       
       // Handle 401 Unauthorized
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 302) {
         try {
           const newAccessToken = await this.refreshAccessToken();
           // Retry the original request with new token

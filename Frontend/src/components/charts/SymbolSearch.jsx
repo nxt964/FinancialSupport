@@ -5,7 +5,6 @@ import { httpClient } from "../../utils/httpClient";
 
 const SymbolSearch = ({ followingSymbol, onSelectSymbol, followingInterval, onSelectInterval }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [symbol, setSymbol] = useState(followingSymbol != "" ? followingSymbol : "Symbol")
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -51,8 +50,7 @@ const SymbolSearch = ({ followingSymbol, onSelectSymbol, followingInterval, onSe
     setLoading(false);
   };
 
-  const handleSelectSymbol = (symbol, baseAsset, quoteAsset) => {
-    setSymbol(`${baseAsset}/${quoteAsset}`)
+  const handleSelectSymbol = (symbol) => {
     onSelectSymbol(symbol)
     setIsOpen(false)
   }
@@ -65,8 +63,8 @@ const SymbolSearch = ({ followingSymbol, onSelectSymbol, followingInterval, onSe
           className="flex items-center justify-between py-1! px-2! bg-[var(--color-InputLine)]! rounded! "
           onClick={() => setIsOpen(!isOpen)}
         >
-          <span className={`${symbol !== 'Symbol' ? "text-[var(--color-PrimaryColor)] font-semibold" : ""}`}>
-            {symbol}
+          <span className={`${followingSymbol !== '' ? "text-[var(--color-PrimaryColor)] font-semibold" : ""}`}>
+            {followingSymbol || "Symbol"}
             <FontAwesomeIcon className="ml-2" icon={faSearch}/>
           </span>
           
@@ -126,7 +124,7 @@ const SymbolSearch = ({ followingSymbol, onSelectSymbol, followingInterval, onSe
                 <li
                   key={index}
                   className="flex justify-between items-center px-2 py-1 cursor-pointer rounded-lg hover:bg-[var(--color-InputLine)]"
-                  onClick={() => handleSelectSymbol(item.symbol, item.baseAsset, item.quoteAsset)}
+                  onClick={() => handleSelectSymbol(item.symbol)}
                 >
                   <div className="flex flex-col">
                     <div className="font-semibold text-[var(--color-PrimaryColor)]">{item.baseAsset}

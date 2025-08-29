@@ -65,7 +65,6 @@ export default function Login() {
 
         try {
             const result = await login(formData);
-            console.log('Login result fe:', result);
             
             if (result.success) {
                 // Save credentials if "Remember Me" is checked
@@ -91,6 +90,7 @@ export default function Login() {
             }
         } catch (error) {
             toast.error('An error occurred during login');
+            console.error('An error occurred during login', error);
         } finally {
             setIsLoading(false);
         }

@@ -11,7 +11,6 @@ export const AuthContextProvider = ({ children }) => {
     // Check if user is logged in on app start
     const accessToken = localStorage.getItem('accessToken');
     const userData = localStorage.getItem('user');
-    
     if (accessToken && userData) {
       try {
         setUser(JSON.parse(userData));
@@ -64,6 +63,7 @@ export const AuthContextProvider = ({ children }) => {
 
   const login = async (loginData) => {
     try {
+      setIsLoading(true);
       const response = await httpClient.post('/api/auth/login', loginData);
       const data = await response.json();
       
@@ -91,11 +91,14 @@ export const AuthContextProvider = ({ children }) => {
       }
     } catch (error) {
       return { success: false, error: `Error: ${error}` };
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const signup = async (signupData) => {
     try {
+      setIsLoading(true);
       const response = await httpClient.post('/api/auth/register', signupData);
       const data = await response.json();
       
@@ -111,11 +114,14 @@ export const AuthContextProvider = ({ children }) => {
       }
     } catch (error) {
       return { success: false, error: `Error: ${error}` };
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const confirmEmail = async (email, code) => {
     try {
+      setIsLoading(true);
       const response = await httpClient.post('/api/auth/confirm-register', { email, code });
       const data = await response.json();
       
@@ -131,11 +137,14 @@ export const AuthContextProvider = ({ children }) => {
       }
     } catch (error) {
       return { success: false, error: `Error: ${error}` };
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const updateProfile = async (profileData) => {
     try {
+      setIsLoading(true);
       const response = await httpClient.put('/api/users/update', {
         id: user.id,
         newUsername: profileData.userName,
@@ -172,11 +181,14 @@ export const AuthContextProvider = ({ children }) => {
         success: false,
         error: `An error occurred while updating profile: ${error}`
       };
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const updatePassword = async (passwordData) => {
     try {
+      setIsLoading(true);
       const response = await httpClient.post('/api/auth/update-password', {
         oldPassword: passwordData.oldPassword,
         newPassword: passwordData.newPassword,
@@ -202,11 +214,14 @@ export const AuthContextProvider = ({ children }) => {
         success: false,
         error: `An error occurred while updating password: ${error}`
       };
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = async () => {
     try {
+      setIsLoading(true);
       if (user && httpClient.accessToken) {
         await httpClient.post('/api/auth/logout', { 
           id: user.id, 
@@ -217,10 +232,11 @@ export const AuthContextProvider = ({ children }) => {
       console.error('Logout request failed:', error);
     } finally {
       setUser(null);
+      setIsLoading(false);
       httpClient.clearTokens();
       localStorage.removeItem('user');
     }
-  };
+  }; 
 
   const isAuthenticated = () => {
     return user !== null;

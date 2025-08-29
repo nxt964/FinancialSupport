@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Spinner from "../Spinner";
 
 function ListCoins({isLoading, listCoins }) {
   const { interval } = useParams();
@@ -14,9 +15,7 @@ function ListCoins({isLoading, listCoins }) {
 
         <div className="custom-scrollbar overflow-auto flex-1 min-h-0">
             { isLoading ? (
-                <div className="flex justify-center items-center h-full">
-                    <div className="w-6 h-6 border-2 border-[var(--color-Line)] border-t-[var(--color-PrimaryColor)] rounded-full animate-spin"></div>
-                </div>
+                <Spinner/>
             ) : (
                 <div className="flex flex-col">
                     {listCoins.map((coin, idx) => {

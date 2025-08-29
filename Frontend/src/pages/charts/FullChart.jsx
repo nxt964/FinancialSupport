@@ -257,28 +257,63 @@ export default function FullChart() {
         fetchSymbolsData();
     }, []);
 
-    // Handle follow/unfollow chart
-    const { isAuthenticated } = useAuth();
-    const { charts, addChart, removeChart } = useAppData();
+    const { isAuthenticated, isLoading } = useAuth();
 
-    const handleFollowClick = () => {
+    // Fetch Followed charts
+    const { charts, setCharts } = useAppData();
+    useEffect(() => {
+      const fetchFollowedCharts = async () => {
+          try {
+              const res = await httpClient.get(import.meta.env.VITE_API_FOLLOWED_CHARTS);
+              const data = await res.json();
+              setCharts(data.result.subscriptions || [])
+          } catch (err) {
+              console.error("Failed to load followed charts: ", err);
+          }
+      }
+      if (!isLoading) {
+        if (isAuthenticated()) {
+            fetchFollowedCharts();
+        } else {
+            setCharts([]);
+        }
+      }
+  }, [setCharts, isLoading, isAuthenticated])
+
+    // Handle follow/unfollow chart
+    const handleFollowClick = async () => {
         if (!isAuthenticated()) {
             toast.error("Please login to follow symbol!");
             return;
         }
 
-        const existing = charts.find(c => c.symbol === symbol && c.interval === interval);
+        const existing = charts.find(c => c.symbol === symbol);
 
         if (!existing) {
             if (charts.length < 4) {
-                addChart(symbol, interval);
-                toast.success(`Followed ${symbolInfor.baseAsset}/${symbolInfor.quoteAsset} - ${interval}`)
+                try {
+                    await httpClient.post(import.meta.env.VITE_API_FOLLOW_CHART, {
+                        symbol: symbol,
+                        interval: interval,
+                    });
+                    setCharts([...charts, { symbol: symbol, interval: interval }]);
+                    toast.success(`Following ${symbolInfor.baseAsset}/${symbolInfor.quoteAsset}`)
+                } catch (err) {
+                    console.error("Follow fail: ", err);
+                    toast.error("Failed to follow chart");
+                }
             } else {
                 toast.error("You can follow up to 4 charts only");
             }
         } else {
-            removeChart(existing.id);
-            toast.success(`Unfollowed ${symbolInfor.baseAsset}/${symbolInfor.quoteAsset} - ${interval}`)
+            try {
+                await httpClient.post(import.meta.env.VITE_API_UNFOLLOW_CHART, { symbol: existing.symbol, interval: existing.interval });
+                setCharts(charts.filter(c => !(c.symbol === symbol)));
+                toast.success(`Unfollowed ${symbolInfor.baseAsset}/${symbolInfor.quoteAsset}`)
+            } catch (err) {
+                console.error("Unfollow fail: ", err);
+                toast.error("Failed to unfollow chart");
+            }
         }
     }
 
@@ -383,7 +418,7 @@ export default function FullChart() {
                             onClick={handleFollowClick}
                         >
                             { 
-                                charts.find(c => c.symbol === symbol && c.interval === interval) && isAuthenticated()
+                                charts.find(c => c.symbol === symbol) && isAuthenticated()
                                 ? <FontAwesomeIcon className='text-yellow-500 ' icon={faStarSolid}/>
                                 : <FontAwesomeIcon className='text-[var(--color-DisableText)] ' icon={faStarRegular}/>
                             }
@@ -487,7 +522,7 @@ export default function FullChart() {
                         )}
 
                         {/* Nút thu nhỏ */}
-                        {charts.find(c => c.symbol === symbol && c.interval === interval) &&
+                        {charts.find(c => c.symbol === symbol) &&
                             <button
                                 onClick={() => navigate('/multi-charts')}
                                 className="absolute bottom-2 right-2 z-40 p-1.5 rounded-xl hover:opacity-80 hover:scale-110"

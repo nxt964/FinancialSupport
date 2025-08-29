@@ -7,9 +7,10 @@ import headerRoutes from '../utils/navigationUtils';
 import { useAppData } from '../contexts/AppDataContext';
 import { faSun } from '@fortawesome/free-regular-svg-icons';
 import { httpClient } from '../utils/httpClient';
+import Spinner from './Spinner';
 
 export default function Header() {
-    const { user, logout, isAuthenticated } = useAuth();
+    const { user, logout, isAuthenticated, isLoading } = useAuth();
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
@@ -175,7 +176,9 @@ export default function Header() {
                 </div>
 
                 {/* Authentication */}
-                {isAuthenticated() ? (
+                { isLoading ? (
+                    <Spinner height={4} width={4}/>
+                ) : isAuthenticated() ? (
                     <div className="relative flex items-center">
                         <button
                             onClick={handleProfileClick}
