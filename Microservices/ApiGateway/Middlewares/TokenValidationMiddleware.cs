@@ -78,6 +78,19 @@ public class TokenValidationMiddleware
 
         // Continue to next middleware
         await _next(context);
+        
+        // Handle redirect responses from downstream services
+        if (context.Response.StatusCode == 302)
+        {
+            var location = context.Response.Headers.Location.FirstOrDefault();
+            if (!string.IsNullOrEmpty(location) && location.Contains("/Account/Login"))
+            {
+                // Update the redirect location to point to the API Gateway
+                var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
+                context.Response.Headers.Location = $"{baseUrl}/Account/Login";
+                _logger.LogInformation("Updated redirect location to: {Location}", context.Response.Headers.Location);
+            }
+        }
     }
     
     private string? ExtractBearerToken(HttpContext context)

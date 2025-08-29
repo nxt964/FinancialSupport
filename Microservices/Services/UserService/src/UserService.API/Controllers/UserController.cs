@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.DTOs.Users;
+using UserService.Application.Exceptions;
 using UserService.Application.Interfaces;
 
 namespace UserService.API.Controllers;
@@ -25,7 +26,7 @@ public class UserController(IUserAppService userAppService) : ApiController
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdFromToken == null)
         {
-            throw new UnauthorizedAccessException("User ID not found in token");
+            return Failure(new UnauthenticatedException());
         }
         
         var userId = Guid.Parse(userIdFromToken);
@@ -39,9 +40,11 @@ public class UserController(IUserAppService userAppService) : ApiController
     {
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-        if (userRole != "Admin" && (userIdFromToken == null || userIdFromToken != id.ToString()))
+        if (userIdFromToken == null || userIdFromToken != id.ToString())
         {
-            throw new UnauthorizedAccessException();
+            return userRole != "Admin" 
+                ? Failure(new UnauthorizedException()) 
+                : Failure(new UnauthenticatedException());
         }
         var user = await userAppService.GetByIdAsync(id);
         return Success(user);
@@ -54,7 +57,7 @@ public class UserController(IUserAppService userAppService) : ApiController
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdFromToken == null || userIdFromToken != request.Id.ToString())
         {
-            throw new UnauthorizedAccessException();
+            return Failure(new UnauthenticatedException());
         }
         request.Id = Guid.Parse(userIdFromToken);
         var response = await userAppService.UpdateAsync(request);
@@ -74,9 +77,12 @@ public class UserController(IUserAppService userAppService) : ApiController
     public async Task<IActionResult> Delete(Guid id)
     {
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
         if (userIdFromToken == null || userIdFromToken != id.ToString())
         {
-            throw new UnauthorizedAccessException();
+            return userRole != "Admin" 
+                ? Failure(new UnauthorizedException()) 
+                : Failure(new UnauthenticatedException());
         }
         await userAppService.DeleteAsync(id);
         return Success("User deleted successfully.");

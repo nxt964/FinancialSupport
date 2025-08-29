@@ -35,11 +35,15 @@ public class GlobalExceptionHandler(
             case NotFoundException:
                 statusCode = HttpStatusCode.NotFound;
                 break;
+            
+            case UnauthenticatedException:
+                statusCode = HttpStatusCode.Unauthorized;
+                break;
 
             case UnauthorizedException:
             
             case UnauthorizedAccessException:
-                statusCode = HttpStatusCode.Unauthorized;
+                statusCode = HttpStatusCode.Forbidden;
                 break;
 
             case ValidationException:

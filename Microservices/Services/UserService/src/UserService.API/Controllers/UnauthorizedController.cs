@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserService.Application.Exceptions;
 
 namespace UserService.API.Controllers;
 
@@ -11,6 +12,6 @@ public class UnauthorizedController() : ApiController
     [AllowAnonymous]
     public IActionResult Login()
     {
-        return Failure<string>("Access denied");
+        return Failure(new UnauthenticatedException());
     }
 }

@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.DTOs.ChartSubscriptions;
+using UserService.Application.Exceptions;
 using UserService.Application.Interfaces;
 
 namespace UserService.API.Controllers;
@@ -17,7 +18,7 @@ public class ChartSubscriptionController(IChartSubscriptionAppService chartSubsc
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdFromToken == null)
         {
-            throw new UnauthorizedAccessException("User ID not found in token");
+            return Failure(new UnauthenticatedException());
         }
         
         var userId = Guid.Parse(userIdFromToken);
@@ -38,7 +39,7 @@ public class ChartSubscriptionController(IChartSubscriptionAppService chartSubsc
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdFromToken == null)
         {
-            throw new UnauthorizedAccessException("User ID not found in token");
+            return Failure(new UnauthenticatedException());
         }
         
         var userId = Guid.Parse(userIdFromToken);
@@ -59,7 +60,7 @@ public class ChartSubscriptionController(IChartSubscriptionAppService chartSubsc
         var userIdFromToken = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdFromToken == null)
         {
-            throw new UnauthorizedAccessException("User ID not found in token");
+            return Failure(new UnauthenticatedException());
         }
         var targetUserId = Guid.Parse(userIdFromToken);
 
