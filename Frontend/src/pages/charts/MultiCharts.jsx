@@ -3,32 +3,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import EmptyChart from '../../components/charts/EmptyChart';
 import SymbolSearch from '../../components/charts/SymbolSearch';
-import { useEffect, useState } from 'react';
 import { httpClient } from '../../utils/httpClient';
 import Spinner from '../../components/Spinner';
 import toast from 'react-hot-toast';
 import { useAppData } from '../../contexts/AppDataContext';
 
 function MultiCharts() {
-  const { charts, setCharts } = useAppData();
-  const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-      const fetchFollowedCharts = async () => {
-          try {
-              setIsLoading(true);
-              const res = await httpClient.get(import.meta.env.VITE_API_FOLLOWED_CHARTS);
-              const data = await res.json();
-              setCharts(data.result.subscriptions || [])
-          } catch (err) {
-              console.error("Failed to load followed charts: ", err);
-          } finally {
-              setIsLoading(false);
-          }
-      }
-
-      fetchFollowedCharts();
-  }, [setCharts])
+  const { charts, setCharts, isLoading } = useAppData();
 
   const addChart = () => {
     if (charts.length >= 4) {

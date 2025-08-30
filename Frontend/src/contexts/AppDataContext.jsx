@@ -1,9 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { AuthContextProvider } from "./AuthContext";
-import { SignalRContextProvider } from "./SignalRContext";
-import { ApolloProvider } from "@apollo/client";
-import { apollo } from "../lib/apollo";
 import { httpClient } from "../utils/httpClient";
+import { useAuth } from "./AuthContext";
 
 const AppDataContext = createContext(null);
 
@@ -13,20 +10,39 @@ export const AppDataContextProvider = ({ children }) => {
     });
     
     const [charts, setCharts] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const { user } = useAuth();
+
+    useEffect(() => {
+        const fetchFollowedCharts = async () => {
+            try {
+                setIsLoading(true);
+                const res = await httpClient.get(import.meta.env.VITE_API_FOLLOWED_CHARTS);
+                const data = await res.json();
+                setCharts(data.result.subscriptions || [])
+            } catch (err) {
+                console.error("Failed to load followed charts: ", err);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        if (user !== null) {
+            fetchFollowedCharts();
+        } else {
+            setCharts([])
+        }
+
+    }, [user])
 
     return (
         <AppDataContext.Provider value=
             {{ 
-                charts, setCharts,
+                charts, setCharts, isLoading,
                 theme, setTheme
             }}>
-            <AuthContextProvider>
-                <SignalRContextProvider>
-                    <ApolloProvider client={apollo}>
-                        {children}
-                    </ApolloProvider>
-                </SignalRContextProvider>
-            </AuthContextProvider>
+            {children}
         </AppDataContext.Provider>
     );
 };

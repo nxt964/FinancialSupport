@@ -257,28 +257,10 @@ export default function FullChart() {
         fetchSymbolsData();
     }, []);
 
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated } = useAuth();
 
     // Fetch Followed charts
     const { charts, setCharts } = useAppData();
-    useEffect(() => {
-      const fetchFollowedCharts = async () => {
-          try {
-              const res = await httpClient.get(import.meta.env.VITE_API_FOLLOWED_CHARTS);
-              const data = await res.json();
-              setCharts(data.result.subscriptions || [])
-          } catch (err) {
-              console.error("Failed to load followed charts: ", err);
-          }
-      }
-      if (!isLoading) {
-        if (isAuthenticated()) {
-            fetchFollowedCharts();
-        } else {
-            setCharts([]);
-        }
-      }
-  }, [setCharts, isLoading, isAuthenticated])
 
     // Handle follow/unfollow chart
     const handleFollowClick = async () => {
@@ -303,7 +285,7 @@ export default function FullChart() {
                     toast.error("Failed to follow chart");
                 }
             } else {
-                toast.error("You can follow up to 4 charts only");
+                toast.error("You can follow up to 4 symbols only");
             }
         } else {
             try {

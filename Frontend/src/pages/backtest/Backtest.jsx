@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { httpClient } from "../../utils/httpClient"
+import toast from "react-hot-toast"
+import HtmlRenderer from "../../components/backtest/HtmlRenderer"
+import StrategyDropdown from "../../components/backtest/StrategyDropdown"
 
 export default function Backtest() {
   const { symbol, interval, strategy } = useParams()
@@ -115,8 +118,8 @@ export default function Backtest() {
   const runBacktest = async (id, symbol, interval, strategy) => {
     // console.log("runBacktest called with:", { symbol, interval, strategy })
     if (!symbol || !interval || !strategy) {
-      alert("Please select symbol, interval, and strategy")
-      return
+      toast.error("Please select symbol, interval, and strategy")
+      return;
     }
     try {
       setIsRunningBacktest(true);
@@ -131,109 +134,11 @@ export default function Backtest() {
       }, 3000)
     } catch (error) {
       console.error("Error running backtest:", error)
-      alert(`Error running backtest: ${error.message}`)
+      toast.error(`Error running backtest: ${error.message}`)
     } finally {
       setIsRunningBacktest(false);
     }
   }
-
-  // Component to render HTML content in iframe
-  const HtmlRenderer = ({ htmlContent }) => {
-    const [iframeRef, setIframeRef] = useState(null)
-
-    useEffect(() => {
-      if (iframeRef && htmlContent) {
-        const iframe = iframeRef
-        const doc = iframe.contentDocument || iframe.contentWindow.document
-        doc.open()
-        doc.write(htmlContent)
-        doc.close()
-      }
-    }, [iframeRef, htmlContent])
-
-    return (
-      <div className="w-full flex justify-center">
-        <div
-          className="overflow-hidden"
-          style={{
-            transform: "scale(0.8)",
-            transformOrigin: "top left",
-            width: "125%",
-          }}
-        >
-          <iframe
-            ref={setIframeRef}
-            title="Backtest Result"
-            sandbox="allow-scripts allow-same-origin"
-            className="w-full border-0"
-            style={{
-              height: "1000px",
-              width: "100%",  
-            }}
-          />
-        </div>
-      </div>
-    )
-  }
-
-  const StrategyDropdown = ({ selectedStrategy, onChange }) => {
-    const [hoveredOption, setHoveredOption] = useState(null);
-    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-
-    const options = [
-      { id: "1", label: "MA30-MA90", desc: "Uses two moving averages (30 & 90) for trend detection." },
-      { id: "2", label: "MACD", desc: "Moving Average Convergence Divergence indicator for momentum." },
-      { id: "3", label: "RSI", desc: "Relative Strength Index to measure market momentum." },
-      { id: "4", label: "MA50-MA200", desc: "Uses long-term moving averages for crossover strategies." },
-    ];
-
-    const handleMouseEnter = (optId, event) => {
-      const rect = event.target.getBoundingClientRect();
-      setTooltipPosition({ 
-        x: rect.right + 8, 
-        y: rect.top 
-      });
-      setHoveredOption(optId);
-    };
-
-    return (
-      <div className="relative">
-        <select
-          value={selectedStrategy}
-          onChange={(e) => onChange(e)}
-          className="p-2 rounded-xl w-full bg-[var(--color-InputLine)] text-[var(--color-PrimaryText)] border border-[var(--color-Line)] focus:border-[var(--color-PrimaryColor)] cursor-pointer"
-          onMouseLeave={() => setHoveredOption(null)}
-        >
-          <option value="" disabled>
-            Select Strategy
-          </option>
-          {options.map((opt) => (
-            <option
-              key={opt.id}
-              value={opt.id}
-              onMouseEnter={(e) => handleMouseEnter(opt.id, e)}
-              title={opt.desc}
-            >
-              {opt.label}
-            </option>
-          ))}
-        </select>
-        
-        {/* Tooltip */}
-        {hoveredOption && (
-          <div 
-            className="fixed w-48 bg-gray-800 text-white text-sm p-2 rounded opacity-90 transition-opacity duration-200 z-50 pointer-events-none"
-            style={{ 
-              left: `${tooltipPosition.x}px`, 
-              top: `${tooltipPosition.y}px` 
-            }}
-          >
-            {options.find(opt => opt.id === hoveredOption)?.desc}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   // Handle start backtesting button click
   const handleStartBacktest = () => {
