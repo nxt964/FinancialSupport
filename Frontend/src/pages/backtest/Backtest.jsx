@@ -15,16 +15,14 @@ export default function Backtest() {
   const [selectedStrategy, setSelectedStrategy] = useState(strategy || "")
 
   const [isLoading, setIsLoading] = useState(false)
-
-  const [isRunningBacktest, setIsRunningBacktest] = useState(false);
-  const [backtestResults, setBacktestResults] = useState({})
+  const [isRunningBacktest, setIsRunningBacktest] = useState(false)
+  const [backtestResult, setBacktestResult] = useState("") // ✅ store only newest result
 
   //Fetch Symbols
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true)
-
         const resHotTrading = await httpClient.get(`${import.meta.env.VITE_API_BINANCE_HOT_TRADING}`)
         const dataHotTrading = await resHotTrading.json()
         setHotSymbols(dataHotTrading)
@@ -38,7 +36,6 @@ export default function Backtest() {
       }
       setIsLoading(false)
     }
-
     fetchData()
   }, [])
 
@@ -50,7 +47,6 @@ export default function Backtest() {
   const fetchSearchResults = async (keyword) => {
     try {
       setIsLoading(true)
-
       const res = await httpClient.get(`${import.meta.env.VITE_API_BINANCE_SEARCH}?keyword=${keyword}`)
       const data = await res.json()
       setSearchResults(data)
@@ -73,7 +69,6 @@ export default function Backtest() {
         fetchSearchResults(keyword)
       }
     }, 500)
-
     return () => clearTimeout(timer)
   }, [keyword, hotSymbols])
 
@@ -93,15 +88,13 @@ export default function Backtest() {
   }
 
   // Fetch backtest result with GET
-  const fetchBacktestResult = async (id) => {
+  const fetchBacktestResult = async () => {
     try {
-      setIsRunningBacktest(true);
       const response = await httpClient.get(`${import.meta.env.VITE_API_BACKTEST_RUN}`)
       if (response.ok) {
         const resultText = await response.text() // might be HTML/SVG
-        // console.log("📊 Backtest GET response:", resultText)
-        setBacktestResults((prev) => ({ ...prev, [id]: resultText }))
-        return true // success
+        setBacktestResult(resultText) // ✅ only keep newest result
+        return true
       } else {
         console.error("Failed to fetch backtest result", response.status)
         return false
@@ -109,41 +102,38 @@ export default function Backtest() {
     } catch (error) {
       console.error("Error fetching backtest result:", error)
       return false
-    } finally {
-      setIsRunningBacktest(false);
     }
   }
 
   // Run backtest with POST, then auto-poll GET until result is ready
-  const runBacktest = async (id, symbol, interval, strategy) => {
-    // console.log("runBacktest called with:", { symbol, interval, strategy })
+  const runBacktest = async (symbol, interval, strategy) => {
     if (!symbol || !interval || !strategy) {
       toast.error("Please select symbol, interval, and strategy")
-      return;
+      return
     }
     try {
-      setIsRunningBacktest(true);
+      setIsRunningBacktest(true)
       const jsonData = { symbol, interval, strategy }
       await httpClient.post(`${import.meta.env.VITE_API_BACKTEST_GET}`, jsonData)
+
       // Start polling every 3s until result is ready
       const pollInterval = setInterval(async () => {
-        const success = await fetchBacktestResult(id)
+        const success = await fetchBacktestResult()
         if (success) {
-          clearInterval(pollInterval) // stop polling
+          clearInterval(pollInterval)
+          setIsRunningBacktest(false) // ✅ reset when result is ready
         }
       }, 3000)
     } catch (error) {
       console.error("Error running backtest:", error)
       toast.error(`Error running backtest: ${error.message}`)
-    } finally {
-      setIsRunningBacktest(false);
+      setIsRunningBacktest(false)
     }
   }
 
   // Handle start backtesting button click
   const handleStartBacktest = () => {
-    const backtestId = `${selectedSymbol}-${selectedInterval}-${selectedStrategy}-${Date.now()}`
-    runBacktest(backtestId, selectedSymbol, selectedInterval, selectedStrategy)
+    runBacktest(selectedSymbol, selectedInterval, selectedStrategy)
   }
 
   return (
@@ -214,15 +204,24 @@ export default function Backtest() {
           <option value="4h">4 Hours</option>
           <option value="1d">1 Day</option>
         </select>
+
         <div className="m-5 col-span-1">
-        <StrategyDropdown selectedStrategy={selectedStrategy} onChange={(value) => {handleStrategyChange(value)}} />
-        </div> {/* Strategy Dropdown with tooltips */}
+          <StrategyDropdown selectedStrategy={selectedStrategy} onChange={(value) => {handleStrategyChange(value)}} />
+        </div>
+
         <button
           onClick={handleStartBacktest}
-          className="text-2xl font-semibold m-5 p-2 rounded-xl col-span-1 hover:opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!selectedSymbol || !selectedInterval || !selectedStrategy}
+          className="text-2xl font-semibold m-5 p-2 rounded-xl col-span-1 hover:opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          disabled={isRunningBacktest || !selectedSymbol || !selectedInterval || !selectedStrategy}
         >
-          Start Backtesting
+          {isRunningBacktest ? (
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 border-2 border-[var(--color-Line)] border-t-2 border-t-[var(--color-PrimaryColor)] rounded-full animate-spin"></div>
+              Running...
+            </div>
+          ) : (
+            "Start Backtesting"
+          )}
         </button>
       </div>
 
@@ -234,18 +233,16 @@ export default function Backtest() {
               <div className="flex justify-center items-center h-full">
                   <div className="w-10 h-10 border-2 border-[var(--color-Line)] border-t-2 border-t-[var(--color-PrimaryColor)] rounded-full animate-spin"></div>
               </div>
-            ) : Object.keys(backtestResults).length === 0
+            ) : backtestResult
                 ? (
-                  <div className="text-[var(--color-SecondaryText)]">Start a backtest to see results here.</div>
+                  <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
+                    <div className="h-full w-full rounded-lg">
+                      <HtmlRenderer htmlContent={backtestResult} className="w-full"/>
+                    </div>
+                  </div>
                 )
                 : (
-                  <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
-                    {Object.entries(backtestResults).map(([id, htmlContent]) => (
-                      <div key={id} className="h-full w-full rounded-lg">
-                        <HtmlRenderer htmlContent={htmlContent} className='w-full'/>
-                      </div>
-                    ))}
-                  </div>
+                  <div className="text-[var(--color-SecondaryText)]">Start a backtest to see results here.</div>
                 )
           }
         </div>
