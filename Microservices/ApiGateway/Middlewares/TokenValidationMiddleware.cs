@@ -125,9 +125,7 @@ public class TokenValidationMiddleware
                 {
                     UserId = validationResponse.UserId.ToString()!,
                     Email = validationResponse.Email!,
-                    Role = validationResponse.Role!,
-                    FirstName = validationResponse.Username!,
-                    LastName = validationResponse.Email!
+                    Role = validationResponse.Role!
                 };
             }
             return null;
@@ -144,7 +142,5 @@ public class TokenValidationMiddleware
         context.Request.Headers["X-User-Id"] = userContext.UserId;
         context.Request.Headers["X-User-Email"] = userContext.Email;
         context.Request.Headers["X-User-Role"] = userContext.Role;
-        context.Request.Headers["X-User-FirstName"] = userContext.FirstName;
-        context.Request.Headers["X-User-LastName"] = userContext.LastName;
     }
 }

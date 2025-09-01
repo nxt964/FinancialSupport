@@ -50,7 +50,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials()
-              .WithExposedHeaders("X-User-Id", "X-User-Email", "X-User-Role", "X-User-FirstName", "X-User-LastName");
+              .WithExposedHeaders("X-User-Id", "X-User-Email", "X-User-Role");
     });
 });
 
@@ -61,15 +61,17 @@ app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
-// Add Rate Limiting Middleware
-app.UseIpRateLimiting();
-app.UseClientRateLimiting();
-app.UseMiddleware<CustomRateLimitMiddleware>();
-
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 // Custom token validation middleware (replaces JWT authentication)
 app.UseMiddleware<TokenValidationMiddleware>();
+
+// Custom rate limiting middleware (sets ClientId based on user role)
+app.UseMiddleware<CustomRateLimitMiddleware>();
+
+// Add Rate Limiting Middleware (after custom middleware sets ClientId)
+app.UseIpRateLimiting();
+app.UseClientRateLimiting();
 
 app.UseCors();
 

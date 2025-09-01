@@ -145,22 +145,23 @@ class HttpClient {
     }
 
     try {
-      const response = await fetch(`${this.API_BASE_URL}/auth/refresh-token`, {
+      const response = await fetch(`${this.API_BASE_URL}/api/auth/refresh-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          refreshToken: this.refreshToken,
+          RefreshToken: this.refreshToken,
         }),
       });
 
       if (!response.ok) {
         throw new Error('Failed to refresh token');
       }
-
+      
       const data = await response.json();
-      this.setTokens(data.accessToken, data.refreshToken);
+      let result = data.result;
+      this.setTokens(result.accessToken, result.refreshToken);
       return data.accessToken;
     } catch (error) {
       this.clearTokens();
@@ -182,9 +183,10 @@ class HttpClient {
       const response = await fetch(url, options);
       
       // Handle 401 Unauthorized
-      if (response.status === 401 || response.status === 302) {
-        try {
-          const newAccessToken = await this.refreshAccessToken();
+      if (response.status === 401) {
+        try {          
+          const newAccessToken = await this.refreshAccessToken();          
+          
           // Retry the original request with new token
           options.headers = {
             ...options.headers,

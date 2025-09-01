@@ -87,6 +87,7 @@ export default function Header() {
     }, [keyword]);
 
     const truncateUsername = (username) => {
+        if(!username) return '';
         return username.length > 12 ? username.substring(0, 12) + '...' : username;
     };
 

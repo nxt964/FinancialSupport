@@ -251,7 +251,7 @@ export const AuthContextProvider = ({ children }) => {
         const userData = data.result;
         const userInfo = {
           id: userData.id,
-          userName: userData.userName,
+          userName: userData.username,
           email: userData.email,
           profileImage: userData.profileImage,
           role: userData.role
