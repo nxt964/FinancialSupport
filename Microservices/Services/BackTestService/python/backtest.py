@@ -2,7 +2,6 @@ import sys
 import os
 import json
 from datetime import datetime
-import math
 
 import pandas as pd
 from backtesting import Backtest, Strategy
@@ -37,7 +36,6 @@ print("Starting Automated Backtesting...")
 print("=" * 50)
 
 data_file = "/app/data/candles.json"
-request_file = "/app/data/request_data.json"
 print(f"Loading data from: {data_file}")
 
 # ---------------------------------------------------------
@@ -50,22 +48,6 @@ try:
 except Exception as e:
     print(f"ERROR: Could not load data file: {e}")
     sys.exit(1)
-
-# ---------------------------------------------------------
-# Load request data (for budget)
-# ---------------------------------------------------------
-budget = 10000  # default
-if os.path.exists(request_file):
-    try:
-        with open(request_file, "r") as f:
-            request_data = json.load(f)
-        if "budget" in request_data:
-            budget = float(request_data["budget"])
-        print(f"Using budget from request_data.json: {budget}")
-    except Exception as e:
-        print(f"WARNING: Could not read request_data.json, using default budget {budget}. Error: {e}")
-else:
-    print(f"No request_data.json found. Using default budget: {budget}")
 
 # ---------------------------------------------------------
 # Convert to DataFrame & clean
@@ -186,47 +168,35 @@ name, strategy_class = strategies_map[choice]
 print(f"Selected Strategy [{choice}]: {name}")
 
 # ---------------------------------------------------------
-# Safe float conversion for JSON
-# ---------------------------------------------------------
-def safe_float(value):
-    try:
-        if value is None or (isinstance(value, float) and (math.isnan(value) or math.isinf(value))):
-            return None
-        return float(value)
-    except Exception:
-        return None
-
-# ---------------------------------------------------------
 # Run backtest
 # ---------------------------------------------------------
 results_summary = []
 try:
-    bt = Backtest(df, strategy_class, cash=budget, finalize_trades=True)
+    bt = Backtest(df, strategy_class, cash=10000, finalize_trades=True)
     stats = bt.run()
 
-    # Extract metrics safely
-    total_return = safe_float(stats.get("Return [%]"))
-    sharpe_ratio = safe_float(stats.get("Sharpe Ratio"))
-    max_drawdown = safe_float(stats.get("Max. Drawdown [%]"))
-    win_rate = safe_float(stats.get("Win Rate [%]"))
-    total_trades = int(stats.get("# Trades", 0) or 0)
+    # Extract metrics
+    total_return = float(stats["Return [%]"])
+    sharpe_ratio = float(stats["Sharpe Ratio"])
+    max_drawdown = float(stats["Max. Drawdown [%]"])
+    win_rate = float(stats["Win Rate [%]"])
+    total_trades = int(stats["# Trades"])
 
     # Store results
     results_summary.append({
         "Strategy": name,
-        "Return [%]": round(total_return, 2) if total_return is not None else None,
-        "Sharpe Ratio": round(sharpe_ratio, 3) if sharpe_ratio is not None else None,
-        "Max Drawdown [%]": round(max_drawdown, 2) if max_drawdown is not None else None,
-        "Win Rate [%]": round(win_rate, 2) if win_rate is not None else None,
-        "Total Trades": total_trades,
-        #"Budget": budget
+        "Return [%]": round(total_return, 2),
+        "Sharpe Ratio": round(sharpe_ratio, 3),
+        "Max Drawdown [%]": round(max_drawdown, 2),
+        "Win Rate [%]": round(win_rate, 2),
+        "Total Trades": total_trades
     })
 
     print(f"SUCCESS: {name}")
-    print(f"  Return: {total_return:.2f}%" if total_return is not None else "  Return: N/A")
-    print(f"  Sharpe: {sharpe_ratio:.3f}" if sharpe_ratio is not None else "  Sharpe: N/A")
-    print(f"  Max DD: {max_drawdown:.2f}%" if max_drawdown is not None else "  Max DD: N/A")
-    print(f"  Win Rate: {win_rate:.2f}%" if win_rate is not None else "  Win Rate: N/A")
+    print(f"  Return: {total_return:.2f}%")
+    print(f"  Sharpe: {sharpe_ratio:.3f}")
+    print(f"  Max DD: {max_drawdown:.2f}%")
+    print(f"  Win Rate: {win_rate:.2f}%")
     print(f"  Trades: {total_trades}")
 
     # Save chart (delete if exists)
@@ -241,14 +211,16 @@ except Exception as e:
     print(f"ERROR: {name} failed - {e}")
     results_summary.append({
         "Strategy": name,
-        "Return [%]": None,
-        "Sharpe Ratio": None,
-        "Max Drawdown [%]": None,
-        "Win Rate [%]": None,
-        "Total Trades": 0,
-        #"Budget": budget
+        "Return [%]": "ERROR",
+        "Sharpe Ratio": "ERROR",
+        "Max Drawdown [%]": "ERROR",
+        "Win Rate [%]": "ERROR",
+        "Total Trades": "ERROR"
     })
 
+# ---------------------------------------------------------
+# Final Summary
+# ---------------------------------------------------------
 # ---------------------------------------------------------
 # Final Summary
 # ---------------------------------------------------------
@@ -259,17 +231,17 @@ print("=" * 50)
 summary_df = pd.DataFrame(results_summary)
 print(summary_df.to_string(index=False))
 
-# Save summary JSON
+# Save summary JSON (remove best strategy logic)
 result = results_summary[0] if results_summary else {
     "Strategy": name,
-    "Return [%]": None,
-    "Sharpe Ratio": None,
-    "Max Drawdown [%]": None,
-    "Win Rate [%]": None,
-    "Total Trades": 0,
-    #"Budget": budget
+    "Return [%]": "ERROR",
+    "Sharpe Ratio": "ERROR",
+    "Max Drawdown [%]": "ERROR",
+    "Win Rate [%]": "ERROR",
+    "Total Trades": "ERROR"
 }
 
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 json_file = f"plots/summary.json"
 with open(json_file, "w") as f:
     json.dump(result, f, indent=4)

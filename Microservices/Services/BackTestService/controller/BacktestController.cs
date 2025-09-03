@@ -49,13 +49,11 @@ public class BacktestController : ControllerBase
 
             if (string.IsNullOrWhiteSpace(request.Strategy))
                 return BadRequest("Strategy is required.");
-            if (string.IsNullOrWhiteSpace(request.Budget))
-                return BadRequest("Budget is required.");
+            
             Console.WriteLine($"Received backtest request:");
             Console.WriteLine($"Symbol: {request.Symbol}");
             Console.WriteLine($"Interval: {request.Interval}");
             Console.WriteLine($"Strategy: {request.Strategy}");
-            Console.WriteLine($"Budget: {request.Budget}");
 
             var filePath = await _binanceService.DownloadCandles(request.Symbol, request.Interval);
 
@@ -113,5 +111,4 @@ public class BacktestRequest
     public string Symbol { get; set; }
     public string Interval { get; set; }
     public string Strategy { get; set; }
-    public string Budget { get; set; }
 }
