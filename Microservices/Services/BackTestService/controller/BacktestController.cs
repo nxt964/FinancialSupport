@@ -10,8 +10,8 @@ public class BacktestController : ControllerBase
     private readonly SendBacktestResult _sendBacktestResult;
 
     public BacktestController(
-        BinanceService binanceService, 
-        BacktestRunner backtestRunner, 
+        BinanceService binanceService,
+        BacktestRunner backtestRunner,
         SendBacktestResult sendBacktestResult)
     {
         _binanceService = binanceService;
@@ -49,11 +49,13 @@ public class BacktestController : ControllerBase
 
             if (string.IsNullOrWhiteSpace(request.Strategy))
                 return BadRequest("Strategy is required.");
-
+            if (string.IsNullOrWhiteSpace(request.Budget))
+                return BadRequest("Budget is required.");
             Console.WriteLine($"Received backtest request:");
             Console.WriteLine($"Symbol: {request.Symbol}");
             Console.WriteLine($"Interval: {request.Interval}");
             Console.WriteLine($"Strategy: {request.Strategy}");
+            Console.WriteLine($"Budget: {request.Budget}");
 
             var filePath = await _binanceService.DownloadCandles(request.Symbol, request.Interval);
 
@@ -92,6 +94,17 @@ public class BacktestController : ControllerBase
 
         return PhysicalFile(filePath, "text/html");
     }
+
+    [HttpGet("summary-file")]
+    public IActionResult GetSummaryFile()
+    {
+        var filePath = _sendBacktestResult.GetSummaryFilePath();
+        if (!System.IO.File.Exists(filePath))
+            return NotFound("Summary file not found.");
+
+        var fileContent = System.IO.File.ReadAllText(filePath);
+        return Content(fileContent, "application/json");
+    }
 }
 
 // ✅ DTO class should stay OUTSIDE the controller class
@@ -100,4 +113,5 @@ public class BacktestRequest
     public string Symbol { get; set; }
     public string Interval { get; set; }
     public string Strategy { get; set; }
+    public string Budget { get; set; }
 }

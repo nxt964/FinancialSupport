@@ -20,5 +20,10 @@ namespace BacktestService.Services
         {
             return Path.Combine(_dataFolder, fileName);
         }
+
+        public string GetSummaryFilePath(string fileName = "summary.json")
+        {
+            return Path.Combine(_dataFolder, fileName);
+        }
     }
 }

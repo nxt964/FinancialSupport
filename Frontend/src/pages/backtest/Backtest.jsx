@@ -16,7 +16,8 @@ export default function Backtest() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [isRunningBacktest, setIsRunningBacktest] = useState(false)
-  const [backtestResult, setBacktestResult] = useState("") // ✅ store only newest result
+  const [backtestResult, setBacktestResult] = useState("") 
+  const [backtestSummary, setBacktestSummary] = useState(null) // ✅ store summary
 
   //Fetch Symbols
   useEffect(() => {
@@ -87,13 +88,31 @@ export default function Backtest() {
     setSelectedStrategy(e.target.value)
   }
 
+  const fetchBacktestReport = async () =>{
+    try {
+      const response = await httpClient.get(`${import.meta.env.VITE_API_BACKTEST_SUM}`)
+      if (response.ok) {
+        const summary = await response.json()
+        setBacktestSummary(summary) // ✅ save to state
+        return true
+      }
+      else {
+        console.error("Failed to fetch backtest summary", response.status)
+        return false
+      }
+    } catch (error) {
+      console.error("Error fetching backtest summary:", error)
+      return false
+    }
+  }
+
   // Fetch backtest result with GET
   const fetchBacktestResult = async () => {
     try {
       const response = await httpClient.get(`${import.meta.env.VITE_API_BACKTEST_RUN}`)
       if (response.ok) {
         const resultText = await response.text() // might be HTML/SVG
-        setBacktestResult(resultText) // ✅ only keep newest result
+        setBacktestResult(resultText) 
         return true
       } else {
         console.error("Failed to fetch backtest result", response.status)
@@ -113,15 +132,20 @@ export default function Backtest() {
     }
     try {
       setIsRunningBacktest(true)
+      setBacktestResult("")       
+      setBacktestSummary(null)    
+
       const jsonData = { symbol, interval, strategy }
       await httpClient.post(`${import.meta.env.VITE_API_BACKTEST_GET}`, jsonData)
 
       // Start polling every 3s until result is ready
       const pollInterval = setInterval(async () => {
-        const success = await fetchBacktestResult()
-        if (success) {
+        const gotSummary = await fetchBacktestReport()
+        const gotResult = await fetchBacktestResult()
+
+        if (gotSummary && gotResult) {
           clearInterval(pollInterval)
-          setIsRunningBacktest(false) // ✅ reset when result is ready
+          setIsRunningBacktest(false) 
         }
       }, 3000)
     } catch (error) {
@@ -233,17 +257,34 @@ export default function Backtest() {
               <div className="flex justify-center items-center h-full">
                   <div className="w-10 h-10 border-2 border-[var(--color-Line)] border-t-2 border-t-[var(--color-PrimaryColor)] rounded-full animate-spin"></div>
               </div>
-            ) : backtestResult
-                ? (
-                  <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
-                    <div className="h-full w-full rounded-lg">
-                      <HtmlRenderer htmlContent={backtestResult} className="w-full"/>
+            ) : backtestResult && backtestSummary ? (
+              <>
+                {/* Chart + Summary wrapper */}
+                 <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
+                  <div className="w-full rounded-lg">
+                    {/* Chart */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-2 px-36">
+                      {Object.entries(backtestSummary).map(([key, value]) => (
+                        <div
+                          key={key}
+                          className="p-3 rounded-xl bg-[var(--color-InputLine)] border border-[var(--color-Line)] shadow"
+                        >
+                          <div className="text-sm text-[var(--color-TertiaryText)] capitalize">{key}</div>
+                          <div className="text-lg font-semibold text-[var(--color-PrimaryText)]">{value}</div>
+                        </div>
+                      ))}
                     </div>
+                    <HtmlRenderer htmlContent={backtestResult} className="w-full" />
+
+                    {/* Summary Board */}
+                    
                   </div>
-                )
-                : (
-                  <div className="text-[var(--color-SecondaryText)]">Start a backtest to see results here.</div>
-                )
+                </div>
+
+              </>
+            ) : (
+              <div className="text-[var(--color-SecondaryText)]">Start a backtest to see results here.</div>
+            )
           }
         </div>
       </div>
