@@ -2,6 +2,7 @@ import sys
 import os
 import json
 from datetime import datetime
+import math
 
 import pandas as pd
 from backtesting import Backtest, Strategy
@@ -9,7 +10,7 @@ from backtesting.lib import crossover
 import talib
 
 # ---------------------------------------------------------
-# Parse strategy choice from CLI (expects 1..4; defaults to 1)
+# Helpers
 # ---------------------------------------------------------
 def parse_choice() -> int:
     choice = 0
@@ -23,6 +24,18 @@ def parse_choice() -> int:
         print(f"Invalid choice {choice}, defaulting to 1")
         choice = 1
     return choice
+
+
+def safe_float(val):
+    """Convert to float if valid, else None"""
+    try:
+        f = float(val)
+        if math.isnan(f) or math.isinf(f):
+            return None
+        return f
+    except Exception:
+        return None
+
 
 choice = parse_choice()
 
@@ -39,7 +52,7 @@ data_file = "/app/data/candles.json"
 print(f"Loading data from: {data_file}")
 
 # ---------------------------------------------------------
-# Load JSON data 
+# Load JSON data
 # ---------------------------------------------------------
 try:
     with open(data_file, "r") as f:
@@ -175,28 +188,28 @@ try:
     bt = Backtest(df, strategy_class, cash=10000, finalize_trades=True)
     stats = bt.run()
 
-    # Extract metrics
-    total_return = float(stats["Return [%]"])
-    sharpe_ratio = float(stats["Sharpe Ratio"])
-    max_drawdown = float(stats["Max. Drawdown [%]"])
-    win_rate = float(stats["Win Rate [%]"])
-    total_trades = int(stats["# Trades"])
+    # Extract metrics safely
+    total_return = safe_float(stats.get("Return [%]"))
+    sharpe_ratio = safe_float(stats.get("Sharpe Ratio"))
+    max_drawdown = safe_float(stats.get("Max. Drawdown [%]"))
+    win_rate = safe_float(stats.get("Win Rate [%]"))
+    total_trades = int(stats.get("# Trades", 0))
 
     # Store results
     results_summary.append({
         "Strategy": name,
-        "Return [%]": round(total_return, 2),
-        "Sharpe Ratio": round(sharpe_ratio, 3),
-        "Max Drawdown [%]": round(max_drawdown, 2),
-        "Win Rate [%]": round(win_rate, 2),
+        "Return [%]": round(total_return, 2) if total_return is not None else None,
+        "Sharpe Ratio": round(sharpe_ratio, 3) if sharpe_ratio is not None else None,
+        "Max Drawdown [%]": round(max_drawdown, 2) if max_drawdown is not None else None,
+        "Win Rate [%]": round(win_rate, 2) if win_rate is not None else None,
         "Total Trades": total_trades
     })
 
     print(f"SUCCESS: {name}")
-    print(f"  Return: {total_return:.2f}%")
-    print(f"  Sharpe: {sharpe_ratio:.3f}")
-    print(f"  Max DD: {max_drawdown:.2f}%")
-    print(f"  Win Rate: {win_rate:.2f}%")
+    print(f"  Return: {total_return if total_return is not None else 'N/A'}")
+    print(f"  Sharpe: {sharpe_ratio if sharpe_ratio is not None else 'N/A'}")
+    print(f"  Max DD: {max_drawdown if max_drawdown is not None else 'N/A'}")
+    print(f"  Win Rate: {win_rate if win_rate is not None else 'N/A'}")
     print(f"  Trades: {total_trades}")
 
     # Save chart (delete if exists)
@@ -211,16 +224,13 @@ except Exception as e:
     print(f"ERROR: {name} failed - {e}")
     results_summary.append({
         "Strategy": name,
-        "Return [%]": "ERROR",
-        "Sharpe Ratio": "ERROR",
-        "Max Drawdown [%]": "ERROR",
-        "Win Rate [%]": "ERROR",
-        "Total Trades": "ERROR"
+        "Return [%]": None,
+        "Sharpe Ratio": None,
+        "Max Drawdown [%]": None,
+        "Win Rate [%]": None,
+        "Total Trades": None
     })
 
-# ---------------------------------------------------------
-# Final Summary
-# ---------------------------------------------------------
 # ---------------------------------------------------------
 # Final Summary
 # ---------------------------------------------------------
@@ -234,17 +244,17 @@ print(summary_df.to_string(index=False))
 # Save summary JSON (remove best strategy logic)
 result = results_summary[0] if results_summary else {
     "Strategy": name,
-    "Return [%]": "ERROR",
-    "Sharpe Ratio": "ERROR",
-    "Max Drawdown [%]": "ERROR",
-    "Win Rate [%]": "ERROR",
-    "Total Trades": "ERROR"
+    "Return [%]": None,
+    "Sharpe Ratio": None,
+    "Max Drawdown [%]": None,
+    "Win Rate [%]": None,
+    "Total Trades": None
 }
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 json_file = f"plots/summary.json"
 with open(json_file, "w") as f:
-    json.dump(result, f, indent=4)
+    json.dump(result, f, indent=4, allow_nan=False)
 
 print(f"\nSummary saved: {json_file}")
 print("Charts saved in: plots/")
